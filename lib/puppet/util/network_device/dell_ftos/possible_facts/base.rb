@@ -46,31 +46,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       match /(.*)\sForty GigabitEthernet/
       cmd CMD_SHOW_VERSION
     end
-
-    base.register_param 'vlan_attributes' do
-      res = {}
-      match do |txt|
-        portsglobal = ""
-        vlanglobal = ""
-        txt.each_line do |line|
-          line.scan(/^(\*|\s)\s+(\S+\b)\s+(\S+\b)\s+(.*)\s+(U|T|x|X|G|M|H|i|I|v|V)\s+(.*)/).inject({}) do |resign, (star, vlan, status, desc, qualifier, ports)|
-            vlanglobal=vlan
-            portsglobal = qualifier + " " + ports
-            res["vlan"+vlanglobal+"_ports"] = portsglobal
-            res["vlan"+vlan+"_description"] = desc
-            res["vlan"+vlan+"_status"] = status
-          end
-
-          line.scan(/^\s*(U|T|x|X|G|M|H|i|I|v|V)\s*([^\-]\b.*\b)/).inject({}) do |res1, (qualifier, ports)|
-            portsglobal = portsglobal + " , " + qualifier + " " + ports
-            res["vlan"+vlanglobal+"_ports"] = portsglobal
-          end
-        end
-        res
-      end
-      cmd CMD_SHOW_VLAN
-    end
-
+    
     base.register_param ['system_management_unit_status'] do
       match /^.*Management\s*(\w*\b).*/
       cmd   CMD_SHOW_SYSTEM_BRIEF
