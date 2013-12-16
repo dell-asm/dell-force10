@@ -9,7 +9,6 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Facts
   include Puppet::Util::NetworkDevice::Dsl
 
   attr_reader :transport
-
   def initialize(transport)
     @transport = transport
   end

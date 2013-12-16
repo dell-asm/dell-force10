@@ -3,7 +3,6 @@ require 'puppet/util/network_device/transport_ftos'
 
 class Puppet::Util::NetworkDevice::Transport_ftos::Base_ftos
   attr_accessor :user, :password, :host, :port, :default_prompt, :timeout, :cache
-
   def initialize
     @timeout = 10
     @cache = {}

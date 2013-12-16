@@ -1,7 +1,6 @@
 require 'puppet/util'
 
 module Puppet::Util::HostListProp
-
   def newhostlistprop(name, options = {}, &block)
     # hostlists do array_matching all by default
     options[:array_matching] ||= :all

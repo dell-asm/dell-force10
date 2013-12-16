@@ -4,7 +4,6 @@ require 'puppet/util/network_device/value_helper'
 class Puppet::Util::NetworkDevice::Dell_ftos::Fact
   attr_accessor :name, :idx, :value, :evaluated
   extend Puppet::Util::NetworkDevice::ValueHelper
-
   def initialize(name, transport, facts = nil, idx = 0, &block)
     @name = name
     @idx = idx

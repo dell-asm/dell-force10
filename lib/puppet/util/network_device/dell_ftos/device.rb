@@ -2,13 +2,13 @@ require 'puppet'
 require 'puppet/util'
 require 'puppet/util/network_device/base_ftos'
 require 'puppet/util/network_device/dell_ftos/facts'
+
 #require 'puppet/util/network_device/dell_ftos/model'
 #require 'puppet/util/network_device/dell_ftos/model/switch'
 
 class Puppet::Util::NetworkDevice::Dell_ftos::Device < Puppet::Util::NetworkDevice::Base_ftos
 
   attr_accessor :enable_password, :switch
-
   def initialize(url, options = {})
     super(url)
     @enable_password = options[:enable_password] || parse_enable(@url.query)

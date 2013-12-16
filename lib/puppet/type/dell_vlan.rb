@@ -6,14 +6,14 @@ Puppet::Type.newtype(:dell_vlan) do
   ensurable
 
   newparam(:name) do
-    isnamevar   
-  end  
+    isnamevar
+  end
 
- newproperty(:vlanid) do
+  newproperty(:vlanid) do
     newvalues(/^\d+$/)
 
     validate do |value|
-      raise ArgumentError, "Must only contain Integers" unless value.to_s.match(/^\d+$/)     
+      raise ArgumentError, "Must only contain Integers" unless value.to_s.match(/^\d+$/)
     end
   end
 end

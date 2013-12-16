@@ -6,7 +6,6 @@ require 'puppet/util/network_device/transport_ftos/base_ftos'
 
 class Puppet::Util::NetworkDevice::Base_ftos
   attr_accessor :url, :transport, :crypt
-
   def initialize(url)
     @url = URI.parse(url)
     @query = CGI.parse(@url.query) if @url.query

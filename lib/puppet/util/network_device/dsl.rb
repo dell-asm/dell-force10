@@ -2,7 +2,6 @@ require 'puppet/util/network_device'
 require 'puppet/util/network_device/sorter'
 
 module Puppet::Util::NetworkDevice::Dsl
-
   def register_param(params, klass = nil, &block)
     # Make it so that we can register multiple Params at the same time
     # and assign every Param an index number that must match the Regex

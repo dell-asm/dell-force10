@@ -3,7 +3,6 @@ require 'puppet/util'
 # defines a shortcut to create properties with a single IP address
 # as value
 module Puppet::Util::IpProp
-
   def newipprop(name, options = {}, &block)
 
     newproperty(name, options) do

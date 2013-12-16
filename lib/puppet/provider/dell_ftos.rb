@@ -9,7 +9,7 @@ class Puppet::Provider::Dell_ftos < Puppet::Provider
 
   def self.prefetch(resources)
     resources.each do |name, resource|
-      device = Puppet::Util::NetworkDevice.current || device(resource[:device_url])      
+      device = Puppet::Util::NetworkDevice.current || device(resource[:device_url])
     end
   end
 end

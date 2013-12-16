@@ -2,10 +2,8 @@ require 'puppet/util/network_device'
 require 'puppet/util/network_device/transport_ftos'
 require 'puppet/util/network_device/transport_ftos/base_ftos'
 
-
 class Puppet::Util::NetworkDevice::Transport_ftos::Ssh < Puppet::Util::NetworkDevice::Transport_ftos::Base_ftos
   attr_accessor :buf, :ssh, :channel
-
   def initialize
     super
     unless Puppet.features.ssh?

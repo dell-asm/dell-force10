@@ -5,7 +5,53 @@
   "author": "",
   "description": "",
   "dependencies": [],
-  "types": [],
+  "types": [
+    {
+      "properties": [
+        {
+          "name": "returns"
+        }
+      ],
+      "parameters": [
+        {
+          "name": "name"
+        },
+        {
+          "name": "command"
+        },
+        {
+          "name": "context"
+        }
+      ],
+      "providers": [
+        {
+          "name": "dell_ftos"
+        }
+      ],
+      "name": "dell_exec",
+      "doc": "A generic way to execute various commands on a router or switch."
+    },
+    {
+      "properties": [
+        {
+          "name": "vlanid"
+        }
+      ],
+      "parameters": [
+        {
+          "name": "name"
+        }
+      ],
+      "providers": [
+        {
+          "name": "dell_ftos",
+          "doc": "Dell Force10 Switch Provider for VLAN Configuration."
+        }
+      ],
+      "name": "dell_vlan",
+      "doc": "This represents a vlan configuration on a router or switch."
+    }
+  ],
   "checksums": {},
   "source": "",
   "project_page": "",

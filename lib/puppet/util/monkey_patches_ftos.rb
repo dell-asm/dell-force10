@@ -1,10 +1,12 @@
 require 'puppet/util'
+
 module Puppet::Util::MonkeyPatchesFtos
 end
 
 # This is here so we can make proper use of ipaddr in arrays on 1.8.7
 if RUBY_VERSION == '1.8.7'
   require 'ipaddr'
+
   class IPAddr
     def eql?(other)
       return self.class == other.class && self.hash == other.hash && self == other
