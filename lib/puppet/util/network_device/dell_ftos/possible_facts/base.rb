@@ -37,26 +37,47 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       after 'uptime_seconds'
     end
 
+    base.register_param '48_port_interfaces' do
+      #match /(.*)\s48-port E\/FE\/GE \(SD\)/
+      match do |txt|
+        item = txt.scan(/(.*)\s48-port E\/FE\/GE \(SD\)/).flatten.first
+        item.strip unless item.nil?
+      end
+      cmd CMD_SHOW_VERSION
+    end
+
     base.register_param '52_port_interfaces' do
       #match /(.*)\s52-port GE\/TE\/FG \(SE\)/
       match do |txt|
-        txt.scan(/(.*)\s52-port GE\/TE\/FG \(SE\)/).flatten.first.strip
+        item = txt.scan(/(\d*)\s52-port GE\/TE\/FG \(SE\)/).flatten.first
+        item.strip unless item.nil?
       end
       cmd CMD_SHOW_VERSION
     end
 
-    base.register_param 'ten_gigabitethernet_interfaces' do
+    base.register_param 'gigabit_ethernet_interfaces' do
+      #match /(.*)\sGigabitEthernet/
+      match do |txt|
+        item = txt.scan(/(\d*)\sGigabitEthernet/).flatten.first
+        item.strip unless item.nil?
+      end
+      cmd CMD_SHOW_VERSION
+    end
+
+    base.register_param 'ten_gigabit_ethernet_interfaces' do
       #match /(.*)\sTen GigabitEthernet/
       match do |txt|
-        txt.scan(/(.*)\sTen GigabitEthernet/).flatten.first.strip
+        item = txt.scan(/(\d*)\sTen GigabitEthernet/).flatten.first
+        item.strip unless item.nil?
       end
       cmd CMD_SHOW_VERSION
     end
 
-    base.register_param 'forty_gigabitethernet_interfaces' do
+    base.register_param 'forty_gigabit_ethernet_interfaces' do
       #match /(.*)\sForty GigabitEthernet/
       match do |txt|
-        txt.scan(/(.*)\sForty GigabitEthernet/).flatten.first.strip
+        item = txt.scan(/(\d*)\sForty GigabitEthernet/).flatten.first
+        item.strip unless item.nil?
       end
       cmd CMD_SHOW_VERSION
     end
@@ -98,9 +119,11 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
           if line =~ /^Software\s+Protocol\s+Configured\s+$/ then
             i=0
             line.split(/\r?\n/).map do |item|
-              special = "?<>',?[]}{=-)(*&^%$#`~{}"
+              #Puppet.debug("Item******: OUT #{item}")
+              #removed "-" since it is valid char in protocol like Spanning-Tree
+              special = "?<>',?[]}{=)(*&^%$#`~{}"
               regexSpecial = /[#{special.gsub(/./){|char| "\\#{char}"}}]/
-              if item.nil? || item.empty? || item =~ regexSpecial || item =~ /^Software\s+Protocol\s+Configured\s+$/ || item =~ /^\s+$/ then
+              if item.nil? || item.empty? || item =~ regexSpecial || item =~ /^Software\s+Protocol\s+Configured\s+$/ || item =~ /^\s+$/ || item =~ /^-{2,}+$/ then
                 next
               else
                 #Puppet.debug("Match Protocol******: OUT #{item}")
