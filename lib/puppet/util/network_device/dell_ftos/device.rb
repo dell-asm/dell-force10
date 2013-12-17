@@ -67,6 +67,10 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Device < Puppet::Util::NetworkDevi
   def facts
     # This is here till we can fork Puppet
     init
-    @facts.facts_to_hash
+    #Puppet.debug("Host******: OUT #{@url.host}")
+    facts = @facts.facts_to_hash
+    # inject switch ip or fqdn info.
+    facts['fqdn'] = @url.host
+    facts
   end
 end
