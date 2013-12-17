@@ -40,7 +40,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
     base.register_param '52_port_interfaces' do
       #match /(.*)\s52-port GE\/TE\/FG \(SE\)/
       match do |txt|
-        txt.scan(/(.*)\s52-port GE\/TE\/FG \(SE\)/).flatten.first.strip!
+        txt.scan(/(.*)\s52-port GE\/TE\/FG \(SE\)/).flatten.first.strip
       end
       cmd CMD_SHOW_VERSION
     end
@@ -48,7 +48,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
     base.register_param 'ten_gigabitethernet_interfaces' do
       #match /(.*)\sTen GigabitEthernet/
       match do |txt|
-        txt.scan(/(.*)\sTen GigabitEthernet/).flatten.first.strip!
+        txt.scan(/(.*)\sTen GigabitEthernet/).flatten.first.strip
       end
       cmd CMD_SHOW_VERSION
     end
@@ -56,7 +56,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
     base.register_param 'forty_gigabitethernet_interfaces' do
       #match /(.*)\sForty GigabitEthernet/
       match do |txt|
-        txt.scan(/(.*)\sForty GigabitEthernet/).flatten.first.strip!
+        txt.scan(/(.*)\sForty GigabitEthernet/).flatten.first.strip
       end
       cmd CMD_SHOW_VERSION
     end
@@ -105,7 +105,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
               else
                 #Puppet.debug("Match Protocol******: OUT #{item}")
                 i=i+1
-                res["software_protocol_configured_#{i}"] = item.strip!
+                res["software_protocol_configured_#{i}"] = item.strip
               end
             end
           end
