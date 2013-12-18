@@ -1,7 +1,8 @@
-Puppet::Type.newtype(:dell_exec) do
+Puppet::Type.newtype(:force10_exec) do
   @doc = "A generic way to execute various commands on a router or switch."
 
   apply_to_device
+
   def self.newcheck(name, options = {}, &block)
     @checks ||= {}
     check = newparam(name, options, &block)
@@ -29,6 +30,7 @@ Puppet::Type.newtype(:dell_exec) do
 
   newcheck(:refreshonly) do
     newvalues(:true, :false)
+
     def check(value)
       if value == :true
         false
@@ -64,7 +66,6 @@ Puppet::Type.newtype(:dell_exec) do
     def sync
       event = :executed_command
       out = provider.run(self.resource[:command], self.resource[:context])
-
       unless out.match(self.should)
         self.fail("output of command: #{self.resource[:command]} does not match expected return value: #{self.should}")
       end

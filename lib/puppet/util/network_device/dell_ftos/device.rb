@@ -2,9 +2,8 @@ require 'puppet'
 require 'puppet/util'
 require 'puppet/util/network_device/base_ftos'
 require 'puppet/util/network_device/dell_ftos/facts'
-
-#require 'puppet/util/network_device/dell_ftos/model'
-#require 'puppet/util/network_device/dell_ftos/model/switch'
+require 'puppet/util/network_device/dell_ftos/model'
+require 'puppet/util/network_device/dell_ftos/model/switch'
 
 class Puppet::Util::NetworkDevice::Dell_ftos::Device < Puppet::Util::NetworkDevice::Base_ftos
 
@@ -48,7 +47,7 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Device < Puppet::Util::NetworkDevi
     unless @initialized
       connect_transport
       init_facts
-      #init_switch
+      init_switch
       @initialized = true
     end
     return self
