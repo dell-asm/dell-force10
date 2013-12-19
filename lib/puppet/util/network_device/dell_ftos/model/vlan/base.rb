@@ -2,7 +2,6 @@ require 'puppet/util/network_device/dell_ftos/model'
 require 'puppet/util/network_device/dell_ftos/model/vlan'
 
 module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
-
   def self.register(base)
     vlan_scope = /^((\d+)\s+(.*))/
     
@@ -27,6 +26,26 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("name #{value}")
       end
       remove { |*_| }
+    end
+
+   base.register_scoped :tagged_interfaces, vlan_scope do 
+      match do |txt|
+     end
+      cmd 'show vlan'
+      add do |transport, value|
+        transport.command("tagged #{value}")
+      end 
+	remove { |*_| } 
+   end
+
+   base.register_scoped :un_tagged_interfaces, vlan_scope do      
+       match do |txt|
+       end
+      cmd 'show vlan'     
+       add do |transport, value|
+        transport.command("untagged #{value}")
+      end 
+	remove { |*_| } 
     end
   end
 end
