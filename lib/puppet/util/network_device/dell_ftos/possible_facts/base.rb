@@ -147,6 +147,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       cmd CMD_SHOW_INVENTORY
     end
 
+    # Display Layer 2 information about the interfaces in json format.
     base.register_param 'interfaces' do
       interfaces = {}
       interface = nil
@@ -155,7 +156,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
           case line
           when /^Name:\s+(.*)/
             #Puppet.debug("Name: #{$1}")
-            interface = { :name => $1.strip, :description =>"", :unTaggedVLANS => "", :taggedVLANS => ""}
+            interface = { :name => $1.strip, :description =>"", :untaggedVLANs => "", :taggedVLANs => ""}
             interfaces[interface[:name]] = interface
           when /^Description:\s+(.*)/
             raise "Invalid show interfaces switchport output" unless interface
@@ -163,12 +164,12 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
             interface[:description] = $1.strip
           when /^(U)\s+(.*)/
             raise "Invalid show interfaces switchport output" unless interface
-            #Puppet.debug("#{$1} unTaggedVLANS #{$2}")
-            interface[:unTaggedVLANS] = $2.strip
+            #Puppet.debug("#{$1} untaggedVLANs #{$2}")
+            interface[:untaggedVLANs] = $2.strip
           when /^(T)\s+(.*)/
             raise "Invalid show interfaces switchport output" unless interface
-            #Puppet.debug("#{$1} taggedVLANS #{$2}")
-            interface[:taggedVLANS] = $2.strip
+            #Puppet.debug("#{$1} taggedVLANs #{$2}")
+            interface[:taggedVLANs] = $2.strip
           else
             next
           end
@@ -178,6 +179,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       cmd CMD_SHOW_INTERFACES
     end
 
+    # Display VLAN configuration in JSON format
     base.register_param 'vlans' do
       vlans = {}
       vlan = nil
