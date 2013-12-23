@@ -2,10 +2,25 @@ require 'puppet/util/network_device/dell_ftos/model'
 require 'puppet/util/network_device/dell_ftos/model/vlan'
 
 module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
+  
+  def self.ifprop(base, param, base_command = param, &block)
+    base.register_scoped param, /^(interface Vlan\s+(\S+).*?)^!/m do
+      cmd 'sh run'
+      match /^\s*#{base_command}\s+(.*?)\s*$/
+      add do |transport, value|       
+        transport.command("#{base_command} #{value}")
+      end
+      remove do |transport, old_value|
+        transport.command("no #{base_command} #{old_value}")
+      end
+      evaluate(&block) if block
+    end
+  end
+
+  
   def self.register(base)
-    vlan_scope = /^((\d+)\s+(.*))/
     
-    base.register_scoped :ensure, vlan_scope do
+	ifprop(base, :ensure) do
       match do |txt|
         unless txt.nil?
           txt.match(/\S+/) ? :present : :absent
@@ -13,39 +28,62 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
           :absent
         end
       end
-      cmd 'show vlan'
-      default :absent
+	  default :absent         
       add { |*_| }
       remove { |*_| }
     end
-    
-    base.register_scoped :desc, vlan_scope do
-      match /^\d+\s(\S+)/
-      cmd 'show vlan'
+	
+    ifprop(base, :desc) do      
       add do |transport, value|
         transport.command("name #{value}")
       end
       remove { |*_| }
     end
 
-   base.register_scoped :tagged_interfaces, vlan_scope do 
-      match do |txt|
-     end
-      cmd 'show vlan'
-      add do |transport, value|
-        transport.command("tagged #{value}")
-      end 
-	remove { |*_| } 
-   end
-
-   base.register_scoped :un_tagged_interfaces, vlan_scope do      
-       match do |txt|
-       end
-      cmd 'show vlan'     
-       add do |transport, value|
-        transport.command("untagged #{value}")
-      end 
-	remove { |*_| } 
+	
+	base.register_scoped :tagged_tengigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do      
+      match /^\s*tagged TenGigabitEthernet\s+(.*?)\s*$/
+	  cmd 'sh run'
+      add do |transport, value|        
+        transport.command("tagged TenGigabitEthernet #{value}")
+      end
+      remove do |transport, old_value|        
+        transport.command("no tagged TenGigabitEthernet #{old_value}")
+      end      
     end
+	
+	base.register_scoped :tagged_portchannel, /^(interface Vlan\s+(\S+).*?)^!/m do      
+      match /^\s*tagged Port-channel\s+(.*?)\s*$/
+	  cmd 'sh run'
+      add do |transport, value|        
+        transport.command("tagged Port-channel #{value}")
+      end
+      remove do |transport, old_value|        
+        transport.command("no tagged Port-channel #{old_value}")
+      end      
+    end
+	
+	base.register_scoped :tagged_gigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do      
+      match /^\s*tagged GigabitEthernet\s+(.*?)\s*$/
+	  cmd 'sh run'
+      add do |transport, value|        
+        transport.command("tagged GigabitEthernet #{value}")
+      end
+      remove do |transport, old_value|        
+        transport.command("no tagged GigabitEthernet #{old_value}")
+      end      
+    end
+	
+	base.register_scoped :tagged_sonet, /^(interface Vlan\s+(\S+).*?)^!/m do      
+      match /^\s*tagged Sonet\s+(.*?)\s*$/
+	  cmd 'sh run'
+      add do |transport, value|        
+        transport.command("tagged Sonet #{value}")
+      end
+      remove do |transport, old_value|        
+        transport.command("no tagged Sonet #{old_value}")
+      end      
+    end	
+      
   end
 end

@@ -5,6 +5,15 @@ Puppet::Type.newtype(:force10_config) do
 
   newparam(:name) do
     isnamevar
+	validate do |name|
+      raise ArgumentError, "name' should be a string" unless name.is_a? String
+    end  
+ 
+   validate do |value|
+    return if value == :absent
+    raise ArgumentError, "'name' should be a string with max 100 characters" unless value.length <= 100
+    end 
+	newvalues(/^(\w\s*)*?$/)
   end
 
   newparam(:url) do     
@@ -15,6 +24,12 @@ Puppet::Type.newtype(:force10_config) do
 
   newparam(:startup_config) do
     desc "Whether the provided configuration is startup configuration or running configuration"
+    newvalues(:true, :false)
+    defaultto :false
+  end
+  
+  newparam(:force) do
+    desc "Whether the provided configuration has to be applied in force"
     newvalues(:true, :false)
     defaultto :false
   end
@@ -41,7 +56,7 @@ Puppet::Type.newtype(:force10_config) do
     def sync
    
       event = :executed_command
-      out = provider.run(self.resource[:url], self.resource[:startup_config]) 
+      out = provider.run(self.resource[:url], self.resource[:startup_config],self.resource[:force]) 
       event
     end
   end

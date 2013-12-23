@@ -43,8 +43,7 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan < Puppet::Util::Networ
         next if param.name == :ensure
         param.update(@transport, is[param.name]) unless is[param.name] == should[param.name]
       end 
-  	transport.command("exit")
- 	transport.command("exit")
+  	transport.command("exit") 	
     when :absent
       transport.command("no interface vlan #{name}")
     end
