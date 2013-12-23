@@ -2,6 +2,7 @@ require 'puppet/util/network_device/dell_ftos/model'
 require 'puppet/util/network_device/dell_ftos/model/vlan'
 require 'puppet/util/network_device/dell_ftos/model/base'
 require 'puppet/util/network_device/dell_ftos/model/generic_value'
+require 'puppet/util/network_device/dell_ftos/model/interface'
 
 class Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch < Puppet::Util::NetworkDevice::Dell_ftos::Model::Base
 
@@ -44,6 +45,7 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch < Puppet::Util::Netw
 
   [ 
     :vlan,
+	:interface,
   ].each do |key|
     define_method key.to_s do |name|
       grp = params[key].value.find { |g| g.name == name }
