@@ -1,3 +1,5 @@
+require 'pp'
+require 'json'
 require 'puppet/util/network_device/dell_ftos/possible_facts'
 
 module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
@@ -11,7 +13,9 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
 
   CMD_SHOW_VLAN  ="show vlan"
 
-  CMD_SHOW_SYSTEM_BRIEF="show  system brief"
+  CMD_SHOW_INTERFACES  ="show interfaces switchport"
+
+  CMD_SHOW_SYSTEM_BRIEF="show system brief"
   def self.register(base)
 
     base.register_param ['hostname', 'uptime'] do
@@ -84,12 +88,12 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
 
     base.register_param ['system_management_unit_status'] do
       match /^.*Management\s*(\w*\b).*/
-      cmd   CMD_SHOW_SYSTEM_BRIEF
+      cmd CMD_SHOW_SYSTEM_BRIEF
     end
 
     base.register_param ['system_image'] do
       match /^System image file is\s*"(.*)"/
-      cmd "sh ver"
+      cmd CMD_SHOW_VERSION
     end
 
     base.register_param 'dell_force10_operating_system_version' do
@@ -103,13 +107,18 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
     end
 
     base.register_param 'system_type' do
-      match /^[sS]ystem\s+Type:\s+(\S+)\s+$/
+      match /^System\s+Type:\s+(\S+)\s+$/
       cmd CMD_SHOW_VERSION
     end
 
     base.register_param 'control_processor' do
       match /^Control\s+Processor:\s+(.*?)$/
       cmd CMD_SHOW_VERSION
+    end
+
+    base.register_param 'system_mode' do
+      match /^System\s+Mode\s+:\s+(\S+)\s+$/
+      cmd CMD_SHOW_INVENTORY
     end
 
     base.register_param 'software_protocol_configured' do
@@ -138,5 +147,68 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       cmd CMD_SHOW_INVENTORY
     end
 
+    base.register_param 'interfaces' do
+      interfaces = {}
+      interface = nil
+      match do |txt|
+        txt.each_line do |line|
+          case line
+          when /^Name:\s+(.*)/
+            #Puppet.debug("Name: #{$1}")
+            interface = { :name => $1.strip, :description =>"", :unTaggedVLANS => "", :taggedVLANS => ""}
+            interfaces[interface[:name]] = interface
+          when /^Description:\s+(.*)/
+            raise "Invalid show interfaces switchport output" unless interface
+            #Puppet.debug("Description: #{$1}")
+            interface[:description] = $1.strip
+          when /^(U)\s+(.*)/
+            raise "Invalid show interfaces switchport output" unless interface
+            #Puppet.debug("#{$1} unTaggedVLANS #{$2}")
+            interface[:unTaggedVLANS] = $2.strip
+          when /^(T)\s+(.*)/
+            raise "Invalid show interfaces switchport output" unless interface
+            #Puppet.debug("#{$1} taggedVLANS #{$2}")
+            interface[:taggedVLANS] = $2.strip
+          else
+            next
+          end
+        end
+        interfaces.to_json
+      end
+      cmd CMD_SHOW_INTERFACES
+    end
+
+    base.register_param 'vlans' do
+      vlans = {}
+      vlan = nil
+      match do |txt|
+        txt.each_line do |line|
+          case line
+          # codes, num, status, desc, qualifier, ports
+          when /^(\*|\s)\s+(\d+)\s+(\S+\b)\s+(.*)\s+(U|T|x|X|G|M|H|i|I|v|V)\s+(.*$)/
+            #Puppet.debug("VLAN: #{$2}")
+            vlan = { :id => $2.strip, :status => $3.strip, :description => $4.strip,  :interfaces => [] }
+            vlan[:interfaces] = $5.strip+" "+$6.strip+"|"
+            vlans[vlan[:id]] = vlan
+            # codes, num, status, desc
+          when /^(\*|\s)\s+(\d+)\s+(\S+\b)\s+(.*)+$/
+            #Puppet.debug("VLAN: #{$2}")
+            vlan = { :id => $2.strip, :status => $3.strip, :description =>$4.strip,  :interfaces => ""}
+            vlans[vlan[:id]] = vlan
+            # qualifier, ports
+          when /^\s*(U|T|x|X|G|M|H|i|I|v|V)\s*([^\-]\b.*$)/
+            #Puppet.debug("Interface: #{$2}")
+            raise "Invalid show vlan output" unless vlan
+            vlan[:interfaces] += $1.strip+" "+$2.strip+"|"
+          else
+            next
+          end
+        end
+        vlans.to_json
+      end
+      cmd CMD_SHOW_VLAN
+    end
+
   end
+
 end

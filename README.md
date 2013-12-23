@@ -16,11 +16,11 @@ The Dell Force10 Networkdevice Module provides a common way to manage various co
 * S4810
 
 
-## Tested with the following Software Versions
+## Tested with the following Software Versions for S4810
+  * Dell Force10 Real Time Operating System Software
+  * Dell Force10 Operating System Version: 2.0
+  * Dell Force10 Application Software Version: 9.2(0.2)
 
-* Dell Force10 Real Time Operating System Software
-  Dell Force10 Operating System Version: 1.0
-  Dell Force10 Application Software Version: 8.3.12.0
 
 ## Usage
 
