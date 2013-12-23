@@ -6,7 +6,6 @@ require 'puppet/util/network_device/dell_ftos/model/scoped_value'
 class Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface < Puppet::Util::NetworkDevice::Dell_ftos::Model::Base
 
   attr_reader :params, :name
-
   def initialize(transport, facts, options)
     super(transport, facts)
     # Initialize some defaults
@@ -34,7 +33,16 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface < Puppet::Util::N
   end
 
   def before_update
+
+    transport.command("show interface #{@name}")do |out|
+      if out =~/Error:\s*(.*)/
+        Puppet.debug "errror msg ::::#{$1}"
+        raise "interface does not exists provide the valid interface"
+      end
+    end
+
     super
+
     transport.command("interface #{@name}", :prompt => /\(conf-if-\S+\)#\z/n)
   end
 
