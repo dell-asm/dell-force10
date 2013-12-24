@@ -49,9 +49,8 @@ The Force10 Firmware Update module uses telent/ssh to access Force10 device. The
 # --------------------------------------------------------------------------
    Refer to the examples in the manifest directory.
    The following files capture the details of the sample init.pp and the supported files:
-
-    - sample_init.pp_server
-    - sample_force10_firmwareupdate.pp
+   
+    - sample_firmwareupdate.pp
    
    A user can create an init.pp file based on the above sample files, and call the "puppet device" command , for example: 
    # puppet device
