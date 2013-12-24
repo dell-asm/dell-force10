@@ -18,6 +18,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
     txt = ''
 	digesttftpfile=''
 	digestlocalfile=''
+	startupconfigexists=true
 		
 	   #delete temporary configuration files if exists
 	   dev.transport.command('delete flash://temp-config no-confirm')
@@ -28,22 +29,19 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 	   if config=='startup-config'
 			dev.transport.command('show file flash://startup-config') do |out|  
 			 localfilecontent<< out
-			 end
+			 end			 
 	   else
 		   dev.transport.command('copy running-config flash://last-config') 
 		   dev.transport.command('show file flash://last-config') do |out|  
 			 localfilecontent<< out
-		   end 
+		   end		   
 	   end
-	   if localfilecontent =~/ERROR:\s*(.*)/
-			Puppet.error "No current configuration exists "
+	   if localfilecontent =~/Error:\s*(.*)/
+			Puppet.info "No current configuration exists "
+			startupconfigexists=false
 	   else	   
-		   #Remove the command string(show file flash://last-config) from output
-		   if config=='running-config'
-			localfilecontent.slice!(0..30)	
-		   else
-			localfilecontent.slice!(0..33)	
-           end		   
+		   #Remove the command string(show file flash://last-config) from output		  
+		   localfilecontent.slice!(0..localfilecontent.index('!'))		  
 		   digestlocalfile = Digest::MD5.hexdigest(localfilecontent) 
 	   end
 		   
@@ -58,10 +56,10 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 	   tftpfilecontent=''
 	   dev.transport.command('show file flash://temp-config') do |out| 
         tftpfilecontent<< out
-       end 
-	   parseforerror(tftpfilecontent,'TFTP config MD5 caliculation')
+       end 	   	
+	   parseforerror(tftpfilecontent,'retrieving local stored TFTP config file')
 	   #Remove the command string from output
-       tftpfilecontent.slice!(0..30)		
+       tftpfilecontent.slice!(0..tftpfilecontent.index('!'))		   
 	   digesttftpfile = Digest::MD5.hexdigest(tftpfilecontent)
 	
 	   Puppet.debug "MD5 for Local:"+digesttftpfile
@@ -71,26 +69,47 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 	   if digesttftpfile==digestlocalfile && force == :false
 			Puppet.info "No Configuration change"
 	   else	    
-	        #dev.transport.command('send * applying configuration on this switch')
-			dev.transport.command('copy flash://temp-config '+config) do |out|			
-			  txt<< out
-		    end
+			#TODO:Sending notification to all opened terminals
+			dev.transport.command('send *', :prompt => /.\n/)
+			dev.transport.send("Applying configuration now!!! \x1A")
+			dev.transport.send("\r")
+			
+			#In case startup-config already exists it will prompt for overwrite confirmation
+			if config=='startup-config' && startupconfigexists==:true
+			dev.transport.command('copy flash://temp-config '+config, :prompt => /.\n/)
+			dev.transport.send('yes') do |out|			
+				  txt<< out
+				end
+				parseforerror(txt,"applying startup configuration")
+			else
+				dev.transport.command('copy flash://temp-config '+config) do |out|			
+				  txt<< out
+				end
+				 parseforerror(txt,"applying running configuration")
+			end
 	   end
 	   
-	   dev.transport.command('delete flash://last-config no-confirm')
-       dev.transport.command('delete flash://temp-config no-confirm') 
-	   if config=='startup-config' 
-		#Reboot the switch
-	      #dev.transport.command('send * rebooting now')
+	   if config=='startup-config'	
+		  #TODO:Sending notification to all opened terminals
+		  dev.transport.command('send *', :prompt => /.\n/)
+		  dev.transport.send("Rebooting the switch Now!!! \x1A")
+		  dev.transport.send("\r")
+			
+		  #Reboot the switch
 	      dev.transport.command('reload')
 	   end
 	return txt
+	
+	#ensure: Always delete the temporary files
+	ensure
+	   dev.transport.command('delete flash://last-config no-confirm')
+       dev.transport.command('delete flash://temp-config no-confirm') 
   end
   
-  def parseforerror(outtxt,placestr)
-   if outtxt =~/ERROR:\s*(.*)/
-			Puppet.error "#{$1}"
-			raise "error occurred while doing switch configuration"
+   def parseforerror(outtxt,placestr)
+   if outtxt =~/Error:\s*(.*)/
+			Puppet.info "ERROR:#{$1}"
+			raise "Error occurred in - "+placestr+", Error:#{$1}"
      end
   end
 end

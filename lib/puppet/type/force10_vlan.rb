@@ -28,18 +28,34 @@ end
 
 
   newproperty(:tagged_tengigabitethernet) do
-    desc "The TenGigabitEthernet interfaces names to tag to this VLAN."     
+    desc "The TenGigabitEthernet interfaces names to add as tagged to this VLAN."     
   end
 
   newproperty(:tagged_portchannel) do
-    desc "The Port-channel interfaces names to tag to this VLAN."   
+    desc "The Port-channel interfaces names to add as tagged to this VLAN."   
   end
   
   newproperty(:tagged_gigabitethernet) do
-    desc "The GigabitEthernet interfaces names to tag to this VLAN."     
+    desc "The GigabitEthernet interfaces names to add as tagged to this VLAN."     
   end
 
   newproperty(:tagged_sonet) do
-    desc "The SONET interfaces names to tag to this VLAN."   
+    desc "The SONET interfaces names to add as tagged to this VLAN."   
+  end
+  
+  newproperty(:untagged_tengigabitethernet) do
+    desc "The TenGigabitEthernet interfaces names to add as untagged to this VLAN."     
+  end
+
+  newproperty(:untagged_portchannel) do
+    desc "The Port-channel interfaces names to add as untagged to this VLAN."   
+  end
+  
+  newproperty(:untagged_gigabitethernet) do
+    desc "The GigabitEthernet interfaces names to add as untagged to this VLAN."     
+  end
+
+  newproperty(:untagged_sonet) do
+    desc "The SONET interfaces names to add as untagged to this VLAN."   
   end
 end

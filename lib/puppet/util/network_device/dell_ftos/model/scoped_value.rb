@@ -57,4 +57,10 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::ScopedValue < Puppet::Util:
     end
     self.evaluated = true
   end
+   def parseforerror(outtxt,placestr)
+   if outtxt =~/Error:\s*(.*)/
+			Puppet.info "ERROR:#{$1}"
+			raise "Error occurred in - "+placestr+", Error:#{$1}"
+     end
+  end
 end

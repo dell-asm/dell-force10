@@ -1,5 +1,5 @@
 Puppet::Type.newtype(:force10_config) do
-  @doc = "Apply configuration on force10 router or switch."
+  @doc = "Apply configuration on force10 switch."
 
   apply_to_device
 

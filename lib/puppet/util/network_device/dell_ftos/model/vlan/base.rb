@@ -15,11 +15,10 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       end
       evaluate(&block) if block
     end
-  end
-
+  end 
   
   def self.register(base)
-    
+    txt = ''
 	ifprop(base, :ensure) do
       match do |txt|
         unless txt.nil?
@@ -33,57 +32,176 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       remove { |*_| }
     end
 	
-    ifprop(base, :desc) do      
+    ifprop(base, :desc) do   
+     match /^\s*name\s+(.*?)\s*$/	
       add do |transport, value|
-        transport.command("name #{value}")
+	  if value != 'absent'
+        transport.command("name #{value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," adding 'name' property value")
+		end
       end
-      remove { |*_| }
+     remove do |transport, old_value|        
+        transport.command("no name #{old_value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," removing 'name' property oldvalue")
+      end 
     end
 
 	
 	base.register_scoped :tagged_tengigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do      
       match /^\s*tagged TenGigabitEthernet\s+(.*?)\s*$/
 	  cmd 'sh run'
-      add do |transport, value|        
-        transport.command("tagged TenGigabitEthernet #{value}")
+      add do |transport, value|  
+		if value != 'absent'
+			transport.command("tagged TenGigabitEthernet #{value}") do |out|			
+			  txt<< out
+		    end
+			parseforerror(txt," adding 'tagged TenGigabitEthernet' property value")
+		end
       end
       remove do |transport, old_value|        
-        transport.command("no tagged TenGigabitEthernet #{old_value}")
+        transport.command("no tagged TenGigabitEthernet #{old_value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," removing 'tagged TenGigabitEthernet' property oldvalue")
       end      
     end
 	
 	base.register_scoped :tagged_portchannel, /^(interface Vlan\s+(\S+).*?)^!/m do      
       match /^\s*tagged Port-channel\s+(.*?)\s*$/
 	  cmd 'sh run'
-      add do |transport, value|        
-        transport.command("tagged Port-channel #{value}")
+      add do |transport, value| 
+      if value != 'absent'	  
+        transport.command("tagged Port-channel #{value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," adding 'tagged Port-channel' property value")
+		end
       end
       remove do |transport, old_value|        
-        transport.command("no tagged Port-channel #{old_value}")
+        transport.command("no tagged Port-channel #{old_value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," removing 'tagged Port-channel' property oldvalue")
       end      
     end
 	
 	base.register_scoped :tagged_gigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do      
       match /^\s*tagged GigabitEthernet\s+(.*?)\s*$/
 	  cmd 'sh run'
-      add do |transport, value|        
-        transport.command("tagged GigabitEthernet #{value}")
+      add do |transport, value|   
+		if value != 'absent'		  
+        transport.command("tagged GigabitEthernet #{value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," adding 'tagged GigabitEthernet'' property value")
+		end
       end
       remove do |transport, old_value|        
-        transport.command("no tagged GigabitEthernet #{old_value}")
+        transport.command("no tagged GigabitEthernet #{old_value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," removing 'tagged GigabitEthernet' property oldvalue")
       end      
     end
 	
 	base.register_scoped :tagged_sonet, /^(interface Vlan\s+(\S+).*?)^!/m do      
       match /^\s*tagged Sonet\s+(.*?)\s*$/
 	  cmd 'sh run'
-      add do |transport, value|        
-        transport.command("tagged Sonet #{value}")
+      add do |transport, value|   
+		if value != 'absent'		  
+        transport.command("tagged Sonet #{value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," adding 'tagged Sonet' property value")
+		end
       end
       remove do |transport, old_value|        
-        transport.command("no tagged Sonet #{old_value}")
+        transport.command("no tagged Sonet #{old_value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," removing 'tagged Sonet' property oldvalue")
       end      
-    end	
-      
-  end
+    end	      
+	
+	base.register_scoped :untagged_tengigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do      
+      match /^\s*tagged TenGigabitEthernet\s+(.*?)\s*$/
+	  cmd 'sh run'
+      add do |transport, value|  
+		if value != 'absent'
+			transport.command("untagged TenGigabitEthernet #{value}") do |out|			
+			  txt<< out
+		    end
+			parseforerror(txt," adding 'untagged TenGigabitEthernet' property value")
+		end
+      end
+      remove do |transport, old_value|        
+        transport.command("no untagged TenGigabitEthernet #{old_value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," removing 'untagged TenGigabitEthernet' property oldvalue")
+      end      
+    end
+	
+	base.register_scoped :untagged_portchannel, /^(interface Vlan\s+(\S+).*?)^!/m do      
+      match /^\s*tagged Port-channel\s+(.*?)\s*$/
+	  cmd 'sh run'
+      add do |transport, value| 
+      if value != 'absent'	  
+        transport.command("untagged Port-channel #{value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," adding 'untagged Port-channel' property value")
+		end
+      end
+      remove do |transport, old_value|        
+        transport.command("no untagged Port-channel #{old_value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," removing 'untagged Port-channel' property oldvalue")
+      end      
+    end
+	
+	base.register_scoped :untagged_gigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do      
+      match /^\s*tagged GigabitEthernet\s+(.*?)\s*$/
+	  cmd 'sh run'
+      add do |transport, value|   
+		if value != 'absent'		  
+        transport.command("untagged GigabitEthernet #{value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," adding 'untagged GigabitEthernet'' property value")
+		end
+      end
+      remove do |transport, old_value|        
+        transport.command("no untagged GigabitEthernet #{old_value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," removing 'untagged GigabitEthernet' property oldvalue")
+      end      
+    end
+	
+	base.register_scoped :tagged_sonet, /^(interface Vlan\s+(\S+).*?)^!/m do      
+      match /^\s*tagged Sonet\s+(.*?)\s*$/
+	  cmd 'sh run'
+      add do |transport, value|   
+		if value != 'absent'		  
+        transport.command("untagged Sonet #{value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," adding 'untagged Sonet' property value")
+		end
+      end
+      remove do |transport, old_value|        
+        transport.command("no untagged Sonet #{old_value}") do |out|			
+			txt<< out
+		end
+		parseforerror(txt," removing 'untagged Sonet' property oldvalue")
+      end      
+    end	      
+  end  
+  
 end
