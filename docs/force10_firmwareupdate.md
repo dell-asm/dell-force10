@@ -2,7 +2,7 @@
 # Access Mechanism 
 # --------------------------------------------------------------------------
 
-The Force10 Firmware Update module uses telent/ssh to access Force10 device. The firmware update binary should be accessed by tftp protocol
+The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch device. The firmware update binary should be accessed by tftp protocol.
 
 # --------------------------------------------------------------------------
 #  Supported Functionality

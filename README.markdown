@@ -1,3 +1,0 @@
-# force10 #
-
-This is the force10 module. It provides...
