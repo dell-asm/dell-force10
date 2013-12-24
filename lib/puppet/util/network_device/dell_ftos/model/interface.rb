@@ -34,7 +34,7 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface < Puppet::Util::N
 
   def before_update
 
-    transport.command("show interface #{@name}")do |out|
+    transport.command("show interfaces #{@name}")do |out|
       if out =~/Error:\s*(.*)/
         Puppet.debug "errror msg ::::#{$1}"
         raise "interface does not exists provide the valid interface"
