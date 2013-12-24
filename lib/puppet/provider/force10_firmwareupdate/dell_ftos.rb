@@ -24,9 +24,9 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
     end
     item = txt.scan("successfully")
     if item.empty?
-		txt="Firmware update on image A is not successful"
+		txt="Firmware update is not successful"
 		Puppet.debug(txt)
-		return txt
+		raise txt 
     end
     Puppet.debug("firmware update done for image A:") 
 	dev.transport.command("upgrade system #{firmwarelocation} B:")  do |out|
@@ -34,9 +34,9 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
     end
     item = txt.scan("successfully")
     if item.empty?
-		txt = "Firmware update on image B is not successful"
+		txt = "Firmware update is not successful"
 		Puppet.debug(txt)
-		return txt
+		raise txt
     end
     Puppet.debug("firmware update done for image B:") 
     rebootSwitch()
@@ -55,7 +55,7 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
                         dev.transport.command("yes")
                 end
          else
-            Puppet.debug("first response is not null,checkig for second response")
+            Puppet.debug("first response is not null,checking for second response")
             dev.transport.command("yes") do |secondresponse|
                 thirdresponse = secondresponse.scan("Proceed with reload")
                 unless thirdresponse.empty?
