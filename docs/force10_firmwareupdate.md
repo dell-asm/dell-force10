@@ -2,7 +2,7 @@
 # Access Mechanism 
 # --------------------------------------------------------------------------
 
-The Force10 Firmware Update module uses telent/ssh to access Force10 device. The firmware update binary should be access through tftp protocol
+The Force10 Firmware Update module uses telent/ssh to access Force10 device. The firmware update binary should be accessed by tftp protocol
 
 # --------------------------------------------------------------------------
 #  Supported Functionality
