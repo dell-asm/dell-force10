@@ -19,13 +19,11 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
   end
 
   def self.register(base)
-    ifprop(base, :switchport)
-  
+
     ifprop(base, :portchannel) do
       add do |transport, value|
         transport.command("port-channel-protocol lacp")
         transport.command("port-channel #{value} mode active")
-  
       end
       remove { |*_| }
     end
@@ -34,12 +32,9 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
       add do |transport, value|
         if value==:true
           transport.command("shutdown")
-          Puppet.debug(" shutdown value is  true ")
         else
           transport.command("no shutdown")
-          Puppet.debug(" shutdown value is  false ")
         end
-       
       end
       remove { |*_| }
     end
@@ -47,8 +42,6 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
     ifprop(base, :mtu) do
       add do |transport, value|
         transport.command("mtu #{value}")
-       
-        Puppet.debug(" mtu value is  #{value}")
       end
       remove { |*_| }
     end
@@ -56,8 +49,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
     ifprop(base, :switchport) do
       match /^\s*switchport\s+(.*?)\s*$/
       add do |transport, value|
-        Puppet.debug(" command  value  #{value}" )
-        if value == :true
+         if value == :true
           transport.command("switchport")do |out|
             if out =~/Error:\s*(.*)/
               Puppet.debug "#{$1}"
@@ -65,14 +57,13 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
           end
         end
         if value == :false
-
           transport.command("no switchport") do |out|
             if out =~/Error:\s*(.*)/
               Puppet.debug "#{$1}"
             end
           end
-
         end
+        
       end
       remove { |*_| }
     end
