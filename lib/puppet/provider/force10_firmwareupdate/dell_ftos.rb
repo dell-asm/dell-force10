@@ -12,7 +12,6 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
      Puppet.debug(" currentfirmwareversion: #{currentFirmwareVersion}")
      newfirmwareversion = firmwarelocation.split("\/").last.split("-").last.split(".bin").first
      Puppet.debug("  newfirmwareversion  is: " + newfirmwareversion )
-     Puppet.debug(" location is: " + firmwarelocation)
      txt = ''     
     if currentFirmwareVersion.eql? newfirmwareversion && forceupdate == :false
 		Puppet.debug("Existing Firmware versions is same as new Firmware version, so not doing firmware update")
