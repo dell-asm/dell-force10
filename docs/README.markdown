@@ -14,8 +14,8 @@
 The Dell Force10 switch module is designed to extend the support for managing Dell Force10 switch configuration using Puppet and its Network Device functionality.
 
 The Dell Force10 switch module has been written and tested against the following Dell Force10 switch models:
-- S4810(firmware version 9.2(0.2)) 
-However, this module may be compatible with other models & their firmware versions.
+- S4810(software version 9.2(0.2)) 
+However, this module may be compatible with other models & their software versions.
 
 
 ## Features
