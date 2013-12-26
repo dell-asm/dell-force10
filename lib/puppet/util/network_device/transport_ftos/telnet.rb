@@ -13,9 +13,17 @@ class Puppet::Util::NetworkDevice::Transport_ftos::Telnet < Puppet::Util::Networ
   end
 
   def connect
-    @telnet = Net::Telnet::new("Host" => host, "Port" => port || 23,
-    "Timeout" => 10000,
-    "Prompt" => default_prompt)
+    begin
+      Puppet.debug "Trying to connect to #{host} as #{user}"
+      @telnet = Net::Telnet::new("Host" => host, "Port" => port || 23,
+      "Timeout" => 10000,
+      "Prompt" => default_prompt)
+    rescue TimeoutError
+      raise TimeoutError, "Telnet timed out while trying to connect to #{host}"
+    rescue => e
+      #raise Puppet::Error, "Unable to connect to #{host}: #{e.message}"
+      raise Puppet::Error, "Telnet connection failure to #{host}"
+    end
   end
 
   def close
@@ -30,14 +38,14 @@ class Puppet::Util::NetworkDevice::Transport_ftos::Telnet < Puppet::Util::Networ
       yield out if block_given?
     end
     lines.split(/\n/).each do |line|
-      Puppet.debug("telnet: IN #{line}") if Puppet[:debug]
+      Puppet.debug("Telnet: IN #{line}") if Puppet[:debug]
       Puppet.fail "Executed invalid Command! For a detailed output add --debug to the next Puppet run!" if line.match(/^% Invalid input detected at '\^' marker\.$/n)
     end
     lines
   end
 
   def send(line, noop = false)
-    Puppet.debug("telnet: OUT #{line}") if Puppet[:debug]
+    Puppet.debug("Telnet: OUT #{line}") if Puppet[:debug]
     @telnet.puts(line) unless noop
   end
 end

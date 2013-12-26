@@ -91,6 +91,11 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       cmd CMD_SHOW_SYSTEM_BRIEF
     end
 
+    base.register_param ['system_management_unit_service_tag'] do
+      match /^\*\s+\d+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+(\S+)\s+.*$/
+      cmd CMD_SHOW_INVENTORY
+    end
+
     base.register_param ['system_image'] do
       match /^System image file is\s*"(.*)"/
       cmd CMD_SHOW_VERSION
@@ -156,7 +161,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
           case line
           when /^Name:\s+(.*)/
             #Puppet.debug("Name: #{$1}")
-            interface = { :name => $1.strip, :description =>"", :untaggedVLANs => "", :taggedVLANs => ""}
+            interface = { :name => $1.strip, :description =>"", :untagged_vlans => "", :tagged_vlans => ""}
             interfaces[interface[:name]] = interface
           when /^Description:\s+(.*)/
             raise "Invalid show interfaces switchport output" unless interface
@@ -164,12 +169,12 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
             interface[:description] = $1.strip
           when /^(U)\s+(.*)/
             raise "Invalid show interfaces switchport output" unless interface
-            #Puppet.debug("#{$1} untaggedVLANs #{$2}")
-            interface[:untaggedVLANs] = $2.strip
+            #Puppet.debug("#{$1} untagged_vlans #{$2}")
+            interface[:untagged_vlans] = $2.strip
           when /^(T)\s+(.*)/
             raise "Invalid show interfaces switchport output" unless interface
-            #Puppet.debug("#{$1} taggedVLANs #{$2}")
-            interface[:taggedVLANs] = $2.strip
+            #Puppet.debug("#{$1} tagged_vlans #{$2}")
+            interface[:tagged_vlans] = $2.strip
           else
             next
           end
