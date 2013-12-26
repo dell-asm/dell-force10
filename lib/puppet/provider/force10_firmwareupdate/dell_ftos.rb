@@ -84,7 +84,7 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
       if firstresponse.empty?
         secondresponse = reloadout.scan("Proceed with reload")
         unless secondresponse.empty?
-          Puppet.debug(" second response is not empty, going to reboot now")
+          #Puppet.debug(" second response is not empty, going to reboot now")
           dev.transport.command("yes")
         end
       else
@@ -92,7 +92,7 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
         dev.transport.command("yes") do |secondresponse|
           thirdresponse = secondresponse.scan("Proceed with reload")
           unless thirdresponse.empty?
-            Puppet.debug(" third response is not empty, going to reboot now")
+            #Puppet.debug(" third response is not empty, going to reboot now")
             dev.transport.command("yes")
           end
         end
@@ -109,6 +109,7 @@ def deleteFlashFile(filename)
   dev.transport.command("delete #{filename}")  do |deleteout|
     if deleteout.include?"Proceed to delete"
       dev.transport.command("yes")
+      return
     end
   end
 end
