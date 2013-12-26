@@ -21,6 +21,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
   def self.register(base)
 
     ifprop(base, :portchannel) do
+      match /^\s*portchannel\s+(.*?)\s*$/
       add do |transport, value|
         transport.command("port-channel-protocol lacp")
         transport.command("port-channel #{value} mode active")
@@ -29,6 +30,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
     end
 
     ifprop(base, :shutdown) do
+      match /^\s*shutdown\s+(.*?)\s*$/
       add do |transport, value|
         if value==:true
           transport.command("shutdown")
@@ -40,6 +42,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
     end
 
     ifprop(base, :mtu) do
+      match /^\s*mtu\s+(.*?)\s*$/
       add do |transport, value|
         transport.command("mtu #{value}")
       end
