@@ -9,7 +9,7 @@ The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch dev
 #-------------------------------------------------------------------------------
 
 - Create Portchannels
-- Remove Portchannels
+- Delete Portchannels
 
 #-------------------------------------------------------------------------------
 # Description
