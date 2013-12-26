@@ -1,4 +1,5 @@
 require 'puppet/util/network_device'
+
 require 'puppet/provider/dell_ftos'
 
 Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet::Provider do
@@ -11,6 +12,14 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
      currentFirmwareVersion = dev.switch.facts['dell_force10_application_software_version'] 
      Puppet.debug(" currentfirmwareversion: #{currentFirmwareVersion}")
      newfirmwareversion = firmwarelocation.split("\/").last.split("-").last.split(".bin").first
+     
+     firmwareversiondata = ""
+     dev.transport.command("show os-version #{firmwarelocation}") do |firmwareResponse|
+      firmwareversiondata << firmwareResponse
+     end
+     firmwarewversionline = firmwareversiondata.match(/^\s*(.*:\s*\b([A-Za-z]{1}[A-Za-z0-9]*)\b\s*\b([0-9]{1}[0-9\-\.]*)\b.*)/)[1]
+     Puppet.debug("The version of the firmware update file is  #{firmwarewversionline.split("\ ")[2]}")
+     newfirmwareversion = firmwarewversionline.split("\ ")[2]
      Puppet.debug("  newfirmwareversion  is: " + newfirmwareversion )
      txt = ''     
     if currentFirmwareVersion.eql? newfirmwareversion && forceupdate == :false
