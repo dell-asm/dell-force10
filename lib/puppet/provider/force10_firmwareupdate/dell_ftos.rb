@@ -71,13 +71,13 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
       raise txt
     end
     Puppet.debug("firmware update done for image B:")
+    deleteFlashFile flashfilename
     rebootSwitch()
     txt = "firmware update is successful"
     return txt
   end
 
   def rebootSwitch()
-    deleteFlashFile flashfilename
     dev = Puppet::Util::NetworkDevice.current
     dev.transport.command("reload")  do |reloadout|
       firstresponse = reloadout.scan("System configuration has been modified")
