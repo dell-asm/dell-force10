@@ -1,17 +1,12 @@
 require 'puppet/util/network_device/dell_ftos/model'
-
-
 require 'puppet/util/network_device/dell_ftos/model/portchannel'
 
 module Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel::Base
-
   def self.register(base)
     portchannel_scope = /^(L*\s*(\d+)\s+(.*))/
-    #portchannel_scope =  /^(L*\s*(\w+)\s+(.*))/ 
     description_scope = /(^.*Description:\s*(.*\b)$)/
-            mtu_scope = /(^.*MTU\s*(.*\b) bytes .*$)/
-         shutdown_scope = /(^.*Shutdown:\s*(.*\b)$)/
-
+    mtu_scope = /(^.*MTU\s*(.*\b) bytes .*$)/
+    shutdown_scope = /(^.*Shutdown:\s*(.*\b)$)/
 
     base.register_scoped :ensure, portchannel_scope do
       match do |txt|
@@ -26,7 +21,6 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel::Base
       add { |*_| }
       remove { |*_| }
     end
-
 
     base.register_scoped :mtu, mtu_scope do
       match do |txt|
@@ -64,13 +58,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel::Base
       remove { |*_| }
     end
 
-
-
-
-    
     base.register_scoped :desc, description_scope do
-      #match /^\d+\s(\S+)/
-      #match /(^Description:\s*(.*))/
       match do |txt|
         unless txt.nil?
           txt.match(/\S+/) ? :present : :absent
@@ -78,14 +66,13 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel::Base
           :absent
         end
       end
- 
+
       cmd 'show interface port-channel'
       add do |transport, value|
         transport.command("desc #{value}")
       end
       remove { |*_| }
     end
-
 
   end
 end

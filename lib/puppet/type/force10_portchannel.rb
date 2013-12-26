@@ -13,15 +13,12 @@ Puppet::Type.newtype(:force10_portchannel) do
       return if value == :absent
       raise ArgumentError, "'Port Channel' value  must be between 1-128" unless value.to_i >=1 &&	value.to_i <= 128
     end
- 
+
   end
-
-
 
   newproperty(:desc) do
     newvalues(/^\S+$/)
   end
-
 
   newproperty(:mtu) do
     newvalues(/^\d+$/)
@@ -36,6 +33,5 @@ Puppet::Type.newtype(:force10_portchannel) do
     defaultto(:false)
     newvalues(:false,:true)
   end
-
 
 end

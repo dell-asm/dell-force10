@@ -49,7 +49,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
     ifprop(base, :switchport) do
       match /^\s*switchport\s+(.*?)\s*$/
       add do |transport, value|
-         if value == :true
+        if value == :true
           transport.command("switchport")do |out|
             if out =~/Error:\s*(.*)/
               Puppet.debug "#{$1}"
@@ -63,7 +63,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
             end
           end
         end
-        
+
       end
       remove { |*_| }
     end

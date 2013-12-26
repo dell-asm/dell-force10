@@ -8,13 +8,12 @@ require 'puppet/util/network_device/dell_ftos/model/portchannel'
 class Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch < Puppet::Util::NetworkDevice::Dell_ftos::Model::Base
 
   attr_reader :params, :vlans
-
   def initialize(transport, facts)
     super
     # Initialize some defaults
     @params         ||= {}
     @vlans          ||= []
-	@portchannels   ||= []
+    @portchannels   ||= []
     # Register all needed Modules based on the availiable Facts
     register_modules
   end
@@ -45,10 +44,10 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch < Puppet::Util::Netw
     return int
   end
 
-  [ 
+  [
     :vlan,
-	:interface,
-	:portchannel,
+    :interface,
+    :portchannel,
   ].each do |key|
     define_method key.to_s do |name|
       grp = params[key].value.find { |g| g.name == name }

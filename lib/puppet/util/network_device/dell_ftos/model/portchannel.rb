@@ -5,7 +5,6 @@ require 'puppet/util/network_device/dell_ftos/model/scoped_value'
 class Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel < Puppet::Util::NetworkDevice::Dell_ftos::Model::Base
 
   attr_reader :params, :name
-
   def initialize(transport, facts, options)
     super(transport, facts)
     # Initialize some defaults
