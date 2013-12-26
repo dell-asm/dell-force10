@@ -78,6 +78,11 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 			dev.transport.send("Applying configuration now!!! \x1A")
 			dev.transport.send("\r")
 			
+			#Taking Backup of existing configuration
+			#Delete existing backup file
+			dev.transport.command('delete flash://'+config+'-backup  no-confirm')
+			dev.transport.command('copy '+config+' flash://'+config+'-backup')
+			
 			#In case startup-config already exists it will prompt for overwrite confirmation
 			if config=='startup-config' && startupconfigexists==:true
 			dev.transport.command('copy flash://temp-config '+config, :prompt => /.\n/)

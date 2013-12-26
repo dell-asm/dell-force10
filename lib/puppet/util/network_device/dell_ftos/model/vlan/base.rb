@@ -1,7 +1,7 @@
 #VLAN model
-#Registers all the t properties as parameters and so apply required changes
+#Registers all the properties as parameters and so apply required changes
 
-require 'puppet/util/network_device/pedell_ftos/model'
+require 'puppet/util/network_device/dell_ftos/model'
 require 'puppet/util/network_device/dell_ftos/model/vlan'
 
 module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
@@ -49,7 +49,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("no name #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'name' property oldvalue")
+		parseforerror(txt," removing 'name' property old value")
       end 
     end
 
@@ -69,7 +69,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("no tagged TenGigabitEthernet #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'tagged TenGigabitEthernet' property oldvalue")
+		parseforerror(txt," removing 'tagged TenGigabitEthernet' property old value")
       end      
     end
 	
@@ -88,7 +88,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("no tagged Port-channel #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'tagged Port-channel' property oldvalue")
+		parseforerror(txt," removing 'tagged Port-channel' property old value")
       end      
     end
 	
@@ -107,7 +107,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("no tagged GigabitEthernet #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'tagged GigabitEthernet' property oldvalue")
+		parseforerror(txt," removing 'tagged GigabitEthernet' property old value")
       end      
     end
 	
@@ -126,12 +126,12 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("no tagged Sonet #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'tagged Sonet' property oldvalue")
+		parseforerror(txt," removing 'tagged Sonet' property old value")
       end      
     end	      
 	
 	base.register_scoped :untagged_tengigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do      
-      match /^\s*tagged TenGigabitEthernet\s+(.*?)\s*$/
+      match /^\s*untagged TenGigabitEthernet\s+(.*?)\s*$/
 	  cmd 'sh run'
       add do |transport, value|  
 		if value != 'absent'
@@ -145,12 +145,12 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("no untagged TenGigabitEthernet #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'untagged TenGigabitEthernet' property oldvalue")
+		parseforerror(txt," removing 'untagged TenGigabitEthernet' property old value")
       end      
     end
 	
 	base.register_scoped :untagged_portchannel, /^(interface Vlan\s+(\S+).*?)^!/m do      
-      match /^\s*tagged Port-channel\s+(.*?)\s*$/
+      match /^\s*untagged Port-channel\s+(.*?)\s*$/
 	  cmd 'sh run'
       add do |transport, value| 
       if value != 'absent'	  
@@ -164,12 +164,12 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("no untagged Port-channel #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'untagged Port-channel' property oldvalue")
+		parseforerror(txt," removing 'untagged Port-channel' property old value")
       end      
     end
 	
 	base.register_scoped :untagged_gigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do      
-      match /^\s*tagged GigabitEthernet\s+(.*?)\s*$/
+      match /^\s*untagged GigabitEthernet\s+(.*?)\s*$/
 	  cmd 'sh run'
       add do |transport, value|   
 		if value != 'absent'		  
@@ -183,12 +183,12 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("no untagged GigabitEthernet #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'untagged GigabitEthernet' property oldvalue")
+		parseforerror(txt," removing 'untagged GigabitEthernet' property old value")
       end      
     end
 	
 	base.register_scoped :tagged_sonet, /^(interface Vlan\s+(\S+).*?)^!/m do      
-      match /^\s*tagged Sonet\s+(.*?)\s*$/
+      match /^\s*untagged Sonet\s+(.*?)\s*$/
 	  cmd 'sh run'
       add do |transport, value|   
 		if value != 'absent'		  
@@ -202,7 +202,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("no untagged Sonet #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'untagged Sonet' property oldvalue")
+		parseforerror(txt," removing 'untagged Sonet' property old value")
       end      
     end	      
   end  

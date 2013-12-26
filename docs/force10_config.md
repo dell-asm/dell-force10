@@ -28,7 +28,8 @@ The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch dev
 # Summary of parameters.
 # -------------------------------------------------------------------------
 
-    name: (Required)This parameter defines the name of the operation; can be any string.
+    name: (Required)This parameter defines the name of the operation.
+		   Should be a string value with maximum 100 characters
 	
 	url:This parameter defines the TFTP turl of the configuration file.				
 				

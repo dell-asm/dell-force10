@@ -1,7 +1,7 @@
 # Applying running or startup configuration
 # Checks MD5 value of existing configuration and provided configuration; if no change configuration will not be applied
 # Can use force option for force apply of configuration
-# **This will not take any backup of existing configuration, so please do take backup of existing configuration
+# **This will take backup of existing configuration as flash://startup-config-backup or flash://running-config-backup
 
 # Applying running configuration
 force10_config { 'apply config':
