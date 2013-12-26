@@ -1,3 +1,6 @@
+#VLAN base class
+#Compares all registered params IS and SHOULD values and so performs update operations on properties
+
 require 'puppet/util/network_device/dell_ftos/model'
 require 'puppet/util/network_device/dell_ftos/model/base'
 require 'puppet/util/network_device/dell_ftos/model/scoped_value'

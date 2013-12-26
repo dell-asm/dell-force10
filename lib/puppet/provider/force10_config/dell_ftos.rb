@@ -1,3 +1,7 @@
+#Provide for force10 'CONFIG' Type
+#Compares provided configuration MD5 with existing configuration MD5 and so apply the configuration if any change found
+#Can use Force option for applying configuration always
+
 require 'puppet/util/network_device'
 require 'puppet/provider/dell_ftos'
 require 'digest/md5'

@@ -1,3 +1,17 @@
+# Type for force10 VLAN
+# Parameters are 
+# 		name - any unique string
+# Properties are
+#		desc - TFTP url for the startup configuration
+#		tagged_tengigabitethernet - TenGigabitEthernet interface names need to be added to VLAN as tagged
+#		tagged_gigabitethernet - GigabitEthernet interface names need to be added to VLAN tagged
+#		tagged_portchannel - Port-channel interface names need to be added to VLAN as tagged
+#		tagged_sonet - Sonet interface names need to be added to VLAN tagged
+#		tagged_tengigabitethernet - TenGigabitEthernet interface names need to be added to VLAN as untagged
+#		tagged_gigabitethernet - GigabitEthernet interface names need to be added to VLAN untagged
+#		tagged_portchannel - Port-channel interface names need to be added to VLAN as untagged
+#		tagged_sonet - Sonet interface names need to be added to VLAN untagged
+
 Puppet::Type.newtype(:force10_vlan) do
   @doc = "This represents a VLAN configuration on a Dell Force10 switch."
 

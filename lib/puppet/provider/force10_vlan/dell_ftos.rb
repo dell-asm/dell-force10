@@ -1,3 +1,5 @@
+#Provide for force10 'VLAN' Type
+
 require 'puppet/provider/dell_ftos'
 
 Puppet::Type.type(:force10_vlan).provide :dell_ftos, :parent => Puppet::Provider::Dell_ftos do

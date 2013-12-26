@@ -1,4 +1,7 @@
-require 'puppet/util/network_device/dell_ftos/model'
+#VLAN model
+#Registers all the t properties as parameters and so apply required changes
+
+require 'puppet/util/network_device/pedell_ftos/model'
 require 'puppet/util/network_device/dell_ftos/model/vlan'
 
 module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base

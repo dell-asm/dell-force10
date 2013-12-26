@@ -1,3 +1,11 @@
+# Type for force10 configuration
+# Parameters are 
+# 		name - any unique string
+#		url - TFTP url for the startup configuration
+#		startup_config - boolean value, if true means it's 'startup config' else 'running config'
+#		force - boolean value, if true means forcefully apply the configuration though there is no configuration change
+
+
 Puppet::Type.newtype(:force10_config) do
   @doc = "Apply configuration on force10 switch."
 
