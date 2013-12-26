@@ -23,6 +23,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 	digesttftpfile=''
 	digestlocalfile=''
 	startupconfigexists=true
+	startupconfigchanged=false
 		
 	   #delete temporary configuration files if exists
 	   dev.transport.command('delete flash://temp-config no-confirm')
@@ -45,7 +46,8 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 			startupconfigexists=false
 	   else	   
 		   #Remove the command string(show file flash://last-config) from output		  
-		   localfilecontent.slice!(0..localfilecontent.index('!'))		  
+		   localfilecontent.slice!(0..localfilecontent.index('!'))		
+  
 		   digestlocalfile = Digest::MD5.hexdigest(localfilecontent) 
 	   end
 		   
@@ -63,7 +65,8 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
        end 	   	
 	   parseforerror(tftpfilecontent,'retrieving local stored TFTP config file')
 	   #Remove the command string from output
-       tftpfilecontent.slice!(0..tftpfilecontent.index('!'))		   
+       tftpfilecontent.slice!(0..tftpfilecontent.index('!'))
+		   
 	   digesttftpfile = Digest::MD5.hexdigest(tftpfilecontent)
 	
 	   Puppet.debug "MD5 for Local:"+digesttftpfile
@@ -81,16 +84,15 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 			#Taking Backup of existing configuration
 			#Delete existing backup file
 			dev.transport.command('delete flash://'+config+'-backup  no-confirm')
-			dev.transport.command('copy '+config+' flash://'+config+'-backup')
+			dev.transport.command('copy '+config+' flash://'+config+'-backup')			
 			
+			Puppet.debug startupconfigexists
 			#In case startup-config already exists it will prompt for overwrite confirmation
-			if config=='startup-config' && startupconfigexists==:true
-			dev.transport.command('copy flash://temp-config '+config, :prompt => /.\n/)
-			dev.transport.send('yes') do |out|			
-				  txt<< out
-				end
-				parseforerror(txt,"applying startup configuration")
-			else
+			if config=='startup-config' && startupconfigexists						
+				dev.transport.command('copy flash://temp-config '+config, :prompt => /.\n/)
+				dev.transport.command("yes")
+				startupconfigchanged=true				
+			else			
 				dev.transport.command('copy flash://temp-config '+config) do |out|			
 				  txt<< out
 				end
@@ -98,21 +100,28 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 			end
 	   end
 	   
-	   if config=='startup-config'	
+	  
+	
+	
+	#ensure: Always delete the temporary files
+	ensure	
+	   dev.transport.command('delete flash://last-config no-confirm')
+       dev.transport.command('delete flash://temp-config no-confirm') 
+	   
+	    if startupconfigchanged	
 		  #TODO:Sending notification to all opened terminals
 		  dev.transport.command('send *', :prompt => /.\n/)
 		  dev.transport.send("Rebooting the switch Now!!! \x1A")
 		  dev.transport.send("\r")
 			
 		  #Reboot the switch
-	      dev.transport.command('reload')
-	   end
+		  dev.transport.command('reload', :prompt => /.\n/)
+		  #For reload it will prompt for configuration modified confirmation
+		  dev.transport.send("yes")
+		  #For reload it will prompt for reload confirmation
+		  dev.transport.send("yes")
+	   end	
 	return txt
-	
-	#ensure: Always delete the temporary files
-	ensure
-	   dev.transport.command('delete flash://last-config no-confirm')
-       dev.transport.command('delete flash://temp-config no-confirm') 
   end
   
    def parseforerror(outtxt,placestr)
@@ -120,5 +129,5 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 			Puppet.info "ERROR:#{$1}"
 			raise "Error occurred in - "+placestr+", Error:#{$1}"
      end
-  end
+  end   
 end
