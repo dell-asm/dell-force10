@@ -24,6 +24,10 @@ This module supports the following functionality:
  * VLAN creation and deletion.
  * Interface configuration.
  * Portchannel creation and deletion.
+ * Add interface to VLAN
+ * Delete interface from VLAN
+ * Add Port-channel to VLAN
+ * Remove Port-channel from VLAN
  * Configuration updates.
  * Firmware updates.
 
@@ -54,6 +58,7 @@ Example configuration `/etc/puppet/device/force10.example.com.conf`:
 This module can be used to configure vlans, interfaces and port-channels on Dell Force10 switch.
 For example: 
 
+#This creates a portchannel `128`, as per the values defined for various parameters in the above definition.
 node "force10.example.com" {
     force10_portchannel { '128':
       desc     => 'Port Channel for server connectivity',
@@ -63,7 +68,23 @@ node "force10.example.com" {
     }
   }
 
-This creates a portchannel `128`, as per the values defined for various parameters in the above definition.
+# This creates VLAN 180 and add TenGigabitEthernet 0/16 and 0/17 interfaces as tagged
+node "force10.example.com" {
+	#Add VLAN 180
+	force10_vlan {
+	  '180':    	
+		desc     => 'test',
+		ensure => present;
+	}
+	# This will add TenGigabitEthernet 0/16 and 0/17 interfaces to vlan 180 as tagged
+	force10_vlan {
+	  '180':    	
+		desc     => 'test',
+		ensure => present, 
+		tagged_tengigabitethernet => '0/16-17';    
+	}
+}
+
 
 You can also use any of the above operations individually, or create new defined types, as required. The details of each operation and parameters 
 are mentioned in the following readme files, that are shipped with the module:
@@ -71,5 +92,7 @@ are mentioned in the following readme files, that are shipped with the module:
   - force10_interface.md
   - force10_portchannel.md
   - force10_firmwareupdate.md
+  - force10_vlan.md
+  - force10_config.md
 
 
