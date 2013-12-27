@@ -17,7 +17,7 @@ Puppet::Type.newtype(:force10_portchannel) do
   end
 
   newproperty(:desc) do
-    newvalues(/^\S+$/)
+    newvalues(/^(\w\s*)*?$/)
   end
 
   newproperty(:mtu) do
