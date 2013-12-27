@@ -29,12 +29,12 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Device < Puppet::Util::NetworkDevi
 
   def login
     return if transport.handles_login?
-    if @url.user != ''
-      transport.command(@url.user, {:prompt => /^Password:/, :noop => false})
+    if @transport.user != ''
+      transport.command(@transport.user, {:prompt => /^Password:/, :noop => false})
     else
       transport.expect(/^Password:/)
     end
-    transport.command(@url.password, :noop => false)
+    transport.command(@transport.password, :noop => false)
   end
 
   def enable

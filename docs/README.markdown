@@ -49,7 +49,7 @@ Example configuration `/etc/puppet/device/force10.example.com.conf:
 
       [force10.example.com]
       type dell_ftos
-      url ssh://admin:P@ssw0rd@force10.example.com/?enable=P@ssw0rd
+      url ssh://admin:password@force10.example.com/?enable=password
 
 ### Dell Force10 Operations
 This module can be used to configure VLANs, interfaces, and port channels on Dell Force10 switch.
@@ -80,7 +80,7 @@ node "force10.example.com" {
 		tagged_tengigabitethernet => '0/16-17';    
 	}
 }
-This creates VLAN 180 and add TenGigabitEthernet 0/16 and 0/17 interfaces as tagged in the above defination.
+This creates VLAN 180 and add TenGigabitEthernet 0/16 and 0/17 interfaces as tagged in the above definition.
 You can also use any of the above operations individually, or create new defined types, as required. The details of each operation and parameters 
 are mentioned in the following readme files that are shipped with the following modules:
 
