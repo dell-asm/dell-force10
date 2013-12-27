@@ -8,7 +8,6 @@ require 'puppet/util/network_device/dell_ftos/model/scoped_value'
 class Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan < Puppet::Util::NetworkDevice::Dell_ftos::Model::Base
 
   attr_reader :params, :name
-
   def initialize(transport, facts, options)
     super(transport, facts)
     # Initialize some defaults
@@ -45,8 +44,8 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan < Puppet::Util::Networ
         # Skip the ensure property
         next if param.name == :ensure
         param.update(@transport, is[param.name]) unless is[param.name] == should[param.name]
-      end 
-  	transport.command("exit") 	
+      end
+      transport.command("exit")
     when :absent
       transport.command("no interface vlan #{name}")
     end

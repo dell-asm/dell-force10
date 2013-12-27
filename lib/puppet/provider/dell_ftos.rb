@@ -4,7 +4,7 @@ require 'puppet/provider/network_device'
 # This is the base Class of all prefetched Dell Force10 device providers
 class Puppet::Provider::Dell_ftos < Puppet::Provider::NetworkDevice
   def self.device(url)
-    Puppet::Util::NetworkDevice::Singelton_ftos.lookup(url) 
+    Puppet::Util::NetworkDevice::Singelton_ftos.lookup(url)
   end
 
   def self.prefetch(resources)

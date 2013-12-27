@@ -3,7 +3,6 @@ require 'puppet/util/network_device/dell_ftos/model/generic_value'
 require 'puppet/util/monkey_patches_ftos'
 
 class Puppet::Util::NetworkDevice::Dell_ftos::Model::ModelValue < Puppet::Util::NetworkDevice::Dell_ftos::Model::GenericValue
-
   def model(*args, &block)
     return @model if args.empty? && block.nil?
     @model = (block.nil? ? args.first : block)

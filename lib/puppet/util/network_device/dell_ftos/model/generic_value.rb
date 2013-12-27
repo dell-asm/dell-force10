@@ -5,7 +5,6 @@ require 'puppet/util/monkey_patches_ftos'
 class Puppet::Util::NetworkDevice::Dell_ftos::Model::GenericValue
   attr_accessor :name, :transport, :facts, :idx, :value, :evaluated
   extend Puppet::Util::NetworkDevice::ValueHelper
-
   def initialize(name, transport, facts, idx, &block)
     @name = name
     @transport = transport
@@ -24,7 +23,6 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::GenericValue
   def evaluate(&block)
     instance_eval(&block)
   end
-
 
   def parse(txt)
     if self.match.is_a?(Proc)

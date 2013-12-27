@@ -3,25 +3,24 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
 
   apply_to_device
 
- 
   newparam(:name) do
-    isnamevar   
-  end 
+    isnamevar
+  end
 
-   newparam(:forceupdate) do
+  newparam(:forceupdate) do
     desc "Whether the provided firmware update has to be applied in force"
     newvalues(:true, :false)
     defaultto :false
   end
-	
+
   newproperty(:firmwarelocation) do
     Puppet.debug(" invoking firmwareLocation property")
     validate do |firmwarelocation|
       raise ArgumentError, "Command must be a String, got value of class #{firmwarelocation.class}" unless firmwarelocation.is_a? String
     end
-	
+
   end
-  
+
   newproperty(:returns, :event => :executed_command) do |property|
     munge do |value|
       value.to_s
@@ -52,6 +51,5 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
   def self.instances
     []
   end
-   
 
 end

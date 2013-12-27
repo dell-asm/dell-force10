@@ -4,7 +4,6 @@ require 'puppet/util/monkey_patches_ftos'
 
 class Puppet::Util::NetworkDevice::Dell_ftos::Model::ScopedValue < Puppet::Util::NetworkDevice::Dell_ftos::Model::GenericValue
   attr_accessor :scope, :scope_name
-
   def scope(*args, &block)
     return @scope if args.empty? && block.nil?
     @scope = (block.nil? ? args.first : block)
@@ -57,10 +56,11 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::ScopedValue < Puppet::Util:
     end
     self.evaluated = true
   end
-   def parseforerror(outtxt,placestr)
-   if outtxt =~/Error:\s*(.*)/
-			Puppet.info "ERROR:#{$1}"
-			raise "Unable to "+placestr+".Reason:#{$1}"
-     end
+
+  def parseforerror(outtxt,placestr)
+    if outtxt =~/Error:\s*(.*)/
+      Puppet.info "ERROR:#{$1}"
+      raise "Unable to "+placestr+".Reason:#{$1}"
+    end
   end
 end

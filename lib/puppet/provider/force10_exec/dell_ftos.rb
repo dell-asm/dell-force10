@@ -3,8 +3,7 @@ require 'puppet/provider/dell_ftos'
 
 Puppet::Type.type(:force10_exec).provide :dell_ftos, :parent => Puppet::Provider do
   mk_resource_methods
-
-  def run(command, context)   
+  def run(command, context)
     dev = Puppet::Util::NetworkDevice.current
     txt = ''
     if context == :conf
