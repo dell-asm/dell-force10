@@ -2,46 +2,46 @@
 # Access Mechanism 
 # --------------------------------------------------------------------------
 
-The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch device.
+The Dell Force10 switch module uses telnet/SSH to access Dell Force10 switches.
 
 #-------------------------------------------------------------------------------
 # Functionality Supported
 #-------------------------------------------------------------------------------
 
 - Create Portchannels
-- Delete Portchannels
+- Remove Portchannels
 
 #-------------------------------------------------------------------------------
 # Description
 #-------------------------------------------------------------------------------
 
-The Portchannel type/provider supports the functionality to create and delete the Portchannels 
-on the Dell Force10 switch.
+The Port Channel type/provider supports the functionality to create and delete the port channels 
+on the Dell Force10 switches.
 
 #-------------------------------------------------------------------------------
 # Summary of Properties
 #-------------------------------------------------------------------------------
 
-    name: (Required)This parameter defines the name of the port channel to be created/removed.
+    name: (Required)This parameter defines the name of the port channel to be created or removed.
 	
-	desc:Description for the port channel
+	desc: This parameter defines the description for the port channel.
 				
-	mtu:	  - This parameter set mtu for the interface.
-				If the value exists it set that value to mtu properties of thr  interface.
-				If the value does not exists property remains unchanged (default or old values).
-				value must be between  594-12000.
+	mtu:	  - This parameter sets the mtu for the interface.
+				If the value exist, it sets the value to the mtu properties of the interface.
+				If the value does not exists, the property remains unchanged (default or old values).
+				The mtu value must be between  594 and 12000.
 		
 	shutdown: - This parameter defines whether or not to shut down the interface. 
 				The possible values are true or false. The default value is "false".
-				If the value is true it shut down the interface .
-				value must be between 594-12000
+				If the value is "true", it shuts down the interface.
+				The value must be between 594 and 12000.
 				
-	ensure: - This parameter defines whether to create the given port channel or delete the given port channel from the switch.
-	           The possible values are present or absent.
+	ensure: - This parameter defines whether to create the specified port channel or delete the specified port channel from the switch.
+	          The possible values are "present" or "absent".
 	
     
 # -------------------------------------------------------------------------
-# Parameter signature 
+# Parameter Signature 
 # -------------------------------------------------------------------------
 
 #Provide transport and Map properties
@@ -60,7 +60,7 @@ on the Dell Force10 switch.
 # Usage
 # --------------------------------------------------------------------------
    Refer to the examples in the manifest directory.
-  The following files capture the details for the sample init.pp and the supported files:
+  The following file contains the details for the sample init.pp and the supported files:
    
     - sample_portchannel.pp
    

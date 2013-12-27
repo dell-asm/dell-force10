@@ -2,7 +2,7 @@
 # Access Mechanism 
 # --------------------------------------------------------------------------
 
-The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch device. The firmware update binary should be accessed by tftp protocol.
+The Dell Force10 switch module uses telnet/SSH to access the Dell Force10 switches. Use TFTP protocol to access the firmware update binary.
 
 # --------------------------------------------------------------------------
 #  Supported Functionality
@@ -17,21 +17,22 @@ The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch dev
 
   1. Firmware Update
 
-     This features updates the firmware in Force10 switch.
+     This features updates the firmware in the Dell Force10 switches.
 
    
 # -------------------------------------------------------------------------
-# Summary of parameters.
+# Summary of Parameters.
 # -------------------------------------------------------------------------
 
-    locationurl: (Required) This path of the firmware binary.
+    locationurl: (Required) This parameter defines the path of the firmware binary.
 
-	forceupdate: (Required) If it is set to true firmware update will run for any condition. Like even if the new firmware version is same as the existing firmware version,
-				 firmware upgrade will happen.
+	forceupdate: (Required) Use this parameter to force the firmware update irrespective of the firmware
+	version configured on the switch. For example, if this parameter is set to "true", the firmware is updated on the switch 
+	even if the firmware version that you want to update is same as the existing firmware version configured on the switch.
     Possible values: true/false (default: false)
     
 # -------------------------------------------------------------------------
-# Parameter signature 
+# Parameter Signature 
 # -------------------------------------------------------------------------
 
 #Provide firmwarelocation and forceupdate properties
@@ -48,7 +49,7 @@ The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch dev
 # Usage
 # --------------------------------------------------------------------------
    Refer to the examples in the manifest directory.
-   The following files capture the details of the sample init.pp and the supported files:
+   The following file contains the details of the sample init.pp and the supported files:
    
     - sample_firmwareupdate.pp
    

@@ -1,3 +1,4 @@
+# This is  force 10 interface module.
 require 'puppet/util/network_device/ipcalc'
 require 'puppet/util/network_device/dell_ftos/model'
 require 'puppet/util/network_device/dell_ftos/model/base'
@@ -37,7 +38,7 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface < Puppet::Util::N
     transport.command("show interfaces #{@name}")do |out|
       if out =~/Error:\s*(.*)/
         Puppet.debug "errror msg ::::#{$1}"
-        raise "interface does not exists provide the valid interface"
+        raise "The entered interface does not exist. Enter the correct interface."
       end
     end
 
