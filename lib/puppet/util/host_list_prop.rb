@@ -30,7 +30,7 @@ module Puppet::Util::HostListProp
 
       def value_to_s(value)
         value = [value].flatten.sort
-        value.map{ |v| "#{v}"}.join(",")
+        value.map{ |val| "#{val}"}.join(",")
       end
 
       def change_to_s(currentvalue, newvalue)

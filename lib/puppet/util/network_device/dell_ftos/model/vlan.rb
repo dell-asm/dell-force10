@@ -48,6 +48,8 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan < Puppet::Util::Networ
       transport.command("exit")
     when :absent
       transport.command("no interface vlan #{name}")
+	  else
+	  Puppet.debug("No value given for ensure")
     end
   end
 

@@ -131,18 +131,18 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
         res = Hash.new
         txt.split(/^$/).map do |line|
           if line =~ /^Software\s+Protocol\s+Configured\s+$/ then
-            i=0
+           count=0
             line.split(/\r?\n/).map do |item|
               #Puppet.debug("Item******: OUT #{item}")
               #removed "-" since it is valid char in protocol like Spanning-Tree
               special = "?<>',?[]}{=)(*&^%$#`~{}"
-              regexSpecial = /[#{special.gsub(/./){|char| "\\#{char}"}}]/
-              if item.nil? || item.empty? || item =~ regexSpecial || item =~ /^Software\s+Protocol\s+Configured\s+$/ || item =~ /^\s+$/ || item =~ /^-{2,}+$/ then
+              regexspecial = /[#{special.gsub(/./){|char| "\\#{char}"}}]/
+              if item.nil? || item.empty? || item =~ regexspecial || item =~ /^Software\s+Protocol\s+Configured\s+$/ || item =~ /^\s+$/ || item =~ /^-{2,}+$/ then
                 next
               else
                 #Puppet.debug("Match Protocol******: OUT #{item}")
-                i=i+1
-                res["software_protocol_configured_#{i}"] = item.strip
+                count=count+1
+                res["software_protocol_configured_#{count}"] = item.strip
               end
             end
           end

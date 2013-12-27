@@ -1,3 +1,4 @@
+#This class has the responsibility of creating and deleting the portchannel resource
 require 'puppet/util/network_device/dell_ftos/model'
 require 'puppet/util/network_device/dell_ftos/model/base'
 require 'puppet/util/network_device/dell_ftos/model/scoped_value'
@@ -44,6 +45,8 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel < Puppet::Util:
       end
     when :absent
       transport.command("no interface port-channel #{name}")
+	else
+	  Puppet.debug("No value given for ensure")
     end
   end
 

@@ -1,3 +1,4 @@
+#This is structure class for facts.It provides generic method to parse the fact from command output
 require 'puppet/util/network_device/dell_ftos'
 require 'puppet/util/network_device/value_helper'
 
@@ -27,8 +28,8 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Fact
     # TODO: Review
     return if uptime.nil?
     captures = (uptime.match /^(?:(\d+) years?,)?\s*(?:(\d+) weeks?,)?\s*(?:(\d+) days?,)?\s*(?:(\d+) hours?,)?\s*(\d+) minutes?$/).captures
-    seconds = captures.zip([31536000, 604800, 86400, 3600, 60]).inject(0) do |total, (x,y)|
-      total + (x.nil? ? 0 : x.to_i * y)
+    seconds = captures.zip([31536000, 604800, 86400, 3600, 60]).inject(0) do |total, (duration,secondsmultiplier)|
+      total + (duration.nil? ? 0 : duration.to_i * secondsmultiplier)
     end
   end
 

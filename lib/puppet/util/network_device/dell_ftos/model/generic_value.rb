@@ -1,4 +1,5 @@
-require 'puppet/util/network_device/dell_ftos/model'
+
+#The class has the base methods for parsing and keeping resource type(Like vlan, portchannel etc) valuesrequire 'puppet/util/network_device/dell_ftos/model'
 require 'puppet/util/network_device/value_helper'
 require 'puppet/util/monkey_patches_ftos'
 

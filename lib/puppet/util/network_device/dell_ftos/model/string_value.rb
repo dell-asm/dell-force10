@@ -1,3 +1,4 @@
+#The class has the base methods for parsing and keeping parameters of resource type(Like vlan, portchannel etc) values  
 require 'erb'
 require 'puppet/util/network_device/value_helper'
 require 'puppet/util/network_device/dell_ftos/model'

@@ -33,6 +33,7 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
     defaultto "#"
 
     def change_to_s(currentvalue, newvalue)
+	Puppet.debug(" current value: #{currentvalue} new value is : #{newvalue}")
       "executed successfully"
     end
 

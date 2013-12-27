@@ -1,3 +1,4 @@
+#This class represents the switch model which contains the switch resources. 
 require 'puppet/util/network_device/dell_ftos/model'
 require 'puppet/util/network_device/dell_ftos/model/vlan'
 require 'puppet/util/network_device/dell_ftos/model/base'
@@ -50,7 +51,7 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch < Puppet::Util::Netw
     :portchannel,
   ].each do |key|
     define_method key.to_s do |name|
-      grp = params[key].value.find { |g| g.name == name }
+      grp = params[key].value.find { |resourcegrp| resourcegrp.name == name }
       if grp.nil?
         grp = Puppet::Util::NetworkDevice::Dell_ftos::Model.const_get(key.to_s.capitalize).new(transport, facts, {:name => name})
         params[key].value << grp

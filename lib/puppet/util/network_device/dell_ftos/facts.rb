@@ -1,3 +1,4 @@
+#Lookup class which helps in registering the facts and retrieving the fact values
 require 'puppet/util/network_device/dell_ftos'
 require 'puppet/util/network_device/dell_ftos/fact'
 require 'puppet/util/network_device/dell_ftos/possible_facts'

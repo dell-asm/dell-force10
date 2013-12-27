@@ -1,3 +1,4 @@
+#The class has the methods for parsing and keeping parameters of resource type(Like vlan, portchannel etc) values  
 require 'puppet/util/network_device/dell_ftos/model'
 require 'puppet/util/network_device/dell_ftos/model/generic_value'
 require 'puppet/util/monkey_patches_ftos'
@@ -40,7 +41,7 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::ScopedValue < Puppet::Util:
     munged.collect do |pair|
       (content,name) = pair
       content if name == @scope_name
-    end.reject { |v| v.nil? }.first
+    end.reject { |val| val.nil? }.first
   end
 
   def parse(txt)

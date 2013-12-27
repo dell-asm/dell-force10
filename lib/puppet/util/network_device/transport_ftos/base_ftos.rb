@@ -1,3 +1,4 @@
+#The base class providing generic methods for supporting different transport protocols.
 require 'puppet/util/network_device'
 require 'puppet/util/network_device/transport_ftos'
 

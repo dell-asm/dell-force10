@@ -1,3 +1,4 @@
+#This class is responsible for telnet specific transport to the switch  
 require 'puppet/util/network_device'
 require 'puppet/util/network_device/transport_ftos'
 require 'puppet/util/network_device/transport_ftos/base_ftos'
@@ -20,8 +21,8 @@ class Puppet::Util::NetworkDevice::Transport_ftos::Telnet < Puppet::Util::Networ
       "Prompt" => default_prompt)
     rescue TimeoutError
       raise TimeoutError, "Telnet timed out while trying to connect to #{host}"
-    rescue => e
-      #raise Puppet::Error, "Unable to connect to #{host}: #{e.message}"
+    rescue => error
+      #raise Puppet::Error, "Unable to connect to #{host}: #{error.message}"
       raise Puppet::Error, "Telnet connection failure to #{host}"
     end
   end
