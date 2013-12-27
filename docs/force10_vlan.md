@@ -2,18 +2,18 @@
 # Access Mechanism 
 # --------------------------------------------------------------------------
 
-The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch device.
+The Dell Force10 switch module uses telnet/SSH to access Dell Force10 switches.
 
 # --------------------------------------------------------------------------
-#  Supported Functionality
+# Supported Functionality
 # --------------------------------------------------------------------------
 
 	- Create VLAN
 	- Delete VLAN
 	- Add interface to VLAN
 	- Delete interface to VLAN
-	- Add port-channel to VLAN
-	- Delete port-channel to VLAN
+	- Add port channel to VLAN
+	- Delete port channel to VLAN
 
 # -------------------------------------------------------------------------
 # Functionality Description
@@ -22,65 +22,65 @@ The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch dev
 
   1. Create VLAN
 
-     The method create a VLAN with given VLAN ID and supported information(for the time being only desc, tagged and untagged attributes available). 
+     This method creates a VLAN based on the VLAN ID specified and the supported information. The VLAN information that are currently supported are description, tagged, and untagged attributes. 
   2. Delete VLAN
 
-     The method deletes a VLAN having given VLAN ID.  
+     This method deletes a VLAN based on the VLAN ID specified.  
   3. Add interface to VLAN (apply tagged/untagged for interface)
 
-     The method add interface as tagged/untagged for a given VLAN.If  interface does not exists it will throw error. 
+     This method adds the interface to the VLAN specified as 'tagged' or 'untagged'. If the interface does not exist, then it will display an exception. 
   4. Delete interface to VLAN(apply 'no tagged'/'no untagged' for interface)
 
-     The method delete interface as 'no tagged'/'no untagged' for a given VLAN.If  interface does not exists it will throw error.
-  5. Add Port-channel to VLAN(apply tagged/untagged for port-channel)
+     This method deletes the interface of the VLAN specified as 'no tagged' or 'no untagged'. If the interface does not exist, then it will display an exception.
+  5. Add port channel to VLAN(apply tagged/untagged for port-channel)
 
-     The method add port-channel tagged/untagged for a given VLAN.If  port-channel does not exists it will throw error. 
-  4. Delete Port-channel to VLANapply 'no tagged'/'no untagged' for port-channel)
+     This method adds the port channel to the VLAN specified as 'tagged' or 'untagged'. If the port channel does not exist, then it will display an exception. 
+  4. Delete port channel to VLANapply 'no tagged'/'no untagged' for port channel)
 
-     The method delete port-channel as 'no tagged'/'no untagged' for a given VLAN.If  port-channel does not exists it will throw error.
+     This method deletes the port channel of the VLAN specified as 'no tagged'/'no untagged'. If the port channel does not exist, then it will display an exception.
 
 
 # -------------------------------------------------------------------------
-# Summary of parameters.
+# Summary of Parameters
 # -------------------------------------------------------------------------
 
-    name: (Required)This parameter defines the vlanid of the VLAN.
-		   Value should be between 1-4094
+	name: (Required)This parameter defines the VLAN ID of the VLAN.
+	      The value must be between 1 and 4094.
 	
-	desc: Name of the VLAN
-		  Should be a string value with maximum 100 characters
+	desc: This parameter defines the name of the VLAN
+	      The value must be a string and cannot exceed 100 characters.
 	
-	tagged_tengigabitethernet: TegGigabitEthernet interface need to be tagged(can provide as single or as range with comma seperated or Ex:0/16-0/17 or 0/18)
+	tagged_tengigabitethernet: This parameter defines the TegGigabitEthernet interface that needs to be tagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 	
-	tagged_gigabitethernet:GigabitEthernet interface need to be tagged(can provide as single or as range with comma seperated Ex:0/16-0/17 or 0/18)
+	tagged_gigabitethernet:This parameter defines the GigabitEthernet interface that needs to be tagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 	
-	tagged_portchannel:Port-channel need to be tagged(can provide as single or multiple values with comma seperated Ex:1,2 or 3)
+	tagged_portchannel: This parameter defines the port channel that needs to be tagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 	
-	tagged_sonet:SONET interface need to be tagged(can provide as single or multiple values with comma seperated Ex:1,2 or 3)
+	tagged_sonet: This parameter defines the SONET interface that needs to be tagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 	
-	untagged_tengigabitethernet: TegGigabitEthernet interface need to be untagged(can provide as single or as range with comma seperated or Ex:0/16-0/17 or 0/18)
+	untagged_tengigabitethernet: This parameter defines the TegGigabitEthernet interface that needs to be untagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 	
-	untagged_gigabitethernet:GigabitEthernet interface need to be untagged(can provide as single or as range with comma seperated Ex:0/16-0/17 or 0/18)
+	untagged_gigabitethernet: This parameter defines GigabitEthernet interface that needs to be untagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 	
-	untagged_portchannel:Port-channel need to be untagged(can provide as single or multiple values with comma seperated Ex:1,2 or 3)
+	untagged_portchannel: This parameter defines the port channel that needs to be untagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 	
-	untagged_sonet:SONET interface need to be untagged(can provide as single or multiple values with comma seperated Ex:1,2 or 3)
+	untagged_sonet: This parameter defines the SONET interface that needs to be untagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 		
     
 # -------------------------------------------------------------------------
-# Parameter signature 
+# Parameter Signature 
 # -------------------------------------------------------------------------
 
 #Provide transport and Map properties
 
     #Add VLAN 180
 	force10_vlan {
-		  '180':    	
+		  true:    	
 			desc     => 'test',
 			ensure => present;
 		}
 		
-    # This will add TenGigabitEthernet 0/16 and 0/17 interfaces to vlan 180 as tagged
+    # This will add TenGigabitEthernet 0/16 and 0/17 interfaces to VLAN 180 as tagged
 	force10_vlan {
 	  '180':    	
 		desc     => 'test',
@@ -88,7 +88,7 @@ The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch dev
 		tagged_tengigabitethernet => '0/16-17';    
 	}
 	
-	# This will add TenGigabitEthernet 0/16 and 0/17 Port-channel to vlan 180 as untagged
+	# This will add TenGigabitEthernet 0/16 and 0/17 Port-channel to VLAN 180 as untagged
 	force10_vlan {
 	  '180':    	
 		desc     => 'test',
@@ -100,8 +100,8 @@ The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch dev
 # --------------------------------------------------------------------------
 # Usage
 # --------------------------------------------------------------------------
-   Refer to the examples in the manifest directory.
-  The following files capture the details for the sample init.pp and the supported files:
+  Refer to the examples in the manifest directory.
+  The following files contain the details of the sample init.pp and the supported files:
    
     - sample_vlan.pp
 	- sample_vlan_taginterface.pp

@@ -23,19 +23,19 @@ Puppet::Type.newtype(:force10_vlan) do
     isnamevar     
     validate do |value|
       return if value == :absent
-     raise ArgumentError, "'name(VLAN ID)' vlaue must be between 1-4094" unless value.to_i >= 1 && value.to_i <= 4094
+     raise ArgumentError, "An invalid VLAN ID is entered. The VLAN ID must be between 1 and 4094." unless value.to_i >= 1 && value.to_i <= 4094
     end
 	newvalues(/^\d+$/)
 end
 
   newproperty(:desc) do
    validate do |url|
-      raise ArgumentError, "desc(VLAN ID)' should be a string" unless url.is_a? String
+      raise ArgumentError, "An invalid description is entered for the VLAN ID. The description must be a string." unless url.is_a? String
     end  
  
    validate do |value|
     return if value == :absent
-    raise ArgumentError, "'desc(VLAN ID)' should be a string with max 100 characters" unless value.length <= 100
+    raise ArgumentError, "An invalid description is entered for the VLAN ID. The description cannot exceed 100 characters." unless value.length <= 100
     end 
    newvalues(/^(\w\s*)*?$/)	
   end

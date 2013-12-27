@@ -2,7 +2,7 @@
 # Access Mechanism 
 # --------------------------------------------------------------------------
 
-The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch device.
+The Dell Force10 switch module uses telnet/SSH to access Dell Force10 switches.
 
 # --------------------------------------------------------------------------
 #  Supported Functionality
@@ -18,25 +18,24 @@ The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch dev
 
   1. Add/Update switch running configuration
 
-     The method add or update the switch 'running' configuration. 
+     This method supports the functionality to add or update the switch 'running' configuration. 
   2. Add/Update switch startup configuration
 
-     The method add or update the switch 'startup' configuration. 
+     The method supports the functionality to add or update the switch 'startup' configuration. 
 
 
 # -------------------------------------------------------------------------
-# Summary of parameters.
+# Summary of Parameters
 # -------------------------------------------------------------------------
 
-    name: (Required)This parameter defines the name of the operation.
-		   Should be a string value with maximum 100 characters
+    name: (Required)This parameter defines the name of the operation. The parameter name can contain any string.
 	
-	url:This parameter defines the TFTP turl of the configuration file.				
+	url:This parameter defines the TFTP URL of the configuration file.				
 				
-	force:This parameter enables configuration force apply.
-		If the value true it will forcefully apply the configuration, if no configuration changes appear also.
-		If the value false it will not apply the configuration if no configuration changes present.
-		value must be either true or false.		
+	force:Use this parameter to force configuration update on the switch.
+		If the value is set to "true", it will force configuration update on the switch even if configuration changes are not required.
+		If the value is set to "false", it will not update the configuration on the switch if configuration changes are not required.
+		The possible values are "true" or "false".		
     
 # -------------------------------------------------------------------------
 # Parameter signature 
@@ -55,8 +54,8 @@ The Dell Force10 switch module uses telnet/ssh to access Dell Force10 switch dev
 # --------------------------------------------------------------------------
 # Usage
 # --------------------------------------------------------------------------
-   Refer to the examples in the manifest directory.
-  The following files capture the details for the sample init.pp and the supported files:
+  Refer to the examples in the manifest directory.
+  The following file contain the details for the sample init.pp and the supported files:
    
     - sample_config.pp
    

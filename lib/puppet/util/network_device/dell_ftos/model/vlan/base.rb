@@ -42,14 +42,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("name #{value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," adding 'name' property value")
+		parseforerror(txt,"add the property value for the parameter 'name')
 		end
       end
      remove do |transport, old_value|        
         transport.command("no name #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'name' property old value")
+		parseforerror(txt,"remove the old property value of the parameter 'name'")
       end 
     end
 
@@ -62,14 +62,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
 			transport.command("tagged TenGigabitEthernet #{value}") do |out|			
 			  txt<< out
 		    end
-			parseforerror(txt," adding 'tagged TenGigabitEthernet' property value")
+			parseforerror(txt,"add the property value for the parameter 'tagged TenGigabitEthernet'")
 		end
       end
       remove do |transport, old_value|        
         transport.command("no tagged TenGigabitEthernet #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'tagged TenGigabitEthernet' property old value")
+		parseforerror(txt,"remove the old property value of the parameter 'tagged TenGigabitEthernet'")
       end      
     end
 	
@@ -81,14 +81,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("tagged Port-channel #{value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," adding 'tagged Port-channel' property value")
+		parseforerror(txt,"add the property value for the parameter 'tagged Port-channel'")
 		end
       end
       remove do |transport, old_value|        
         transport.command("no tagged Port-channel #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'tagged Port-channel' property old value")
+		parseforerror(txt,"to remove the old property value of the parameter 'tagged Port-channel'")
       end      
     end
 	
@@ -100,14 +100,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("tagged GigabitEthernet #{value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," adding 'tagged GigabitEthernet'' property value")
+		parseforerror(txt,"add the property value for the parameter 'tagged GigabitEthernet'")
 		end
       end
       remove do |transport, old_value|        
         transport.command("no tagged GigabitEthernet #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'tagged GigabitEthernet' property old value")
+		parseforerror(txt,"remove the property value of the parameter 'tagged GigabitEthernet'")
       end      
     end
 	
@@ -119,14 +119,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("tagged Sonet #{value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," adding 'tagged Sonet' property value")
+		parseforerror(txt,"add the property value for the parameter 'tagged Sonet property'")
 		end
       end
       remove do |transport, old_value|        
         transport.command("no tagged Sonet #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'tagged Sonet' property old value")
+		parseforerror(txt,"remove the property value of the parameter 'tagged Sonet property'")
       end      
     end	      
 	
@@ -138,14 +138,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
 			transport.command("untagged TenGigabitEthernet #{value}") do |out|			
 			  txt<< out
 		    end
-			parseforerror(txt," adding 'untagged TenGigabitEthernet' property value")
+			parseforerror(txt,"add the property value for the parameter 'untagged TenGigabitEthernet'")
 		end
       end
       remove do |transport, old_value|        
         transport.command("no untagged TenGigabitEthernet #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'untagged TenGigabitEthernet' property old value")
+		parseforerror(txt,"remove the old property value of the parameter 'untagged TenGigabitEthernet'")
       end      
     end
 	
@@ -157,14 +157,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("untagged Port-channel #{value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," adding 'untagged Port-channel' property value")
+		parseforerror(txt,"add the property value for the parameter 'untagged Port-channel'")
 		end
       end
       remove do |transport, old_value|        
         transport.command("no untagged Port-channel #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'untagged Port-channel' property old value")
+		parseforerror(txt,"to remove the old property value of the parameter 'untagged Port-channel'")
       end      
     end
 	
@@ -176,14 +176,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("untagged GigabitEthernet #{value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," adding 'untagged GigabitEthernet'' property value")
+		parseforerror(txt,"add the property value for the parameter 'untagged GigabitEthernet'")
 		end
       end
       remove do |transport, old_value|        
         transport.command("no untagged GigabitEthernet #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'untagged GigabitEthernet' property old value")
+		parseforerror(txt,"remove the property value of the parameter 'untagged GigabitEthernet'")
       end      
     end
 	
@@ -195,14 +195,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         transport.command("untagged Sonet #{value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," adding 'untagged Sonet' property value")
+		parseforerror(txt,"add the property value for the parameter 'untagged Sonet'")
 		end
       end
       remove do |transport, old_value|        
         transport.command("no untagged Sonet #{old_value}") do |out|			
 			txt<< out
 		end
-		parseforerror(txt," removing 'untagged Sonet' property old value")
+		parseforerror(txt,"remove the property value of the parameter 'untagged Sonet'")
       end      
     end	      
   end  

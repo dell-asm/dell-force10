@@ -1,4 +1,4 @@
-#Provide for force10 'CONFIG' Type
+#Provider for force10 'CONFIG' Type
 #Compares provided configuration MD5 with existing configuration MD5 and so apply the configuration if any change found
 #Can use Force option for applying configuration always
 
@@ -56,14 +56,14 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
        dev.transport.command('copy ' +url+' temp-config') do |out|
 	   tftpcopytxt<< out       
 	   end
-	   parseforerror(tftpcopytxt,'copying TFTP file')
+	   parseforerror(tftpcopytxt,'copy the TFTP file')
 	   
 	   #Calculate MD5 for TFTP config file 
 	   tftpfilecontent=''
 	   dev.transport.command('show file flash://temp-config') do |out| 
         tftpfilecontent<< out
        end 	   	
-	   parseforerror(tftpfilecontent,'retrieving local stored TFTP config file')
+	   parseforerror(tftpfilecontent,'retrieve the locally stored TFTP config file')
 	   #Remove the command string from output
        tftpfilecontent.slice!(0..tftpfilecontent.index('!'))
 		   
@@ -85,8 +85,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 			#Delete existing backup file
 			dev.transport.command('delete flash://'+config+'-backup  no-confirm')
 			dev.transport.command('copy '+config+' flash://'+config+'-backup')			
-			
-			Puppet.debug startupconfigexists
+						
 			#In case startup-config already exists it will prompt for overwrite confirmation
 			if config=='startup-config' && startupconfigexists						
 				dev.transport.command('copy flash://temp-config '+config, :prompt => /.\n/)
@@ -96,7 +95,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 				dev.transport.command('copy flash://temp-config '+config) do |out|			
 				  txt<< out
 				end
-				 parseforerror(txt,"applying running configuration")
+				 parseforerror(txt,"apply the running configuration")
 			end
 	   end
 	   
@@ -127,7 +126,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
    def parseforerror(outtxt,placestr)
    if outtxt =~/Error:\s*(.*)/
 			Puppet.info "ERROR:#{$1}"
-			raise "Error occurred in - "+placestr+", Error:#{$1}"
+			raise "Unable to "+placestr+".Reason:#{$1}"
      end
   end   
 end

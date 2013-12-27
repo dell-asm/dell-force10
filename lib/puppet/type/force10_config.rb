@@ -14,19 +14,19 @@ Puppet::Type.newtype(:force10_config) do
   newparam(:name) do
     isnamevar
 	validate do |name|
-      raise ArgumentError, "name' should be a string" unless name.is_a? String
+      raise ArgumentError, "An invalid  configuration name is entered. The configuration name must be a string." unless name.is_a? String
     end  
  
    validate do |value|
     return if value == :absent
-    raise ArgumentError, "'name' should be a string with max 100 characters" unless value.length <= 100
+    raise ArgumentError, "An invalid configuration name is entered. The configuration name can contain only 100 characters." unless value.length <= 100
     end 
 	newvalues(/^(\w\s*)*?$/)
   end
 
   newparam(:url) do     
     validate do |url|
-      raise ArgumentError, "Urlmust be a in format of tftp://${deviceRepoServerIPAddress}/${fileLocation} " unless url.is_a? String
+      raise ArgumentError, "An invalid url is entered.Url must be a in format of tftp://${deviceRepoServerIPAddress}/${fileLocation}." unless url.is_a? String
     end
   end  
 
