@@ -29,15 +29,32 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
     dev.transport.command('delete flash://last-config no-confirm')
 
     #Calculate MD5 for running configuration, if exists
-    localfilecontent	=''
+    localfilecontent  =''
     if config=='startup-config'
-      dev.transport.command('show file flash://startup-config') do |out|
-        localfilecontent<< out
+      if dev.transport.class.name.include? "Telnet"
+        dev.transport.command('show file flash://startup-config') do |out|
+          localfilecontent<< out
+        end
+      else
+        # In case of SSH 'out' is not returning continuous chunks of the console output
+        # SSH 'out' chunks having repeat data i.e. each chunk having data from command output 'starting line'
+        # And so clearing localfilecontent in loop, and so taking last output chunk
+        dev.transport.command('show file flash://startup-config') do |out|
+          localfilecontent =''
+          localfilecontent<< out
+        end
       end
     else
       dev.transport.command('copy running-config flash://last-config')
-      dev.transport.command('show file flash://last-config') do |out|
-        localfilecontent<< out
+      if dev.transport.class.name.include? "Telnet"
+        dev.transport.command('show file flash://last-config') do |out|
+          localfilecontent<< out
+        end
+      else
+        dev.transport.command('show file flash://last-config') do |out|
+          localfilecontent =''
+          localfilecontent<< out
+        end
       end
     end
     if localfilecontent =~/Error:\s*(.*)/
@@ -59,8 +76,15 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 
     #Calculate MD5 for TFTP config file
     tftpfilecontent=''
-    dev.transport.command('show file flash://temp-config') do |out|
-      tftpfilecontent<< out
+    if dev.transport.class.name.include? "Telnet"
+      dev.transport.command('show file flash://temp-config') do |out|
+        tftpfilecontent<< out
+      end
+    else
+      dev.transport.command('show file flash://temp-config') do |out|
+        tftpfilecontent=''
+        tftpfilecontent<< out
+      end
     end
     parseforerror(tftpfilecontent,'retrieve the locally stored TFTP config file')
     #Remove the command string from output
@@ -76,9 +100,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       Puppet.info "No Configuration change"
     else
       #TODO:Sending notification to all opened terminals
-      dev.transport.command('send *', :prompt => /.\n/)
-      dev.transport.send("Applying configuration now!!! \x1A")
-      dev.transport.send("\r")
+      sendnotification("Applying configuration now!!!")
 
       #Taking Backup of existing configuration
       #Delete existing backup file
@@ -86,9 +108,15 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       dev.transport.command('copy '+config+' flash://'+config+'-backup')
 
       #In case startup-config already exists it will prompt for overwrite confirmation
-      if config=='startup-config' && startupconfigexists
-        dev.transport.command('copy flash://temp-config '+config, :prompt => /.\n/)
-        dev.transport.command("yes")
+      if config=='startup-config'
+        if startupconfigexists
+          dev.transport.command('copy flash://temp-config '+config, :prompt => /.\n/)
+          dev.transport.command("yes")
+        else
+          dev.transport.command('copy flash://temp-config '+config) do |out|
+            txt<< out
+          end
+        end
         startupconfigchanged=true
       else
         dev.transport.command('copy flash://temp-config '+config) do |out|
@@ -105,16 +133,11 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 
     if startupconfigchanged
       #TODO:Sending notification to all opened terminals
-      dev.transport.command('send *', :prompt => /.\n/)
-      dev.transport.send("Rebooting the switch Now!!! \x1A")
-      dev.transport.send("\r")
+      sendnotification("Rebooting the switch Now!!!")
 
       #Reboot the switch
-      dev.transport.command('reload', :prompt => /.\n/)
-      #For reload it will prompt for configuration modified confirmation
-      dev.transport.send("yes")
-      #For reload it will prompt for reload confirmation
-      dev.transport.send("yes")
+      rebootswitch()
+
     end
     return txt
   end
@@ -124,5 +147,61 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       Puppet.info "ERROR:#{$1}"
       raise "Unable to "+placestr+".Reason:#{$1}"
     end
+  end
+
+  def rebootswitch()
+    dev = Puppet::Util::NetworkDevice.current
+    flagfirstresponse=false
+    flagsecondresponse=false
+    flagthirdresponse=false
+
+    dev.transport.command("reload")  do |out|
+      firstresponse =out.scan("System configuration has been modified")
+      secondresponse = out.scan("Proceed with reload")
+      unless firstresponse.empty?
+        flagfirstresponse=true
+        break
+      end
+      unless secondresponse.empty?
+        flagsecondresponse=true
+        break
+      end
+    end
+
+    if flagfirstresponse
+      dev.transport.command("yes") do |out|
+        thirdresponse = out.scan("Proceed with reload")
+        unless thirdresponse.empty?
+          flagthirdresponse=true
+          break
+        end
+      end
+      if flagthirdresponse
+        dev.transport.command("yes") do |out|
+		#without this block expecting for prompt and so hanging
+          break
+        end
+      else
+        Puppet.debug "Expected output not met and so switch not restarted"
+      end
+    end
+    if flagsecondresponse
+      dev.transport.command("yes") do |out|
+	  #without this block expecting for prompt and so hanging
+        break
+      end
+    else
+      Puppet.debug "Expected output not met and so switch not restarted"
+    end
+
+    Puppet.debug("Going to sleep for 5 minutes, for switch reboot...")
+    sleep 300
+  end
+
+  def sendnotification(msg)
+    dev = Puppet::Util::NetworkDevice.current
+    dev.transport.command("send *",:prompt => /Enter message./)
+    dev.transport.command(msg+"\x1A",:prompt => /Send message./)
+    dev.transport.command("\r")
   end
 end
