@@ -148,6 +148,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       raise "Unable to "+placestr+".Reason:#{$1}"
     end
   end
+  $rebootrycount=0;
 
   def rebootswitch()
     dev = Puppet::Util::NetworkDevice.current
@@ -168,6 +169,12 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       end
     end
 
+    #Some times sending reload command returning with console prompt without doing anything, in that case retry max for 3 times
+    if (!flagfirstresponse && !flagsecondresponse) && rebootrycount<3
+      rebootrycount=rebootrycount+1
+      rebootswitch()
+    end
+
     if flagfirstresponse
       dev.transport.command("yes") do |out|
         thirdresponse = out.scan("Proceed with reload")
@@ -178,24 +185,33 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       end
       if flagthirdresponse
         dev.transport.command("yes") do |out|
-		#without this block expecting for prompt and so hanging
+          #without this block expecting for prompt and so hanging
           break
         end
       else
-        Puppet.debug "Expected output not met and so switch not restarted"
+        Puppet.debug "ELSE BLOCK1.2"
       end
+    else
+      Puppet.debug "ELSE BLOCK1.1"
     end
     if flagsecondresponse
       dev.transport.command("yes") do |out|
-	  #without this block expecting for prompt and so hanging
+        #without this block expecting for prompt and so hanging
         break
       end
     else
-      Puppet.debug "Expected output not met and so switch not restarted"
+      Puppet.debug "ELSE BLOCK2"
     end
 
-    Puppet.debug("Going to sleep for 5 minutes, for switch reboot...")
-    sleep 300
+    #Sleep for 3 mins to wait for switch to come up
+    Puppet.debug("Going to sleep for 3 minutes, for switch reboot...")
+    sleep 180
+
+    #Re-establish transport session
+    Puppet.debug("Trying to reconnect to switch...")
+    dev.connect_transport
+    dev.switch.transport=dev.transport
+    Puppet.debug("Session established...")
   end
 
   def sendnotification(msg)
