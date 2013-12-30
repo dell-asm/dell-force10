@@ -41,10 +41,19 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       after 'uptime_seconds'
     end
 
+    base.register_param '34_port_interfaces' do
+      #match /(.*)\s34-port GE\/TE \(XL\)/
+      match do |txt|
+        item = txt.scan(/(\d*)\s34-port/).flatten.first
+        item.strip unless item.nil?
+      end
+      cmd CMD_SHOW_VERSION
+    end
+
     base.register_param '48_port_interfaces' do
       #match /(.*)\s48-port E\/FE\/GE \(SD\)/
       match do |txt|
-        item = txt.scan(/(.*)\s48-port E\/FE\/GE \(SD\)/).flatten.first
+        item = txt.scan(/(\d*)\s48-port/).flatten.first
         item.strip unless item.nil?
       end
       cmd CMD_SHOW_VERSION
@@ -53,7 +62,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
     base.register_param '52_port_interfaces' do
       #match /(.*)\s52-port GE\/TE\/FG \(SE\)/
       match do |txt|
-        item = txt.scan(/(\d*)\s52-port GE\/TE\/FG \(SE\)/).flatten.first
+        item = txt.scan(/(\d*)\s52-port/).flatten.first
         item.strip unless item.nil?
       end
       cmd CMD_SHOW_VERSION
@@ -131,7 +140,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
         res = Hash.new
         txt.split(/^$/).map do |line|
           if line =~ /^Software\s+Protocol\s+Configured\s+$/ then
-           count=0
+            count=0
             line.split(/\r?\n/).map do |item|
               #Puppet.debug("Item******: OUT #{item}")
               #removed "-" since it is valid char in protocol like Spanning-Tree
