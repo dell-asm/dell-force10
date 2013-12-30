@@ -157,7 +157,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       sendnotification("Rebooting the switch Now!!!")
 
       #Reboot the switch
-      rebootswitch()
+      tryrebootswitch()
 
     end
     return txt
@@ -168,7 +168,15 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       raise "Unable to "+placestr+".Reason:#{$1}"
     end
   end
-  $rebootrycount=0;
+
+  def tryrebootswitch()
+    #Some times sending reload command returning with console prompt without doing anything; in that case retry reload, for max 3 times
+    for i in 0..2
+      if rebootswitch()
+        break
+      end
+    end
+  end
 
   def rebootswitch()
     dev = Puppet::Util::NetworkDevice.current
@@ -189,10 +197,9 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       end
     end
 
-    #Some times sending reload command returning with console prompt without doing anything, in that case retry max for 3 times
-    if (!flagfirstresponse && !flagsecondresponse) && rebootrycount<3
-      rebootrycount=rebootrycount+1
-      rebootswitch()
+    #Some times sending reload command returning with console prompt without doing anything, in that case retry reload
+    if !flagfirstresponse && !flagsecondresponse
+      return false
     end
 
     if flagfirstresponse
@@ -223,7 +230,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       Puppet.debug "ELSE BLOCK2"
     end
 
-    #Sleep for 3 mins t wait for switch to come up
+    #Sleep for 3 mins to wait for switch to come up
     Puppet.info("Going to sleep for 3 minutes, for switch reboot...")
     sleep 180
 
@@ -232,6 +239,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
     dev.connect_transport
     dev.switch.transport=dev.transport
     Puppet.info("Session established...")
+    return true
   end
 
   def sendnotification(msg)

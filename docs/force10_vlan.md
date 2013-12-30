@@ -53,7 +53,9 @@ The Dell Force10 switch module uses telnet/SSH to access Dell Force10 switches.
 	vlan_name:This parameter defines the name of the VLAN
 	      The value must be a string and cannot exceed 100 characters.
 	
-	tagged_tengigabitethernet: This parameter defines the TegGigabitEthernet interface that needs to be tagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
+	tagged_tengigabitethernet: This parameter defines the TenGigabitEthernet interface that needs to be tagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
+	
+	tagged_fortygigabitethernet: This parameter defines the FortyGigabitEthernet interface that needs to be tagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 	
 	tagged_gigabitethernet:This parameter defines the GigabitEthernet interface that needs to be tagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 	
@@ -62,6 +64,8 @@ The Dell Force10 switch module uses telnet/SSH to access Dell Force10 switches.
 	tagged_sonet: This parameter defines the SONET interface that needs to be tagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 	
 	untagged_tengigabitethernet: This parameter defines the TegGigabitEthernet interface that needs to be untagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
+	
+	untagged_fortygigabitethernet: This parameter defines the FortyGigabitEthernet interface that needs to be untagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 	
 	untagged_gigabitethernet: This parameter defines GigabitEthernet interface that needs to be untagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 	

@@ -56,6 +56,10 @@ Puppet::Type.newtype(:force10_vlan) do
     desc "The TenGigabitEthernet interfaces names to add as tagged to this VLAN."
   end
 
+  newproperty(:tagged_fortygigabitethernet) do
+    desc "The fortyGigE interfaces names to add as tagged to this VLAN."
+  end
+
   newproperty(:tagged_portchannel) do
     desc "The Port-channel interfaces names to add as tagged to this VLAN."
   end
@@ -70,6 +74,10 @@ Puppet::Type.newtype(:force10_vlan) do
 
   newproperty(:untagged_tengigabitethernet) do
     desc "The TenGigabitEthernet interfaces names to add as untagged to this VLAN."
+  end
+
+  newproperty(:untagged_fortygigabitethernet) do
+    desc "The fortyGigE interfaces names to add as untagged to this VLAN."
   end
 
   newproperty(:untagged_portchannel) do

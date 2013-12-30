@@ -89,6 +89,25 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       end
     end
 
+    base.register_scoped :tagged_fortygigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do
+      match /^\s*tagged fortyGigE\s+(.*?)\s*$/
+      cmd 'sh run'
+      add do |transport, value|
+        if value != 'absent'
+          transport.command("tagged fortyGigE #{value}") do |out|
+            txt<< out
+          end
+          parseforerror(txt,"add the property value for the parameter 'tagged fortyGigE'")
+        end
+      end
+      remove do |transport, old_value|
+        transport.command("no tagged fortyGigE #{old_value}") do |out|
+          txt<< out
+        end
+        parseforerror(txt,"remove the old property value of the parameter 'tagged fortyGigE'")
+      end
+    end
+
     base.register_scoped :tagged_portchannel, /^(interface Vlan\s+(\S+).*?)^!/m do
       match /^\s*tagged Port-channel\s+(.*?)\s*$/
       cmd 'sh run'
@@ -162,6 +181,25 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
           txt<< out
         end
         parseforerror(txt,"remove the old property value of the parameter 'untagged TenGigabitEthernet'")
+      end
+    end
+
+    base.register_scoped :untagged_fortygigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do
+      match /^\s*untagged fortyGigE\s+(.*?)\s*$/
+      cmd 'sh run'
+      add do |transport, value|
+        if value != 'absent'
+          transport.command("untagged fortyGigE #{value}") do |out|
+            txt<< out
+          end
+          parseforerror(txt,"add the property value for the parameter 'untagged fortyGigE'")
+        end
+      end
+      remove do |transport, old_value|
+        transport.command("no untagged fortyGigE #{old_value}") do |out|
+          txt<< out
+        end
+        parseforerror(txt,"remove the old property value of the parameter 'untagged fortyGigE'")
       end
     end
 
