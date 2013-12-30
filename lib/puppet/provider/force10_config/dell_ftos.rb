@@ -21,7 +21,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
     txt = ''
     digesttftpfile=''
     digestlocalfile=''
-    startupconfigexists=true
+    configexists=true
     startupconfigchanged=false
 
     #delete temporary configuration files if exists
@@ -59,10 +59,17 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
     end
     if localfilecontent =~/Error:\s*(.*)/
       Puppet.info "No current configuration exists "
-      startupconfigexists=false
+      configexists=false
     else
-      #Remove the command string(show file flash://last-config) from output
-      localfilecontent.slice!(0..localfilecontent.index('!'))
+      #Remove the following information(sections) from content and so calculate MD5
+      #command string(show file flash://last-config)
+      #version
+      #Last configuration change date
+      #startup config last updated date
+
+      for i in 0..3
+        localfilecontent.slice!(0..localfilecontent.index('!'))
+      end
 
       digestlocalfile = Digest::MD5.hexdigest(localfilecontent)
     end
@@ -87,8 +94,16 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       end
     end
     parseforerror(tftpfilecontent,'retrieve the locally stored TFTP config file')
-    #Remove the command string from output
-    tftpfilecontent.slice!(0..tftpfilecontent.index('!'))
+
+    #Remove the following information(sections) from content and so calculate MD5
+    #command string(show file flash://last-config)
+    #version
+    #Last configuration change date
+    #startup config last updated date
+
+    for i in 0..3
+      tftpfilecontent.slice!(0..tftpfilecontent.index('!'))
+    end
 
     digesttftpfile = Digest::MD5.hexdigest(tftpfilecontent)
 
@@ -100,6 +115,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       Puppet.info "No Configuration change"
     else
       #TODO:Sending notification to all opened terminals
+      Puppet.info "Configuration changed, applying configuration now!!!"
       sendnotification("Applying configuration now!!!")
 
       #Taking Backup of existing configuration
@@ -109,7 +125,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 
       #In case startup-config already exists it will prompt for overwrite confirmation
       if config=='startup-config'
-        if startupconfigexists
+        if configexists
           dev.transport.command('copy flash://temp-config '+config, :prompt => /.\n/)
           dev.transport.command("yes")
         else
@@ -126,6 +142,10 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       end
     end
 
+  rescue Exception => e
+    Puppet.err e.message
+    Puppet.err e.backtrace.inspect
+
     #ensure: Always delete the temporary files
   ensure
     dev.transport.command('delete flash://last-config no-confirm')
@@ -133,6 +153,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 
     if startupconfigchanged
       #TODO:Sending notification to all opened terminals
+      Puppet.info("Rebooting the switch Now!!!")
       sendnotification("Rebooting the switch Now!!!")
 
       #Reboot the switch
@@ -144,7 +165,6 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 
   def parseforerror(outtxt,placestr)
     if outtxt =~/Error:\s*(.*)/
-      Puppet.info "ERROR:#{$1}"
       raise "Unable to "+placestr+".Reason:#{$1}"
     end
   end
@@ -203,15 +223,15 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       Puppet.debug "ELSE BLOCK2"
     end
 
-    #Sleep for 3 mins to wait for switch to come up
-    Puppet.debug("Going to sleep for 3 minutes, for switch reboot...")
+    #Sleep for 3 mins t wait for switch to come up
+    Puppet.info("Going to sleep for 3 minutes, for switch reboot...")
     sleep 180
 
-    #Re-establish transport session
-    Puppet.debug("Trying to reconnect to switch...")
+    #Reesatblish transport session
+    Puppet.info("Trying to reconnect to switch...")
     dev.connect_transport
     dev.switch.transport=dev.transport
-    Puppet.debug("Session established...")
+    Puppet.info("Session established...")
   end
 
   def sendnotification(msg)
