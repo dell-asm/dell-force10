@@ -24,8 +24,8 @@ class Puppet::Util::NetworkDevice::Base_ftos
         @transport.user = decrypt(master, [@url.user].pack('h*'))
         @transport.password = decrypt(master, [@url.password].pack('h*'))
       else
-        @transport.user = @url.user
-        @transport.password = @url.password
+        @transport.user = URI.decode(@url.user)
+        @transport.password = URI.decode(@url.password)
       end
     end
   end
