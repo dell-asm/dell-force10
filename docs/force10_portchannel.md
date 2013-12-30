@@ -31,10 +31,13 @@ on the Dell Force10 switches.
 				If the value does not exists, the property remains unchanged (default or old values).
 				The mtu value must be between  594 and 12000.
 		
-	shutdown: - This parameter defines whether or not to shut down the interface. 
+	switchport- This parameter defines whether or not to sset the port channel in switchport mode. 
+				The possible values are true or false. The default value is "false".
+				If the value is "true", it sets the portchannel in switchport mode.
+
+				shutdown: - This parameter defines whether or not to shut down the interface. 
 				The possible values are true or false. The default value is "false".
 				If the value is "true", it shuts down the interface.
-				The value must be between 594 and 12000.
 				
 	ensure: - This parameter defines whether to create the specified port channel or delete the specified port channel from the switch.
 	          The possible values are "present" or "absent".
@@ -50,6 +53,7 @@ on the Dell Force10 switches.
 						'128':
 						desc  => 'Port Channel for server connectivity',
 						mtu=>'600',
+						switchport=>true,
 						shutdown=>true,
 						ensure=>present;
 	
