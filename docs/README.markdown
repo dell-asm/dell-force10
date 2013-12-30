@@ -80,6 +80,25 @@ node "force10.example.com" {
 		tagged_tengigabitethernet => '0/16-17';    
 	}
 }
+
+Can use 'require' property to maintain order between resource configurations, as below
+node "force10.example.com" {
+	#Apply startup-configuration
+	force10_config{'apply config':    	
+    url     => 'tftp://172.152.0.36/startup-config',    
+    startup_config => true,
+    force	=>	true; 
+	}	
+	#Create VLAN 180 after applying configuration, order maintained using 'require'
+	force10_vlan {'180':    	
+    desc     => 'test',
+    ensure => present, 
+    vlan_name=>'test name', 
+    require => force10_config['apply config']; 
+	}	
+}
+
+
 This creates VLAN 180 and add TenGigabitEthernet 0/16 and 0/17 interfaces as tagged in the above definition.
 You can also use any of the above operations individually, or create new defined types, as required. The details of each operation and parameters 
 are mentioned in the following readme files that are shipped with the following modules:

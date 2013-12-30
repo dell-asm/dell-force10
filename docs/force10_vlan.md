@@ -47,7 +47,10 @@ The Dell Force10 switch module uses telnet/SSH to access Dell Force10 switches.
 	name: (Required)This parameter defines the VLAN ID of the VLAN.
 	      The value must be between 1 and 4094.
 	
-	desc: This parameter defines the name of the VLAN
+	desc: This parameter defines the description of the VLAN
+	      The value must be a string and cannot exceed 100 characters.
+	
+	vlan_name:This parameter defines the name of the VLAN
 	      The value must be a string and cannot exceed 100 characters.
 	
 	tagged_tengigabitethernet: This parameter defines the TegGigabitEthernet interface that needs to be tagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
