@@ -29,6 +29,13 @@ Puppet::Type.newtype(:force10_portchannel) do
     end
   end
 
+
+  newproperty(:switchport) do
+    defaultto(:false)
+    newvalues(:false,:true)
+  end
+
+
   newproperty(:shutdown) do
     defaultto(:false)
     newvalues(:false,:true)

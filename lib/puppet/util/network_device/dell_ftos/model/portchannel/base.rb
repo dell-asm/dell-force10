@@ -7,6 +7,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel::Base
     description_scope = /(^.*Description:\s*(.*\b)$)/
     mtu_scope = /(^.*MTU\s*(.*\b) bytes .*$)/
     shutdown_scope = /(^.*Shutdown:\s*(.*\b)$)/
+    switchport_scope = /(^.*Switchport\s*(.*\b) bytes .*$)/
 
     base.register_scoped :ensure, portchannel_scope do
       match do |txt|
@@ -57,6 +58,28 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel::Base
       end
       remove { |*_| }
     end
+
+
+    base.register_scoped :switchport, switchport_scope do
+      match do |txt|
+        unless txt.nil?
+          txt.match(/\S+/) ? :present : :absent
+        else
+          :absent
+        end
+      end
+      cmd 'show interface port-channel'
+      default :absent
+      add do |transport, value|
+        if value == :false
+          transport.command("no switchport")
+        else
+          transport.command("switchport")
+        end
+      end
+      remove { |*_| }
+    end
+
 
     base.register_scoped :desc, description_scope do
       match do |txt|
