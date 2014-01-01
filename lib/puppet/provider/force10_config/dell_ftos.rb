@@ -76,7 +76,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 
     #Copy TFTP file to local
     tftpcopytxt=''
-    dev.transport.command('copy ' +url+' temp-config') do |out|
+    dev.transport.command('copy ' +url+' flash://temp-config') do |out|
       tftpcopytxt<< out
     end
     parseforerror(tftpcopytxt,'copy the TFTP file')
@@ -203,7 +203,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
     end
 
     if flagfirstresponse
-      dev.transport.command("yes") do |out|
+      dev.transport.command("no") do |out|
         thirdresponse = out.scan("Proceed with reload")
         unless thirdresponse.empty?
           flagthirdresponse=true
@@ -230,16 +230,31 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       Puppet.debug "ELSE BLOCK2"
     end
 
-    #Sleep for 3 mins to wait for switch to come up
-    Puppet.info("Going to sleep for 3 minutes, for switch reboot...")
-    sleep 180
+    #Sleep for 2 mins to wait for switch to come up
+    Puppet.info("Going to sleep for 2 minutes, for switch reboot...")
+    sleep 120
 
-    #Reesatblish transport session
-    Puppet.info("Trying to reconnect to switch...")
+    Puppet.info("Checking if switch is up, pinging now...")
+    for i in 0..20
+      if pingable?(dev.transport.host)
+        Puppet.info("Ping Succeeded, trying to reconnect to switch...")
+        break
+      else
+        Puppet.info("Switch is not up, will retry after 1 min...")
+        sleep 60
+      end
+    end
+
+    #Re-esatblish transport session
     dev.connect_transport
     dev.switch.transport=dev.transport
     Puppet.info("Session established...")
     return true
+  end
+
+  def pingable?(addr)
+    output = `ping -c 4 #{addr}`
+    !output.include? "100% packet loss"
   end
 
   def sendnotification(msg)
