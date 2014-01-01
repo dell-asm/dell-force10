@@ -16,6 +16,8 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
   CMD_SHOW_INTERFACES  ="show interfaces switchport"
 
   CMD_SHOW_SYSTEM_BRIEF="show system brief"
+
+  CMD_SHOW_IP_INTERFACE_BRIEF="show ip interface brief"
   def self.register(base)
 
     base.register_param ['hostname', 'uptime'] do
@@ -39,6 +41,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       cmd false
       match_param 'uptime_seconds'
       after 'uptime_seconds'
+    end
+
+    base.register_param 'management_ip' do
+      match do |txt|
+        item = txt.scan(/ManagementEthernet\s\d+\/\d+\s+((?:\d{1,3}\.){3}\d{1,3})\s+.*/).flatten.first
+        item.strip unless item.nil?
+      end
+      cmd CMD_SHOW_IP_INTERFACE_BRIEF
     end
 
     base.register_param '34_port_interfaces' do
@@ -95,17 +105,52 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       cmd CMD_SHOW_VERSION
     end
 
-    base.register_param ['system_management_unit_status'] do
+    base.register_param 'stack_mac' do
+      match /^.*Stack MAC\s\:\s(\S+).*/
+      cmd CMD_SHOW_SYSTEM_BRIEF
+    end
+
+    base.register_param 'system_management_unit_status' do
       match /^.*Management\s*(\w*\b).*/
       cmd CMD_SHOW_SYSTEM_BRIEF
     end
 
-    base.register_param ['system_management_unit_service_tag'] do
-      match /^\*\s+\d+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+(\S+)\s+.*$/
+    base.register_param 'system_power_status' do
+      found = false
+      power_status = 'Unknown'
+      match do |txt|
+        txt.each_line do |line|
+          case line
+          when /^.*Unit\s+Bay\s+Status\s+Type\s+FanStatus.*$/
+            #Puppet.debug("Power Line: #{line}")
+            found = true
+          when /^.*(\d+)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\S+).*$/
+            #Puppet.debug("Power Status Line: #{line}")
+            if found then
+              power_status = $3.strip
+              if power_status.to_s.eql?('up') then
+                #Puppet.debug("Unit: #{$1}-----Power status: #{$3}")
+                break
+              end
+            end
+          when /^.*Unit\s+Bay\s+TrayStatus.*$/
+            #Puppet.debug("Fan Line: #{line}")
+            break
+          else
+            next
+          end
+        end
+        power_status
+      end
+      cmd CMD_SHOW_SYSTEM_BRIEF
+    end
+
+    base.register_param ['system_management_unit_serial_number','system_management_unit_part_number','system_management_unit_service_tag'] do
+      match /^\*\s+\d+\s+\S+\s+(\S+)\s+(\S+)\s+\S+\s+\S+\s+\S+\s+(\S+)\s+.*$/
       cmd CMD_SHOW_INVENTORY
     end
 
-    base.register_param ['system_image'] do
+    base.register_param 'system_image' do
       match /^System image file is\s*"(.*)"/
       cmd CMD_SHOW_VERSION
     end
@@ -170,7 +215,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
           case line
           when /^Name:\s+(.*)/
             #Puppet.debug("Name: #{$1}")
-            interface = { :name => $1.strip, :description =>"", :untagged_vlans => "", :tagged_vlans => ""}
+            interface = { :name => $1.strip, :description =>"", :untagged_vlan => "", :tagged_vlan => ""}
             interfaces[interface[:name]] = interface
           when /^Description:\s+(.*)/
             raise "Invalid show interfaces switchport output" unless interface
@@ -178,12 +223,12 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
             interface[:description] = $1.strip
           when /^(U)\s+(.*)/
             raise "Invalid show interfaces switchport output" unless interface
-            #Puppet.debug("#{$1} untagged_vlans #{$2}")
-            interface[:untagged_vlans] = $2.strip
+            #Puppet.debug("#{$1} untagged_vlan #{$2}")
+            interface[:untagged_vlan] = $2.strip
           when /^(T)\s+(.*)/
             raise "Invalid show interfaces switchport output" unless interface
-            #Puppet.debug("#{$1} tagged_vlans #{$2}")
-            interface[:tagged_vlans] = $2.strip
+            #Puppet.debug("#{$1} tagged_vlan #{$2}")
+            interface[:tagged_vlan] = $2.strip
           else
             next
           end
