@@ -70,6 +70,36 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       end
     end
 
+    ifprop(base, :shutdown) do
+      match /^\s*shutdown\s+(.*?)\s*$/
+      add do |transport, value|
+        if value==:true
+          transport.command("shutdown")
+        else
+          transport.command("no shutdown")
+        end
+      end
+      remove { |*_| }
+    end
+
+    ifprop(base, :mtu) do
+      match /^\s*mtu\s+(.*?)\s*$/
+      add do |transport, value|
+        if value != :absent
+          transport.command("mtu #{value}") do |out|
+            txt<< out
+          end
+          parseforerror(txt,"add the property value for the parameter 'mtu'")
+        end
+      end
+      remove do |transport, old_value|
+        transport.command("no mtu #{old_value}") do |out|
+          txt<< out
+        end
+        parseforerror(txt,"remove the old property value of the parameter 'mtu'")
+      end
+    end
+
     base.register_scoped :tagged_tengigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do
       match /^\s*tagged TenGigabitEthernet\s+(.*?)\s*$/
       cmd 'sh run'

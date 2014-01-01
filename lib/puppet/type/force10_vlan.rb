@@ -51,6 +51,18 @@ Puppet::Type.newtype(:force10_vlan) do
     end
     newvalues(/^(\w\s*)*?$/)
   end
+  
+  newproperty(:mtu) do
+    desc "Set mtu of the VLAN."
+    defaultto(:absent)
+    newvalues(:absent, /^\d+$/)    
+  end
+
+  newproperty(:shutdown) do
+    desc "Enable or disable  the VLAN."
+    defaultto(:false)
+    newvalues(:false,:true)
+  end
 
   newproperty(:tagged_tengigabitethernet) do
     desc "The TenGigabitEthernet interfaces names to add as tagged to this VLAN."
