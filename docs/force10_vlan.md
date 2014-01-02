@@ -52,7 +52,16 @@ The Dell Force10 switch module uses telnet/SSH to access Dell Force10 switches.
 	
 	vlan_name:This parameter defines the name of the VLAN
 	      The value must be a string and cannot exceed 100 characters.
-	
+		  
+	mtu: This parameter defines the mtu of the VLAN.
+		If the value exist, it sets that value to the mtu properties of the VLAN.
+		If the value does not exist, property remains unchanged (default or old values).
+		The mtu value must be between  594 and 12000.
+		
+	shutdown: This parameter defines whether or not to shut down the VLAN. 
+				The possible values are "true" or "false". The default value is "false".
+				If the value is 'true", it shuts down the VLAN.
+					
 	tagged_tengigabitethernet: This parameter defines the TenGigabitEthernet interface that needs to be tagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18
 	
 	tagged_fortygigabitethernet: This parameter defines the FortyGigabitEthernet interface that needs to be tagged. You can enter a single interface or range of interfaces separated by commas or Ex:0/16-0/17 or 0/18

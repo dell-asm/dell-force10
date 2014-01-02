@@ -1,4 +1,3 @@
-
 #The base class containing the generic methods for the resouce models of the Dell Force10 switch
 require 'puppet/util/network_device/dsl'
 require 'puppet/util/network_device/dell_ftos/model'
@@ -9,7 +8,6 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Base
   include Puppet::Util::NetworkDevice::Dsl
 
   attr_accessor :ensure, :name, :transport, :facts
-
   def initialize(transport, facts)
     @transport = transport
     @facts = facts
@@ -61,7 +59,22 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Base
   end
 
   def after_update
+    flagfirstresponse=false
     transport.command("end")
+	Puppet.info "Copying running-config to startup-config..."
+    transport.command("copy run start")  do |out|
+      firstresponse =out.scan("Proceed to copy the file ")
+      unless firstresponse.empty?
+        flagfirstresponse=true
+        break
+      end
+    end
+
+    if flagfirstresponse
+      transport.command("yes")
+    else
+      Puppet.err"Switch running-config not moved to startup-config"
+    end
   end
 
   def get_base_cmd
@@ -84,8 +97,8 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Base
       transport.command(construct_cmd)
     when :absent
       transport.command("no " + construct_cmd)
-	  else
-	  Puppet.debug("No value for ensure")
+    else
+      Puppet.debug("No value for ensure")
     end
   end
 end
