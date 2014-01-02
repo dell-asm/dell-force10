@@ -18,6 +18,10 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
   CMD_SHOW_SYSTEM_BRIEF="show system brief"
 
   CMD_SHOW_IP_INTERFACE_BRIEF="show ip interface brief"
+
+  CMD_SHOW_STARTUP_CONFIG_VERSION="show startup-config | grep \"! Version\""
+
+  CMD_SHOW_RUNNING_CONFIG_VERSION="show running-config | grep \"! Version\""
   def self.register(base)
 
     base.register_param ['hostname', 'uptime'] do
@@ -268,6 +272,24 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
         vlans.to_json
       end
       cmd CMD_SHOW_VLAN
+    end
+
+    base.register_param 'startup_config_version' do
+      match /^.*Version\s(.*$)/
+      cmd CMD_SHOW_STARTUP_CONFIG_VERSION
+    end
+
+    base.register_param 'running_config_version' do
+      match /^.*Version\s(.*$)/
+      cmd CMD_SHOW_RUNNING_CONFIG_VERSION
+    end
+
+    base.register_module_after 'system_type', 'ioa', 'hardware' do
+      base.facts['system_type'].value =~ /I\/O-Aggregator/
+    end
+
+    base.register_module_after 'system_type', 'mxl', 'hardware' do
+      base.facts['system_type'].value =~ /MXL/
     end
 
   end
