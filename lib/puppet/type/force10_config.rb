@@ -1,9 +1,9 @@
 # Type for force10 configuration
 # Parameters are
-# 		name - any unique string
-#		url - TFTP url for the startup configuration
-#		startup_config - boolean value, if true means it's 'startup config' else 'running config'
-#		force - boolean value, if true means forcefully apply the configuration though there is no configuration change
+#     name - any unique string
+#   url - TFTP url for the startup configuration
+#   startup_config - boolean value, if true means it's 'startup config' else 'running config'
+#   force - boolean value, if true means forcefully apply the configuration though there is no configuration change
 
 Puppet::Type.newtype(:force10_config) do
   @doc = "Apply configuration on force10 switch."
@@ -12,20 +12,17 @@ Puppet::Type.newtype(:force10_config) do
 
   newparam(:name) do
     isnamevar
-    validate do |name|
-      raise ArgumentError, "An invalid  configuration name is entered. The configuration name must be a string." unless name.is_a? String
-    end
-
     validate do |value|
       return if value == :absent
-      raise ArgumentError, "An invalid configuration name is entered. The configuration name can contain only 100 characters." unless value.length <= 100
+      all_valid_characters = value =~ /^[a-zA-Z0-9_\s]+$/
+      raise ArgumentError, "An invalid configuration name is entered. The configuration name should contain only alphanumeric, space and underscore and also should not exceed 100 characters." unless all_valid_characters && value.length <= 100
     end
     newvalues(/^(\w\s*)*?$/)
   end
 
   newparam(:url) do
-    validate do |url|
-      raise ArgumentError, "An invalid url is entered.Url must be a in format of tftp://${deviceRepoServerIPAddress}/${fileLocation}." unless url.is_a? String
+    validate do |value|
+      raise ArgumentError, "An invalid url is entered.Url must be a in format of tftp://${deviceRepoServerIPAddress}/${fileLocation}." unless value.start_with?('tftp://')
     end
   end
 
