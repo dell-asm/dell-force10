@@ -132,7 +132,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
             #Puppet.debug("Power Status Line: #{line}")
             if found then
               power_status = $3.strip
-              if power_status.to_s.eql?('up') then
+              if power_status =~ /up/i then
                 #Puppet.debug("Unit: #{$1}-----Power status: #{$3}")
                 break
               end
@@ -285,11 +285,11 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
     end
 
     base.register_module_after 'system_type', 'ioa', 'hardware' do
-      base.facts['system_type'].value =~ /I\/O-Aggregator/
+      base.facts['system_type'].value =~ /I\/O-Aggregator/i
     end
 
     base.register_module_after 'system_type', 'mxl', 'hardware' do
-      base.facts['system_type'].value =~ /MXL/
+      base.facts['system_type'].value =~ /MXL/i
     end
 
   end

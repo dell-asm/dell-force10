@@ -13,9 +13,9 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::Ioa
         item = txt.scan(/^.*Switch Power\s+:\s+(.*)$/).flatten.first
         status = item.strip unless item.nil?
         #Puppet.debug("Switch Power: #{status}")
-        if status.to_s.eql?('GOOD') then
+        if status =~ /GOOD/i then
           power_status = 'up'
-        elsif status.to_s.eql?('BAD') then
+        elsif status =~ /BAD/i then
           power_status = 'down'
         end
       end
@@ -24,9 +24,12 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::Ioa
 
     base.register_param 'asset_tag' do
       match do |txt|
-        item = txt.scan(/\A.*Asset tag\s+:\s+(.*)\z/).flatten.first
+        item = txt.scan(/^.*Asset tag\s+:\s+(.*)$/).flatten.first
         #Puppet.debug("Asset Tag: #{item}")
-        item.strip unless item.nil?
+        asset_tag = item.strip unless item.nil?
+        if asset_tag !~ /PSOC/ then
+          asset_tag
+        end
       end
       cmd CMD_SHOW_SYSTEM_STACK_UNIT
     end
