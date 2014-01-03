@@ -1,4 +1,3 @@
-require 'pp'
 require 'json'
 require 'puppet/util/network_device/dell_ftos/possible_facts'
 
@@ -18,10 +17,6 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
   CMD_SHOW_SYSTEM_BRIEF="show system brief"
 
   CMD_SHOW_IP_INTERFACE_BRIEF="show ip interface brief"
-
-  CMD_SHOW_STARTUP_CONFIG_VERSION="show startup-config | grep \"! Version\""
-
-  CMD_SHOW_RUNNING_CONFIG_VERSION="show running-config | grep \"! Version\""
   def self.register(base)
 
     base.register_param ['hostname', 'uptime'] do
@@ -116,36 +111,6 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
 
     base.register_param 'system_management_unit_status' do
       match /^.*Management\s*(\w*\b).*/
-      cmd CMD_SHOW_SYSTEM_BRIEF
-    end
-
-    base.register_param 'system_power_status' do
-      found = false
-      power_status = 'Unknown'
-      match do |txt|
-        txt.each_line do |line|
-          case line
-          when /^.*Unit\s+Bay\s+Status\s+Type\s+FanStatus.*$/
-            #Puppet.debug("Power Line: #{line}")
-            found = true
-          when /^.*(\d+)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\S+).*$/
-            #Puppet.debug("Power Status Line: #{line}")
-            if found then
-              power_status = $3.strip
-              if power_status =~ /up/i then
-                #Puppet.debug("Unit: #{$1}-----Power status: #{$3}")
-                break
-              end
-            end
-          when /^.*Unit\s+Bay\s+TrayStatus.*$/
-            #Puppet.debug("Fan Line: #{line}")
-            break
-          else
-            next
-          end
-        end
-        power_status
-      end
       cmd CMD_SHOW_SYSTEM_BRIEF
     end
 
@@ -274,22 +239,12 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       cmd CMD_SHOW_VLAN
     end
 
-    base.register_param 'startup_config_version' do
-      match /^.*Version\s(.*$)/
-      cmd CMD_SHOW_STARTUP_CONFIG_VERSION
+    base.register_module_after 'system_type', 's_series', 'hardware' do
+      base.facts['system_type'].value =~ /S4810/i ||  base.facts['system_type'].value =~ /S5000/i ||  base.facts['system_type'].value =~ /S6000/i
     end
 
-    base.register_param 'running_config_version' do
-      match /^.*Version\s(.*$)/
-      cmd CMD_SHOW_RUNNING_CONFIG_VERSION
-    end
-
-    base.register_module_after 'system_type', 'ioa', 'hardware' do
-      base.facts['system_type'].value =~ /I\/O-Aggregator/i
-    end
-
-    base.register_module_after 'system_type', 'mxl', 'hardware' do
-      base.facts['system_type'].value =~ /MXL/i
+    base.register_module_after 'system_type', 'm_series', 'hardware' do
+      base.facts['system_type'].value =~ /I\/O-Aggregator/i || base.facts['system_type'].value =~ /MXL/i
     end
 
   end
