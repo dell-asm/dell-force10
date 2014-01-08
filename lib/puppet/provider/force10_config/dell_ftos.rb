@@ -260,7 +260,11 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
   def sendnotification(msg)
     dev = Puppet::Util::NetworkDevice.current
     dev.transport.command("send *",:prompt => /Enter message./)
-    dev.transport.command(msg+"\x1A",:prompt => /Send message./)
+    if dev.transport.class.name.include? "Telnet"
+      dev.transport.command(msg+"\x1A",:prompt => /Send message./)
+    else
+      dev.transport.sendwithoutnewline(msg+"\x1A")
+    end
     dev.transport.command("\r")
   end
 end
