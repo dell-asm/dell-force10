@@ -110,8 +110,8 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       cmd CMD_SHOW_SYSTEM_BRIEF
     end
 
-    base.register_param ['system_management_unit_serial_number','system_management_unit_part_number','system_management_unit_service_tag'] do
-      match /^\*\s+\d+\s+\S+\s+(\S+)\s+(\S+)\s+\S+\s+\S+\s+\S+\s+(\S+)\s+.*$/
+    base.register_param ['system_management_unit','system_management_unit_serial_number','system_management_unit_part_number','system_management_unit_service_tag'] do
+      match /^\*\s+(\d+)\s+\S+\s+(\S+)\s+(\S+)\s+\S+\s+\S+\s+\S+\s+(\S+)\s+.*$/
       cmd CMD_SHOW_INVENTORY
     end
 
@@ -135,8 +135,13 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       cmd CMD_SHOW_VERSION
     end
 
-    base.register_param 'control_processor' do
-      match /^Control\s+Processor:\s+(.*?)$/
+    base.register_param ['control_processor', 'control_processor_memory'] do
+      match /^Control\s+Processor:\s*(.*)\s+with\s*(.*)\s+of.*$/
+      cmd CMD_SHOW_VERSION
+    end
+
+    base.register_param 'boot_flash_memory' do
+      match /^(.*)\s+of boot flash memory.*$/
       cmd CMD_SHOW_VERSION
     end
 
@@ -147,7 +152,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
 
     base.register_param 'software_protocol_configured' do
       match do |txt|
-        res = Hash.new
+        res = {}
         txt.split(/^$/).map do |line|
           if line =~ /^Software\s+Protocol\s+Configured\s+$/ then
             count=0
@@ -166,6 +171,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
             end
           end
         end
+        #res.to_json
         res
       end
       cmd CMD_SHOW_INVENTORY
