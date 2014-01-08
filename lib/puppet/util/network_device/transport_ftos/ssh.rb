@@ -92,6 +92,11 @@ class Puppet::Util::NetworkDevice::Transport_ftos::Ssh < Puppet::Util::NetworkDe
     @channel.send_data(line + "\n") unless noop
   end
 
+  def sendwithoutnewline(line, noop = false)
+    Puppet.debug "SSH send: #{line}" if Puppet[:debug]
+    @channel.send_data(line) unless noop
+  end
+
   def eof?
     !!@eof
   end
