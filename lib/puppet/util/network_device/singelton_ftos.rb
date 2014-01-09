@@ -9,6 +9,6 @@ class Puppet::Util::NetworkDevice::Singelton_ftos
   end
 
   def self.clear
-    @map.clear
+    @map.clear unless @map.nil?
   end
 end

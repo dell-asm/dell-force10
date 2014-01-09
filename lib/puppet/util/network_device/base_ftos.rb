@@ -21,11 +21,11 @@ class Puppet::Util::NetworkDevice::Base_ftos
         # FIXME: https://github.com/puppetlabs/puppet/blob/master/lib/puppet/application/device.rb#L181
         master = File.read(File.join('/etc/puppet', 'networkdevice-secret'))
         master = master.strip
-        @transport.user = decrypt(master, [@url.user].pack('h*'))
-        @transport.password = decrypt(master, [@url.password].pack('h*'))
+        @transport.user = decrypt(master, [@url.user].pack('h*')) unless @url.user.nil? || @url.user.empty?
+        @transport.password = decrypt(master, [@url.password].pack('h*')) unless @url.password.nil? || @url.password.empty?
       else
-        @transport.user = URI.decode(@url.user)
-        @transport.password = URI.decode(@url.password)
+        @transport.user = URI.decode(@url.user) unless @url.user.nil? || @url.user.empty?
+        @transport.password = URI.decode(@url.password) unless @url.password.nil? || @url.password.empty?
       end
     end
   end
