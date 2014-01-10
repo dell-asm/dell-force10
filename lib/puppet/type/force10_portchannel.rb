@@ -6,7 +6,7 @@ Puppet::Type.newtype(:force10_portchannel) do
   ensurable
 
   newparam(:name) do
-    @doc = "Port-channel name"
+    desc "Port-channel name, represents Port-channel"
     isnamevar
     newvalues(/^\d+$/)
 
@@ -18,12 +18,12 @@ Puppet::Type.newtype(:force10_portchannel) do
   end
 
   newproperty(:desc) do
-    @doc = "Port-channel description"
+    desc "Port-channel description"
     newvalues(/^(\w\s*)*?$/)
   end
 
   newproperty(:mtu) do
-    @doc = "MTU value"
+    desc "MTU value"
     newvalues(/^\d+$/)
 
     validate do |value|
@@ -33,13 +33,13 @@ Puppet::Type.newtype(:force10_portchannel) do
   end
 
   newproperty(:switchport) do
-    @doc = "Boolean value denotes enable Switchport"
+    desc "The switchport flag of the port-channel, true mean move the port-channel to Layer2, else interface will be in Layer1"
     defaultto(:false)
     newvalues(:false,:true)
   end
 
   newproperty(:shutdown) do
-    @doc = "Boolean value denotes Shutdown /no shutdown"
+    desc "The shutdown flag of the port-channel, true means Shutdown else no shutdown"
     defaultto(:false)
     newvalues(:false,:true)
   end

@@ -4,14 +4,14 @@ Puppet::Type.newtype(:force10_interface) do
   apply_to_device
 
   newparam(:name) do
-    @doc = "Interface name"
+    desc "Interface name, represents an interface"
     isrequired
     newvalues(/^\Atengigabitethernet\s*\S+/i, /te\s*\S+$/i,/^fortygige\s*\S+$/i,/^fo\s*\S+$/i)
     isnamevar
   end
 
   newproperty(:portchannel) do
-    @doc = "Port-channel Name"
+    desc "Port-channel Name, which needs to be associated with this interface"
     newvalues(/^\d+$/)
     validate do |value|
       raise ArgumentError, "An invalid 'portchannel' value is entered. The 'portchannel' value must be between 1 and 128." unless value.to_i >=1 && value.to_i <= 128
@@ -19,7 +19,7 @@ Puppet::Type.newtype(:force10_interface) do
   end
 
   newproperty(:mtu) do
-    @doc = "MTU value"
+    desc "MTU value"
     defaultto(:absent)
     newvalues(:absent, /^\d+$/)
     validate do |value|
@@ -29,15 +29,13 @@ Puppet::Type.newtype(:force10_interface) do
   end
 
   newproperty(:shutdown) do
-    @doc = "Boolean value denotes Shutdown /no shutdown"
-    desc "Enable or disable  the interface."
+    desc "The shutdown flag of the interface, true means Shutdown else no shutdown"
     defaultto(:false)
     newvalues(:false,:true)
   end
 
   newproperty(:switchport) do
-    @doc = "Boolean value denotes enable Switchport"
-    desc "Enable or disable  the switchport"
+    desc "The switchport flag of the interface, true mean move the interface to Layer2, else interface will be in Layer1"
     defaultto(:false)
     newvalues(:false,:true)
   end

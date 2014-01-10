@@ -1,6 +1,6 @@
 # Type for force10 VLAN
 # Parameters are
-#     name - any unique string
+#     name - VLAN ID
 # Properties are
 #   desc - description for VLAN
 #   mtu - mtu value for VLAN
@@ -22,7 +22,7 @@ Puppet::Type.newtype(:force10_vlan) do
   ensurable
 
   newparam(:name) do
-    @doc = "VLAN ID"
+    desc "VLAN ID, represents VLAN"
     isnamevar
     validate do |value|
       return if value == :absent
@@ -33,7 +33,7 @@ Puppet::Type.newtype(:force10_vlan) do
   end
 
   newproperty(:vlan_name) do
-    @doc = "VLAN Name"
+    desc "VLAN Name"
     validate do |value|
       return if value == :absent
       start_with_letter = value =~ /\A[a-zA-Z]/
@@ -45,7 +45,7 @@ Puppet::Type.newtype(:force10_vlan) do
   end
 
   newproperty(:desc) do
-    @doc = "VLAN Description"
+    desc "VLAN Description"
     validate do |value|
       return if value == :absent
       raise ArgumentError, "An invalid description is entered for the VLAN ID. The description cannot exceed 100 characters." unless value.length <= 100
@@ -54,55 +54,54 @@ Puppet::Type.newtype(:force10_vlan) do
   end
 
   newproperty(:mtu) do
-    @doc = "MTU value"
-    desc "Set mtu of the VLAN."
+    desc "MTU value"    
     defaultto(:absent)
     newvalues(:absent, /^\d+$/)
   end
 
   newproperty(:shutdown) do
-    @doc = "Boolean value denotes Shutdown /no shutdown"
+    desc "The shutdown flag of the VLAN, true means Shutdown else no shutdown"
     defaultto(:false)
     newvalues(:false,:true)
   end
 
   newproperty(:tagged_tengigabitethernet) do
-    @doc = "The TenGigabitEthernet interfaces names to add as tagged to this VLAN."
+    desc "The TenGigabitEthernet interfaces names to add as tagged to this VLAN."
   end
 
   newproperty(:tagged_fortygigabitethernet) do
-    @doc = "The fortyGigE interfaces names to add as tagged to this VLAN."
+    desc "The fortyGigE interfaces names to add as tagged to this VLAN."
   end
 
   newproperty(:tagged_portchannel) do
-    @doc = "The Port-channel interfaces names to add as tagged to this VLAN."
+    desc "The Port-channel interfaces names to add as tagged to this VLAN."
   end
 
   newproperty(:tagged_gigabitethernet) do
-    @doc = "The GigabitEthernet interfaces names to add as tagged to this VLAN."
+    desc "The GigabitEthernet interfaces names to add as tagged to this VLAN."
   end
 
   newproperty(:tagged_sonet) do
-    @doc = "The SONET interfaces names to add as tagged to this VLAN."
+    desc "The SONET interfaces names to add as tagged to this VLAN."
   end
 
   newproperty(:untagged_tengigabitethernet) do
-    @doc = "The TenGigabitEthernet interfaces names to add as untagged to this VLAN."
+    desc "The TenGigabitEthernet interfaces names to add as untagged to this VLAN."
   end
 
   newproperty(:untagged_fortygigabitethernet) do
-    @doc = "The fortyGigE interfaces names to add as untagged to this VLAN."
+    desc "The fortyGigE interfaces names to add as untagged to this VLAN."
   end
 
   newproperty(:untagged_portchannel) do
-    @doc = "The Port-channel interfaces names to add as untagged to this VLAN."
+    desc "The Port-channel interfaces names to add as untagged to this VLAN."
   end
 
   newproperty(:untagged_gigabitethernet) do
-    @doc = "The GigabitEthernet interfaces names to add as untagged to this VLAN."
+    desc "The GigabitEthernet interfaces names to add as untagged to this VLAN."
   end
 
   newproperty(:untagged_sonet) do
-    @doc = "The SONET interfaces names to add as untagged to this VLAN."
+    desc "The SONET interfaces names to add as untagged to this VLAN."
   end
 end

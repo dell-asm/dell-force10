@@ -4,18 +4,18 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
   apply_to_device
 
   newparam(:name) do
-    @doc = "Any unique name"
+    desc "Firmware name, can be any unique name"
     isnamevar
   end
 
   newparam(:forceupdate) do
-    @doc = "Flag denotes force apply of firmware"
+    desc "This flag denotes force apply of firmware"
     newvalues(:true, :false)
     defaultto :false
   end
 
   newproperty(:firmwarelocation) do
-    @doc = "Firmware location URL"
+    desc "URL of Firmware location "
     validate do |firmwarelocation|
       raise ArgumentError, "Command must be a String, got value of class #{firmwarelocation.class}" unless firmwarelocation.is_a? String
     end

@@ -11,7 +11,7 @@ Puppet::Type.newtype(:force10_config) do
   apply_to_device
 
   newparam(:name) do
-    @doc = "Any unique name"
+    desc "Conifguration name, can be any unique name"
     isnamevar
     validate do |value|
       return if value == :absent
@@ -22,20 +22,20 @@ Puppet::Type.newtype(:force10_config) do
   end
 
   newparam(:url) do
-    @doc = "Configuration TFTP URL"
+    desc "Configuration TFTP URL"
     validate do |value|
       raise ArgumentError, "An invalid url is entered.Url must be a in format of tftp://${deviceRepoServerIPAddress}/${fileLocation}." unless value.start_with?('tftp://')
     end
   end
 
   newparam(:startup_config) do
-    @doc = "Flag denotes startup-config or running-config"
+    desc "This Flag denotes startup-config or running-config"
     newvalues(:true, :false)
     defaultto :false
   end
 
   newparam(:force) do
-    @doc = "Flag denotes force configuration apply"
+    desc "This Flag denotes force configuration apply"
     newvalues(:true, :false)
     defaultto :false
   end

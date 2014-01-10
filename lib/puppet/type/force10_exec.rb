@@ -13,26 +13,26 @@ Puppet::Type.newtype(:force10_exec) do
   end
 
   newparam(:name) do
-    @doc = "Any unique name"
+    desc "Name, can be any unique name"
     isnamevar
   end
 
   newparam(:command) do
-    @doc = "Command String"
+    desc "This is command String need to execute"
     validate do |command|
       raise ArgumentError, "Command must be a String, got value of class #{command.class}" unless command.is_a? String
     end
   end
 
   newparam(:context) do
-    @doc = "Switch mode"
-    @doc = "Command String"
+    desc "The context denotes mode of the switch, on which mode the command has to execute"
+    desc "Command String"
     isrequired
     newvalues(:exec, :conf)
   end
 
   newcheck(:refreshonly) do
-    @doc = "Flag denotes only refresh or execute command"
+    desc "This Flag denotes only refresh or execute command"
     newvalues(:true, :false)
     def check(value)
       if value == :true
