@@ -10,6 +10,8 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
 
   CMD_SHOW_INTERFACES  ="show interfaces switchport"
 
+  CMD_SHOW_PORT_CHANNELS  ="show interfaces port-channel brief"
+
   CMD_SHOW_STARTUP_CONFIG_VERSION="show startup-config | grep \"! Version\""
 
   CMD_SHOW_RUNNING_CONFIG_VERSION="show running-config | grep \"! Version\""
@@ -107,6 +109,47 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
         vlans.to_json
       end
       cmd CMD_SHOW_VLAN
+    end
+
+    #Display information on configured Port Channel groups in JSON Format
+    base.register_param 'port_channels' do
+      port_channels = {}
+      port_channel = nil
+      match do |txt|
+        txt.each_line do |line|
+          case line
+          when /^.*LAG\s*Mode\s*Status\s*Uptime\s*Ports.*$/
+            #Puppet.debug("starting: #{line}")
+            next
+          when /^(L*)\s*(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+\s+\d+\/\d+)\s+(\S+).*$/
+            #Puppet.debug("port_channels with ports: #{line}")
+            lacp = "true"
+            if $1.nil? || $1.empty? then
+              lacp = "false"
+            end
+            port_channel = { :lag => $2.strip, :lacp => lacp, :mode => $3.strip,:status => $4.strip,  :ports => [] }
+            port_channel[:ports] = $6.strip+" "+$7.strip
+            port_channels[port_channel[:lag]] = port_channel
+          when /^(L*)\s*(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+.*$/
+            #Puppet.debug("port_channels with no ports: #{line}")
+            lacp = "true"
+            if $1.nil? || $1.empty? then
+              lacp = "false"
+            end
+            port_channel = { :lag => $2.strip, :lacp => lacp, :mode => $3.strip,:status => $4.strip,  :ports => "" }
+            #port_channel[:ports] = $6.strip
+            port_channels[port_channel[:lag]] = port_channel
+          when /^\s+(\S+\s+\d+\/\d+)\s+(\S+).*$/
+            raise "Invalid show interfaces port-channel brief" unless port_channel
+            #Puppet.debug("ports: #{line}")
+            port_channel[:ports] += ","+$1.strip+" "+$2.strip
+          else
+            next
+          end
+        end
+        port_channels.to_json
+      end
+      cmd CMD_SHOW_PORT_CHANNELS
     end
 
     base.register_param 'startup_config_version' do
