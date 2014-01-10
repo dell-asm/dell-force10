@@ -3,7 +3,7 @@
 # this vlan and add newly provided Port-channels ad tagged
 # Can remove all tagged Port-channel by passing value 'absent'
 
-# This will add TenGigabitEthernet 0/16 and 0/17 Port-channel to vlan 180 as tagged
+# This will add Port-channel 1,20 to vlan 180 as tagged
 force10_vlan { '180':
   desc               => 'test',
   ensure             => present,

@@ -3,7 +3,7 @@
 # for this vlan and so add newly provided interfaces as untagged
 # Can remove all untagged interfaces by passing value 'absent'
 
-# This will tag TenGigabitEthernet 0/16 and 0/17 interfaces to vlan 180
+# This will add TenGigabitEthernet 0/16 and 0/17 interfaces to vlan 180 as untagged
 force10_vlan { '180':
   desc   => 'test',
   ensure => present,

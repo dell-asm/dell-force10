@@ -3,7 +3,7 @@
 # Port-channel for this vlan and so add newly provided Port-channel as untagged
 # Can remove all untagged Port-channel by passing value 'absent'
 
-# This will add TenGigabitEthernet 0/16 and 0/17 Port-channel to vlan 180 as untagged
+# This will add Port-channel 1,20 to vlan 180 as untagged
 force10_vlan { '180':
   desc                 => 'test',
   ensure               => present,
