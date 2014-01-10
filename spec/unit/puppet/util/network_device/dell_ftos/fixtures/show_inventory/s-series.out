@@ -1,0 +1,23 @@
+System Type            : S4810      
+System Mode            : 1.0       
+Software Version       : 9.2(0.2)
+
+Unit Type               Serial Number  Part Number  Rev  Piece Part ID            Rev  Svc Tag  Exprs Svc Code
+--------------------------------------------------------------------------------------------------------------
+* 0  S4810-01-64F       HADL125220181  7590009602   B    N/A                      N/A  N/A      N/A           
+  0  S4810-PWR-AC       H6DL126E20243  7590008502   A    CN-0RVY43-28298-26E-0243 A00  N/A      N/A           
+  0  S4810-PWR-AC       H6DL125220309  7590008502   A    N/A                      N/A  N/A      N/A           
+  0  S4810-FAN          N/A            N/A          N/A  N/A                      N/A  N/A      N/A           
+  0  S4810-FAN          N/A            N/A          N/A  N/A                      N/A  N/A      N/A           
+
+ * - Management Unit 
+
+ 
+Software Protocol Configured 
+--------------------------------------------------------------
+  DCBX 
+  LLDP 
+  RSTP 
+  SNMP 
+ 
+AS800Hv_Bottom#

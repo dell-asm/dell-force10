@@ -1,3 +1,4 @@
+#! /usr/bin/env ruby
 require 'spec_helper'
 require 'puppet/util/network_device/transport_ftos/ssh'
 

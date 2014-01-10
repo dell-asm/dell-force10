@@ -1,0 +1,9 @@
+--- 
+system_management_unit: "0"
+system_management_unit_serial_number: CN2829828N0012
+system_management_unit_part_number: "0J5W8KA00"
+system_management_unit_service_tag: "1J2PTS1"
+system_mode: "1.0"
+software_protocol_configured_1: iSCSI
+software_protocol_configured_2: LLDP
+software_protocol_configured_3: SNMP

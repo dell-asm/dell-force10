@@ -1,3 +1,4 @@
+#! /usr/bin/env ruby
 require 'spec_helper'
 require 'puppet/util/network_device/dell_ftos/device'
 
@@ -86,6 +87,13 @@ describe Puppet::Util::NetworkDevice::Dell_ftos::Device do
         @dell.login
       end
 
+      #it "should expect the Password: prompt if no user was sent" do
+      #@transport.user = ''
+      #@transport.expects(:expect).with(/^Password:/)
+      #@transport.expects(:command).with("password", :noop => false)
+      #@dell.login
+      #end
+
     end
 
     describe "when entering enable password" do
@@ -105,6 +113,52 @@ describe Puppet::Util::NetworkDevice::Dell_ftos::Device do
         @transport.stubs(:command).with("enable", {:prompt => /^Password:/, :noop => false})
         @transport.expects(:command).with("mypass", :noop => false)
         @dell.enable
+      end
+    end
+
+    describe "when having parsed a configuration" do
+      before do
+        @data = <<END
+!
+interface TenGigabitEthernet 0/0
+ no ip address
+ mtu 12000
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ port-channel-protocol LACP
+  port-channel 10 mode active
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/1
+ no ip address
+ mtu 12000
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ port-channel-protocol LACP
+  port-channel 10 mode active
+!
+ protocol lldp
+ no shutdown
+!
+END
+        @transport.stubs(:command).with("show running-config", {:cache => true, :noop => false}).returns(@data)
+        #@facts = Puppet::Util::NetworkDevice::Dell_ftos::Facts.new(@transport)
+        @facts = stub_everything 'facts'
+        @facts.stubs(:facts_to_hash).returns({})
+        @dell.instance_variable_set(:@facts, @facts)
+        @dell.init_switch
+      end
+
+      #it "should have interfaces" do
+      #@dell.switch.params[:interfaces].value.should_not be_empty
+      #end
+
+      it "should be able to lookup interfaces" do
+        @dell.switch.interface('TenGigabitEthernet 0/1').should_not be_nil
       end
     end
 

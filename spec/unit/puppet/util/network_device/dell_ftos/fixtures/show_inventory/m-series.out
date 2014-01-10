@@ -1,0 +1,18 @@
+System Type            : MXL-10/40GbE 
+System Mode            : 1.0       
+Software Version       : 9.2(0.2)
+
+Unit Type               Serial Number  Part Number  Rev  Piece Part ID            Rev  Svc Tag  Exprs Svc Code
+--------------------------------------------------------------------------------------------------------------
+* 0  MXL-10/40GbE       CN2829828N0012 0J5W8KA00    A00  CN-0J5W8K-28298-28N-0012 A00  1J2PTS1  333 020 390 5 
+
+ * - Management Unit 
+
+ 
+Software Protocol Configured 
+--------------------------------------------------------------
+  iSCSI 
+  LLDP 
+  SNMP 
+ 
+IOA-1J2PTS1-A2#

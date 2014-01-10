@@ -1,10 +1,9 @@
-require 'pp'
+#! /usr/bin/env ruby
 require 'spec_helper'
 require 'puppet/util/network_device/singelton_ftos'
 require 'puppet/util/network_device/dell_ftos/device'
-
 describe Puppet::Util::NetworkDevice::Singelton_ftos do
-
+ 
   before(:each) do
     @device = Puppet::Util::NetworkDevice::Dell_ftos::Device.new('ssh://127.0.0.1:22/')
     @device.stubs(:init).returns(@device)

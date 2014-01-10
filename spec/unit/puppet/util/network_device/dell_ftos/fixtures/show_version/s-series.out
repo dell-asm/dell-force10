@@ -1,0 +1,18 @@
+Dell Force10 Real Time Operating System Software
+Dell Force10 Operating System Version: 2.0
+Dell Force10 Application Software Version: 9.2(0.2)
+Copyright (c) 1999-2013 by Dell Inc. All Rights Reserved.
+Build Time: Fri Oct 11 00:51:54 PDT 2013
+Build Path: /work.local/build/buildSpaces/build08/E9-2-0/SW/SRC
+AS800Hv_Bottom uptime is 3 day(s), 19 hour(s), 22 minute(s)
+
+System image file is "system://B"
+
+System Type: S4810 
+Control Processor: Freescale QorIQ P2020 with 2147483648 bytes of memory.
+
+128M bytes of boot flash memory.
+
+  1 52-port GE/TE/FG (SE)
+ 48 Ten GigabitEthernet/IEEE 802.3 interface(s)
+  4 Forty GigabitEthernet/IEEE 802.3 interface(s)
