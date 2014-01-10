@@ -1,5 +1,5 @@
 Puppet::Type.newtype(:force10_exec) do
-  @doc = "A generic way to execute various commands on a router or switch."
+  @doc = "A generic way to execute various commands on Dell force10 switch."
 
   apply_to_device
   def self.newcheck(name, options = {}, &block)
@@ -13,21 +13,26 @@ Puppet::Type.newtype(:force10_exec) do
   end
 
   newparam(:name) do
+    @doc = "Any unique name"
     isnamevar
   end
 
   newparam(:command) do
+    @doc = "Command String"
     validate do |command|
       raise ArgumentError, "Command must be a String, got value of class #{command.class}" unless command.is_a? String
     end
   end
 
   newparam(:context) do
+    @doc = "Switch mode"
+    @doc = "Command String"
     isrequired
     newvalues(:exec, :conf)
   end
 
   newcheck(:refreshonly) do
+    @doc = "Flag denotes only refresh or execute command"
     newvalues(:true, :false)
     def check(value)
       if value == :true

@@ -71,7 +71,16 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
     end
 
     ifprop(base, :shutdown) do
-      match /^\s*shutdown\s+(.*?)\s*$/
+      shutdowntxt=''
+      match do |shutdowntxt|
+        unless shutdowntxt.nil?
+          if shutdowntxt.include? "no shutdown"
+            :false
+          else
+            :true
+          end
+        end
+      end
       add do |transport, value|
         if value==:true
           transport.command("shutdown")

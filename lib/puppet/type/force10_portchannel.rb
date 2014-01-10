@@ -1,11 +1,12 @@
 Puppet::Type.newtype(:force10_portchannel) do
-  @doc = "This represents a VLAN configuration on a Dell force10 switch."
+  @doc = "This represents Dell force10 switch port-channel."
 
   apply_to_device
 
   ensurable
 
   newparam(:name) do
+    @doc = "Port-channel name"
     isnamevar
     newvalues(/^\d+$/)
 
@@ -17,10 +18,12 @@ Puppet::Type.newtype(:force10_portchannel) do
   end
 
   newproperty(:desc) do
+    @doc = "Port-channel description"
     newvalues(/^(\w\s*)*?$/)
   end
 
   newproperty(:mtu) do
+    @doc = "MTU value"
     newvalues(/^\d+$/)
 
     validate do |value|
@@ -29,14 +32,14 @@ Puppet::Type.newtype(:force10_portchannel) do
     end
   end
 
-
   newproperty(:switchport) do
+    @doc = "Boolean value denotes enable Switchport"
     defaultto(:false)
     newvalues(:false,:true)
   end
 
-
   newproperty(:shutdown) do
+    @doc = "Boolean value denotes Shutdown /no shutdown"
     defaultto(:false)
     newvalues(:false,:true)
   end

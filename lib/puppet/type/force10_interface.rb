@@ -1,17 +1,17 @@
 Puppet::Type.newtype(:force10_interface) do
-  @doc = "This represents a switch interface."
+  @doc = "This represents Dell force10 switch interface."
 
   apply_to_device
 
   newparam(:name) do
-    desc "The interface's name."
+    @doc = "Interface name"
     isrequired
     newvalues(/^\Atengigabitethernet\s*\S+/i, /te\s*\S+$/i,/^fortygige\s*\S+$/i,/^fo\s*\S+$/i)
     isnamevar
   end
 
   newproperty(:portchannel) do
-    desc "Set port channel for the interface."
+    @doc = "Port-channel Name"
     newvalues(/^\d+$/)
     validate do |value|
       raise ArgumentError, "An invalid 'portchannel' value is entered. The 'portchannel' value must be between 1 and 128." unless value.to_i >=1 && value.to_i <= 128
@@ -19,7 +19,7 @@ Puppet::Type.newtype(:force10_interface) do
   end
 
   newproperty(:mtu) do
-    desc "Set mtu of the interface."
+    @doc = "MTU value"
     defaultto(:absent)
     newvalues(:absent, /^\d+$/)
     validate do |value|
@@ -29,12 +29,14 @@ Puppet::Type.newtype(:force10_interface) do
   end
 
   newproperty(:shutdown) do
+    @doc = "Boolean value denotes Shutdown /no shutdown"
     desc "Enable or disable  the interface."
     defaultto(:false)
     newvalues(:false,:true)
   end
 
   newproperty(:switchport) do
+    @doc = "Boolean value denotes enable Switchport"
     desc "Enable or disable  the switchport"
     defaultto(:false)
     newvalues(:false,:true)

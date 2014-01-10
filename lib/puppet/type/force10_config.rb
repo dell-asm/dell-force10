@@ -6,11 +6,12 @@
 #   force - boolean value, if true means forcefully apply the configuration though there is no configuration change
 
 Puppet::Type.newtype(:force10_config) do
-  @doc = "Apply configuration on force10 switch."
+  @doc = "This will apply configuration on Dell force10 switch."
 
   apply_to_device
 
   newparam(:name) do
+    @doc = "Any unique name"
     isnamevar
     validate do |value|
       return if value == :absent
@@ -21,19 +22,20 @@ Puppet::Type.newtype(:force10_config) do
   end
 
   newparam(:url) do
+    @doc = "Configuration TFTP URL"
     validate do |value|
       raise ArgumentError, "An invalid url is entered.Url must be a in format of tftp://${deviceRepoServerIPAddress}/${fileLocation}." unless value.start_with?('tftp://')
     end
   end
 
   newparam(:startup_config) do
-    desc "Whether the provided configuration is startup configuration or running configuration"
+    @doc = "Flag denotes startup-config or running-config"
     newvalues(:true, :false)
     defaultto :false
   end
 
   newparam(:force) do
-    desc "Whether the provided configuration has to be applied in force"
+    @doc = "Flag denotes force configuration apply"
     newvalues(:true, :false)
     defaultto :false
   end
@@ -47,7 +49,7 @@ Puppet::Type.newtype(:force10_config) do
       :executed_command
     end
 
-    defaultto "#"
+    defaultto "-Configuration Change-"
 
     def change_to_s(currentvalue, newvalue)
       "executed successfully"
