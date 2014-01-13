@@ -12,6 +12,10 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
 
   CMD_SHOW_PORT_CHANNELS  ="show interfaces port-channel brief"
 
+  #CMD_SHOW_LLDP_NEIGHBORS  ="show lldp neighbors detail"
+
+  CMD_SHOW_LLDP_NEIGHBORS1  ="show lldp neighbors"
+
   CMD_SHOW_STARTUP_CONFIG_VERSION="show startup-config | grep \"! Version\""
 
   CMD_SHOW_RUNNING_CONFIG_VERSION="show running-config | grep \"! Version\""
@@ -118,10 +122,10 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
       match do |txt|
         txt.each_line do |line|
           case line
-          when /^.*LAG\s*Mode\s*Status\s*Uptime\s*Ports.*$/
+          when /^.*LAG\s+Mode\s+Status\s+Uptime\s+Ports.*$/
             #Puppet.debug("starting: #{line}")
             next
-          when /^(L*)\s*(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+\s+\d+\/\d+)\s+(\S+).*$/
+          when /^(L*)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+\s+\d+\/\d+)\s+(\S+).*$/
             #Puppet.debug("port_channels with ports: #{line}")
             lacp = "true"
             if $1.nil? || $1.empty? then
@@ -130,7 +134,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
             port_channel = { :port_channel => $2.strip, :lacp => lacp, :mode => $3.strip,:status => $4.strip,:uptime => $5.strip,:ports => [] }
             port_channel[:ports] = $6.strip+" "+$7.strip
             port_channels[port_channel[:port_channel]] = port_channel
-          when /^(L*)\s*(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+.*$/
+          when /^(L*)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+.*$/
             #Puppet.debug("port_channels with no ports: #{line}")
             lacp = "true"
             if $1.nil? || $1.empty? then
@@ -150,6 +154,64 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
         port_channels.to_json
       end
       cmd CMD_SHOW_PORT_CHANNELS
+    end
+
+    #Display LLDP neighbor information for all interfaces in JSON Format
+    #    base.register_param 'remote_device_info' do
+    #      remote_device_info = {}
+    #      remote_device = nil
+    #      match do |txt|
+    #        txt.each_line do |line|
+    #          case line
+    #          when /^.*Local\s+Interface\s+(.*)\s+has.*$/
+    #            #Puppet.debug("starting: #{line}")
+    #            remote_device = { :local_interface => $1.strip, :local_port_id => "", :remote_port_id => "",:remote_mac_address => "",:remote_system_name => ""}
+    #            remote_device_info[remote_device[:local_interface]] = remote_device
+    #          when /^.*Remote Chassis ID:\s+(.*)$/
+    #            raise "show lldp neighbors detail output" unless remote_device
+    #            #Puppet.debug("remote_mac_address: #{$1}")
+    #            remote_device[:remote_mac_address] = $1.strip
+    #          when /^.*Remote Port ID:\s+(.*)$/
+    #            raise "show lldp neighbors detail output" unless remote_device
+    #            #Puppet.debug("remote_port_id: #{$1}")
+    #            remote_device[:remote_port_id] = $1.strip
+    #          when /^.*Local Port ID:\s+(.*)$/
+    #            raise "show lldp neighbors detail output" unless remote_device
+    #            #Puppet.debug("local_port_id: #{$1}")
+    #            remote_device[:local_port_id] = $1.strip
+    #          when /^.*Remote System Name:\s+(.*)$/
+    #            raise "show lldp neighbors detail output" unless remote_device
+    #            #Puppet.debug("remote_system_name: #{$1}")
+    #            remote_device[:remote_system_name] = $1.strip
+    #          else
+    #            next
+    #          end
+    #        end
+    #        remote_device_info.to_json
+    #      end
+    #      cmd CMD_SHOW_LLDP_NEIGHBORS
+    #    end
+
+    #Display LLDP neighbor information for all interfaces in JSON Format
+    base.register_param 'remote_device_info' do
+      remote_device_info = {}
+      remote_device = nil
+      match do |txt|
+        txt.each_line do |line|
+          case line
+          when /^\s+(\S+\s+\d+\/\d+)\s+(\S+)\s+(.*)\s+(([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2})).*$/
+            #Puppet.debug("remote device info: #{line}")
+            #remote_device = { :local_interface => $1.strip, :local_port_id => "", :remote_port_id => $3.strip,:remote_mac_address => $4.strip,:remote_system_name => $2.strip}
+            #remote_device_info[remote_device[:local_interface]] = remote_device
+            remote_device = { :interface => $1.strip, :location => $3.strip,:remote_mac => $4.strip,:remote_system_name => $2.strip}
+            remote_device_info[remote_device[:interface]] = remote_device
+          else
+            next
+          end
+        end
+        remote_device_info.to_json
+      end
+      cmd CMD_SHOW_LLDP_NEIGHBORS1
     end
 
     base.register_param 'startup_config_version' do
