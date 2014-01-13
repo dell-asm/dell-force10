@@ -71,6 +71,10 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Device < Puppet::Util::NetworkDevi
     facts = @facts.facts_to_hash
     # inject switch ip or fqdn info.
     facts['fqdn'] = @url.host
+    # inject manufacturer info.
+    facts['manufacturer'] = "Dell"
+    # inject switch model info.
+    facts['model'] = facts['system_type']
     facts
   end
 end

@@ -166,13 +166,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
               else
                 #Puppet.debug("Match Protocol******: OUT #{item}")
                 count=count+1
-                res["software_protocol_configured_#{count}"] = item.strip
+                #res["software_protocol_configured_#{count}"] = item.strip
+                res["protocol_#{count}"] = item.strip
               end
             end
           end
         end
-        #res.to_json
-        res
+        res.to_json
+        #res
       end
       cmd CMD_SHOW_INVENTORY
     end

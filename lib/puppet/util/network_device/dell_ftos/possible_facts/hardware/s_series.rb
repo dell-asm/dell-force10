@@ -127,18 +127,18 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
             if $1.nil? || $1.empty? then
               lacp = "false"
             end
-            port_channel = { :lag => $2.strip, :lacp => lacp, :mode => $3.strip,:status => $4.strip,  :ports => [] }
+            port_channel = { :port_channel => $2.strip, :lacp => lacp, :mode => $3.strip,:status => $4.strip,:uptime => $5.strip,:ports => [] }
             port_channel[:ports] = $6.strip+" "+$7.strip
-            port_channels[port_channel[:lag]] = port_channel
+            port_channels[port_channel[:port_channel]] = port_channel
           when /^(L*)\s*(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+.*$/
             #Puppet.debug("port_channels with no ports: #{line}")
             lacp = "true"
             if $1.nil? || $1.empty? then
               lacp = "false"
             end
-            port_channel = { :lag => $2.strip, :lacp => lacp, :mode => $3.strip,:status => $4.strip,  :ports => "" }
+            port_channel = { :port_channel => $2.strip, :lacp => lacp, :mode => $3.strip,:status => $4.strip,:uptime => $5.strip, :ports => "" }
             #port_channel[:ports] = $6.strip
-            port_channels[port_channel[:lag]] = port_channel
+            port_channels[port_channel[:port_channel]] = port_channel
           when /^\s+(\S+\s+\d+\/\d+)\s+(\S+).*$/
             raise "Invalid show interfaces port-channel brief" unless port_channel
             #Puppet.debug("ports: #{line}")
