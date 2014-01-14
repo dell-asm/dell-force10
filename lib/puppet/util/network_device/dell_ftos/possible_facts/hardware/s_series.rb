@@ -14,7 +14,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
 
   #CMD_SHOW_LLDP_NEIGHBORS  ="show lldp neighbors detail"
 
-  CMD_SHOW_LLDP_NEIGHBORS1  ="show lldp neighbors"
+  CMD_SHOW_LLDP_NEIGHBORS  ="show lldp neighbors"
 
   CMD_SHOW_STARTUP_CONFIG_VERSION="show startup-config | grep \"! Version\""
 
@@ -60,7 +60,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
           case line
           when /^Name:\s+(.*)/
             #Puppet.debug("Name: #{$1}")
-            interface = { :name => $1.strip, :description =>"", :untagged_vlan => "", :tagged_vlan => ""}
+            interface = { :name => $1.strip, :description =>"", :untagged_vlans => "", :tagged_vlans => ""}
             interfaces[interface[:name]] = interface
           when /^Description:\s+(.*)/
             raise "Invalid show interfaces switchport output" unless interface
@@ -68,12 +68,12 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
             interface[:description] = $1.strip
           when /^(U)\s+(.*)/
             raise "Invalid show interfaces switchport output" unless interface
-            #Puppet.debug("#{$1} untagged_vlan #{$2}")
-            interface[:untagged_vlan] = $2.strip
+            #Puppet.debug("#{$1} untagged_vlans #{$2}")
+            interface[:untagged_vlans] = $2.strip
           when /^(T)\s+(.*)/
             raise "Invalid show interfaces switchport output" unless interface
-            #Puppet.debug("#{$1} tagged_vlan #{$2}")
-            interface[:tagged_vlan] = $2.strip
+            #Puppet.debug("#{$1} tagged_vlans #{$2}")
+            interface[:tagged_vlans] = $2.strip
           else
             next
           end
@@ -211,7 +211,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
         end
         remote_device_info.to_json
       end
-      cmd CMD_SHOW_LLDP_NEIGHBORS1
+      cmd CMD_SHOW_LLDP_NEIGHBORS
     end
 
     base.register_param 'startup_config_version' do
