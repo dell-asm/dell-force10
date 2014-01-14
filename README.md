@@ -101,13 +101,5 @@ node "force10.example.com" {
 
 
 This creates VLAN 180 and add TenGigabitEthernet 0/16 and 0/17 interfaces as tagged in the above definition.
-You can also use any of the above operations individually, or create new defined types, as required. The details of each operation and parameters 
-are mentioned in the following readme files that are shipped with the following modules:
-
-  - force10_interface.md
-  - force10_portchannel.md
-  - force10_firmwareupdate.md
-  - force10_vlan.md
-  - force10_config.md
-
+You can also use any of the above operations individually, or create new defined types, as required. See tests folder for additional examples.
 
