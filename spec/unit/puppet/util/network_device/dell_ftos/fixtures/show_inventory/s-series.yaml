@@ -4,7 +4,4 @@ system_management_unit_serial_number: HADL125220181
 system_management_unit_part_number: "7590009602"
 system_management_unit_service_tag: N/A
 system_mode: "1.0"
-software_protocol_configured_1: DCBX
-software_protocol_configured_2: LLDP
-software_protocol_configured_3: RSTP
-software_protocol_configured_4: SNMP
+software_protocol_configured: "{\x22protocol_1\x22:\x22DCBX\x22,\x22protocol_2\x22:\x22LLDP\x22,\x22protocol_3\x22:\x22RSTP\x22,\x22protocol_4\x22:\x22SNMP\x22}"
