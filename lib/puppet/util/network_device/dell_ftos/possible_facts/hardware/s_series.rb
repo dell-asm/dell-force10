@@ -4,21 +4,21 @@ require 'puppet/util/network_device/dell_ftos/possible_facts/hardware'
 module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
 
   # Module Constants
-  CMD_SHOW_SYSTEM_BRIEF="show system brief"
+  CMD_SHOW_SYSTEM_BRIEF="show system brief" unless const_defined?(:CMD_SHOW_SYSTEM_BRIEF)
 
-  CMD_SHOW_VLAN  ="show vlan"
+  CMD_SHOW_VLAN  ="show vlan" unless const_defined?(:CMD_SHOW_VLAN)
 
-  CMD_SHOW_INTERFACES  ="show interfaces switchport"
+  CMD_SHOW_INTERFACES  ="show interfaces switchport" unless const_defined?(:CMD_SHOW_INTERFACES)
 
-  CMD_SHOW_PORT_CHANNELS  ="show interfaces port-channel brief"
+  CMD_SHOW_PORT_CHANNELS  ="show interfaces port-channel brief" unless const_defined?(:CMD_SHOW_PORT_CHANNELS)
 
-  #CMD_SHOW_LLDP_NEIGHBORS  ="show lldp neighbors detail"
+  #CMD_SHOW_LLDP_NEIGHBORS  ="show lldp neighbors detail" unless const_defined?(:CMD_SHOW_LLDP_NEIGHBORS)
 
-  CMD_SHOW_LLDP_NEIGHBORS  ="show lldp neighbors"
+  CMD_SHOW_LLDP_NEIGHBORS  ="show lldp neighbors" unless const_defined?(:CMD_SHOW_LLDP_NEIGHBORS)
 
-  CMD_SHOW_STARTUP_CONFIG_VERSION="show startup-config | grep \"! Version\""
+  CMD_SHOW_STARTUP_CONFIG_VERSION="show startup-config | grep \"! Version\"" unless const_defined?(:CMD_SHOW_STARTUP_CONFIG_VERSION)
 
-  CMD_SHOW_RUNNING_CONFIG_VERSION="show running-config | grep \"! Version\""
+  CMD_SHOW_RUNNING_CONFIG_VERSION="show running-config | grep \"! Version\"" unless const_defined?(:CMD_SHOW_RUNNING_CONFIG_VERSION)
   def self.register(base)
 
     base.register_param 'system_power_status' do

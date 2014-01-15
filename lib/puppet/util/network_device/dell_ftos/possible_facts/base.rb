@@ -4,15 +4,15 @@ require 'puppet/util/network_device/dell_ftos/possible_facts'
 module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
 
   # Module Constants
-  CMD_SHOW_INVENTORY = "show inventory"
+  CMD_SHOW_INVENTORY = "show inventory" unless const_defined?(:CMD_SHOW_INVENTORY)
 
-  CMD_SHOW_VERSION = "show version"
+  CMD_SHOW_VERSION = "show version" unless const_defined?(:CMD_SHOW_VERSION)
 
-  CMD_SHOW_ENVIRONMENT = "show environment"
+  CMD_SHOW_ENVIRONMENT = "show environment" unless const_defined?(:CMD_SHOW_ENVIRONMENT)
 
-  CMD_SHOW_SYSTEM_BRIEF="show system brief"
+  CMD_SHOW_SYSTEM_BRIEF="show system brief" unless const_defined?(:CMD_SHOW_SYSTEM_BRIEF)
 
-  CMD_SHOW_IP_INTERFACE_BRIEF="show ip interface brief | grep ManagementEthernet"
+  CMD_SHOW_IP_INTERFACE_BRIEF="show ip interface brief | grep ManagementEthernet" unless const_defined?(:CMD_SHOW_IP_INTERFACE_BRIEF)
   def self.register(base)
 
     base.register_param ['hostname', 'uptime'] do

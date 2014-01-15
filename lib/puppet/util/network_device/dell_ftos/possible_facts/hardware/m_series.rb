@@ -4,7 +4,7 @@ require 'puppet/util/network_device/dell_ftos/possible_facts/hardware'
 module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
 
   # Module Constants
-  CMD_SHOW_SYSTEM_STACK_UNIT = "show system stack-unit"
+  CMD_SHOW_SYSTEM_STACK_UNIT = "show system stack-unit" unless const_defined?(:CMD_SHOW_SYSTEM_STACK_UNIT)
   def self.register(base)
 
     # system_management_unit is expected to be populated before this registration
