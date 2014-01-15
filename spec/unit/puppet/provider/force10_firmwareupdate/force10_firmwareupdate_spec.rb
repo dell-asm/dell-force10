@@ -1,7 +1,7 @@
 #! /usr/bin/env ruby
 
 require 'spec_helper'
-require 'fixtures/unit/puppet/provider/force10_firmware/Force10_firmware_fixture'
+require 'fixtures/unit/puppet/provider/force10_firmware/force10_firmware_fixture'
 
 describe Puppet::Type.type(:force10_firmwareupdate).provider(:dell_ftos) do
 
