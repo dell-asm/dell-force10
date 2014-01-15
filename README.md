@@ -98,8 +98,9 @@ node "force10.example.com" {
     require => force10_config['apply config']; 
 	}	
 }
-
-
 This creates VLAN 180 and add TenGigabitEthernet 0/16 and 0/17 interfaces as tagged in the above definition.
-You can also use any of the above operations individually, or create new defined types, as required. See tests folder for additional examples.
+
+You can also use any of the above operations individually, or create new defined types, as required.
+
+For additional examples, see tests folder.
 
