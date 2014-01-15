@@ -4,10 +4,8 @@ require 'puppet/util/network_device/dell_ftos/model/portchannel'
 module Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel::Base
   def self.register(base)
     portchannel_scope = /^(L*\s*(\d+)\s+(.*))/
-    description_scope = /(^.*Description:\s*(.*\b)$)/
-    mtu_scope = /(^.*MTU\s*(.*\b) bytes .*$)/
-    shutdown_scope = /(^.*Shutdown:\s*(.*\b)$)/
-    switchport_scope = /(^.*Switchport\s*(.*\b) bytes .*$)/
+    general_scope = /(^Port-channel (\d+).*)\s+/m
+    portchannelval = base.name
 
     base.register_scoped :ensure, portchannel_scope do
       match do |txt|
@@ -23,15 +21,19 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel::Base
       remove { |*_| }
     end
 
-    base.register_scoped :mtu, mtu_scope do
+    base.register_scoped :mtu, general_scope do
+
       match do |txt|
-        unless txt.nil?
-          txt.match(/\S+/) ? :present : :absent
-        else
-          :absent
-        end
+          paramsarray=txt.match(/^MTU (\d+)/)
+          if paramsarray.nil?
+            param1 = :absent
+          else
+            param1 = paramsarray[1]
+          end
+          param1
       end
-      cmd 'show interface port-channel'
+
+      cmd "show interface port-channel #{portchannelval}"
       default :absent
       add do |transport, value|
         transport.command("mtu #{value}")
@@ -39,15 +41,20 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel::Base
       remove { |*_| }
     end
 
-    base.register_scoped :shutdown, shutdown_scope do
+    base.register_scoped :shutdown, general_scope do
+      
       match do |txt|
-        unless txt.nil?
-          txt.match(/\S+/) ? :present : :absent
-        else
-          :absent
-        end
+          paramsarray=txt.match(/^Port-channel (\d+) is up/)
+          if paramsarray.nil?
+            param1 = :true
+          else
+            param1 = :false
+          end
+          param1
       end
-      cmd 'show interface port-channel'
+
+
+      cmd "show interface port-channel #{portchannelval}"
       default :absent
       add do |transport, value|
         if value == :false
@@ -60,16 +67,19 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel::Base
     end
 
 
-    base.register_scoped :switchport, switchport_scope do
+    base.register_scoped :switchport, portchannel_scope do
+
       match do |txt|
-        unless txt.nil?
-          txt.match(/\S+/) ? :present : :absent
-        else
-          :absent
-        end
+          paramsarray=txt.match(/L2/)
+          if paramsarray.nil?
+            param1 = :false
+          else
+            param1 = :true
+          end
+          param1
       end
-      cmd 'show interface port-channel'
-      default :absent
+
+      cmd "show interfaces port-channel brief"
       add do |transport, value|
         if value == :false
           transport.command("no switchport")
@@ -81,16 +91,18 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel::Base
     end
 
 
-    base.register_scoped :desc, description_scope do
+    base.register_scoped :desc, general_scope do
       match do |txt|
-        unless txt.nil?
-          txt.match(/\S+/) ? :present : :absent
-        else
-          :absent
-        end
+          paramsarray=txt.match(/^Description: (.*)/)
+          if paramsarray.nil?
+            param1 = :absent
+          else
+            param1 = paramsarray[1]
+          end
+          param1
       end
 
-      cmd 'show interface port-channel'
+      cmd "show interface port-channel #{portchannelval}"
       add do |transport, value|
         transport.command("desc #{value}")
       end
