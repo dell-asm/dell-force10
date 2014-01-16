@@ -122,7 +122,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
 
     base.register_param 'operating_system' do
       match do |txt|
-        item = txt.split(/\r?\n/).select{ |s| s[/c/i] }.first
+        item = txt.split(/\r?\n/).select{ |s| s[/Dell/i] }.first
         item.strip unless item.nil?
       end
       cmd CMD_SHOW_VERSION
