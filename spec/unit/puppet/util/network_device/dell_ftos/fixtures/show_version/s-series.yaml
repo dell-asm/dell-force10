@@ -5,6 +5,7 @@ uptime: "3 day(s), 19 hour(s), 22 minute(s)"
 ten_gigabit_ethernet_interfaces: "48"
 forty_gigabit_ethernet_interfaces: "4"
 system_image: "system://B"
+operating_system: "Dell Force10 Real Time Operating System Software"
 dell_force10_operating_system_version: "2.0"
 dell_force10_application_software_version: "9.2(0.2)"
 system_type: S4810

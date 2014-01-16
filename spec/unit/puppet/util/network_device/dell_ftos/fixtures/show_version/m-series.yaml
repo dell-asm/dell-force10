@@ -4,6 +4,7 @@ uptime: "2 day(s), 1 hour(s), 16 minute(s)"
 "34_port_interfaces": "1"
 ten_gigabit_ethernet_interfaces: "56"
 system_image: "system://A"
+operating_system: "Dell Force10 Real Time Operating System Software"
 dell_force10_operating_system_version: "2.0"
 dell_force10_application_software_version: "9.2(0.2)"
 system_type: MXL-10/40GbE

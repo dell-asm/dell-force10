@@ -120,6 +120,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       cmd CMD_SHOW_VERSION
     end
 
+    base.register_param 'operating_system' do
+      match do |txt|
+        item = txt.split(/\r?\n/).select{ |s| s[/c/i] }.first
+        item.strip unless item.nil?
+      end
+      cmd CMD_SHOW_VERSION
+    end
+
     base.register_param 'dell_force10_operating_system_version' do
       match /^Dell\s+Force10\s+Operating\s+System\s+Version:\s+(\S+)$/
       cmd CMD_SHOW_VERSION
