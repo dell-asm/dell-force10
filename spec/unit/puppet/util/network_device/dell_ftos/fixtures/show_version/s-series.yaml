@@ -8,6 +8,7 @@ system_image: "system://B"
 dell_force10_operating_system_version: "2.0"
 dell_force10_application_software_version: "9.2(0.2)"
 system_type: S4810
+system_description: "Dell Force10 S4810 System"
 control_processor: "Freescale QorIQ P2020"
 control_processor_memory: "2147483648 bytes"
 boot_flash_memory: "128M bytes"

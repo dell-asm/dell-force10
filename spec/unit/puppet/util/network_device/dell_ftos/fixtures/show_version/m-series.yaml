@@ -7,6 +7,7 @@ system_image: "system://A"
 dell_force10_operating_system_version: "2.0"
 dell_force10_application_software_version: "9.2(0.2)"
 system_type: MXL-10/40GbE
+system_description: "Dell Force10 MXL 10/40GbE Switch IO Module"
 control_processor: "MIPS RMI XLP"
 control_processor_memory: "2147483648 bytes"
 boot_flash_memory: "256M bytes"    

@@ -15,6 +15,25 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
       unit_number="0"
     end
 
+    base.register_param 'system_description' do
+      match do |system_type,hostname|
+        #Puppet.debug("system_type: #{system_type}")
+        #Puppet.debug("hostname: #{hostname}")
+        unless system_type.nil?
+          if system_type =~ /I\/O-Aggregator/i then
+            "Dell PowerEdge M I/O Aggregator"
+          elsif system_type  =~ /MXL/i then
+            "Dell Force10 MXL 10/40GbE Switch IO Module"
+          else
+            system_type
+          end
+        end
+      end
+      cmd false
+      match_param [ 'system_type','hostname']
+      after 'system_type'
+    end
+
     base.register_param 'system_power_status' do
       power_status = 'Unknown'
       match do |txt|

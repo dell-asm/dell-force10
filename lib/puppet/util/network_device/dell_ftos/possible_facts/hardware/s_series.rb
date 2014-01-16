@@ -21,6 +21,17 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
   CMD_SHOW_RUNNING_CONFIG_VERSION="show running-config | grep \"! Version\"" unless const_defined?(:CMD_SHOW_RUNNING_CONFIG_VERSION)
   def self.register(base)
 
+    base.register_param 'system_description' do
+      match do |system_type,hostname|
+        #Puppet.debug("system_type: #{system_type}")
+        #Puppet.debug("hostname: #{hostname}")
+        "Dell Force10 #{system_type} System" unless system_type.nil?
+      end
+      cmd false
+      match_param [ 'system_type','hostname']
+      after 'system_type'
+    end
+
     base.register_param 'system_power_status' do
       found = false
       power_status = 'Unknown'
