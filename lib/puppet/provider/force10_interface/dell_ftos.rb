@@ -8,6 +8,11 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
   end
 
   def self.lookup(device, name)
+    if !name.nil?
+      name=name.gsub(/te |tengigabitethernet /i, "TenGigabitEthernet ")
+
+      name=name.gsub(/fo |fortygige /i, "fortyGigE ")
+    end
     device.switch.interface(name).params_to_hash
   end
 
