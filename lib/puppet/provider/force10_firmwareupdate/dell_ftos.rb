@@ -3,11 +3,11 @@ require 'puppet/provider/dell_ftos'
 
 Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet::Provider do
   mk_resource_methods
-  def run(firmwarelocation, forceupdate)
+  def run(firmwarelocation, force)
     Puppet.debug("Puppet::Force10_firmwareUpdate*********************")
-    Puppet.debug("firmware Image path is: #{firmwarelocation} and force update flag is: #{forceupdate}")
+    Puppet.debug("firmware Image path is: #{firmwarelocation} and force update flag is: #{force}")
     dev = Puppet::Util::NetworkDevice.current
-#    tryrebootswitch()
+    #    tryrebootswitch()
     currentfirmwareversion = dev.switch.facts['dell_force10_application_software_version']
     Puppet.debug(" currentfirmwareversion: #{currentfirmwareversion}")
     #newfirmwareversion = firmwarelocation.split("\/").last.split("-").last.split(".bin").first
@@ -16,12 +16,12 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
     flashfilename= "flash://#{firmwarelocation.split("\/").last}"
     deleteflashfile flashfilename
     Puppet.debug("Starting to copy the file to flash drive of switch")
-	copysuccessful = false;
+    copysuccessful = false;
     dev.transport.command("copy #{firmwarelocation} flash://#{firmwarelocation.split("\/").last}") do |response|
       firstresponse = response.scan("successfully copied")
-	  unless firstresponse.empty?
-        		copysuccessful=true
-      		break
+      unless firstresponse.empty?
+        copysuccessful=true
+        break
       end
     end
     unless copysuccessful
@@ -29,10 +29,10 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
       Puppet.debug(err)
       raise err
     end
-	newfirmwareversion = trygetfirmwareversion flashfilename
-	Puppet.debug("firmwareversion  is: " + newfirmwareversion )
+    newfirmwareversion = trygetfirmwareversion flashfilename
+    Puppet.debug("firmwareversion  is: " + newfirmwareversion )
     txt = ''
-    if (currentfirmwareversion.eql? newfirmwareversion) && forceupdate == :false
+    if (currentfirmwareversion.eql? newfirmwareversion) && force == :false
       Puppet.debug("Existing Firmware versions is same as new Firmware version, so not doing firmware update")
       txt = "Existing Firmware versions is same as new Firmware version, so not doing firmware update"
       return txt
@@ -65,26 +65,27 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
     txt = "firmware update is successful"
     return txt
   end
-  
+
   def updatestartupconfig()
-    	flagfirstresponse=false
-	dev = Puppet::Util::NetworkDevice.current
-	dev.transport.command("copy running-config startup-config")  do |updateout|
-		firstresponse =updateout.scan("Proceed to copy the file")
-		unless firstresponse.empty?
-        		flagfirstresponse=true
-        		break
-        	end
-	end
-		if flagfirstresponse
-			txt= ''
-			dev.transport.command("yes") do |out|
-				txt << out
-			end
-			Puppet.debug(txt)
-  		end
-  	
+    flagfirstresponse=false
+    dev = Puppet::Util::NetworkDevice.current
+    dev.transport.command("copy running-config startup-config")  do |updateout|
+      firstresponse =updateout.scan("Proceed to copy the file")
+      unless firstresponse.empty?
+        flagfirstresponse=true
+        break
+      end
+    end
+    if flagfirstresponse
+      txt= ''
+      dev.transport.command("yes") do |out|
+        txt << out
+      end
+      Puppet.debug(txt)
+    end
+
   end
+
   def tryrebootswitch()
     #Some times sending reload command returning with console prompt without doing anything; in that case retry reload, for max 3 times
     for i in 0..2
@@ -175,40 +176,41 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
 end
 
 def trygetfirmwareversion(filename)
-    #Some times sending reload command returning with console prompt without doing anything; in that case retry reload, for max 3 times
-    for i in 0..3
-	firmwareVersion = getfirmwareversion filename
-      unless firmwareVersion.eql? "false"
-        break
-      end
+  #Some times sending reload command returning with console prompt without doing anything; in that case retry reload, for max 3 times
+  for i in 0..3
+    firmwareVersion = getfirmwareversion filename
+    unless firmwareVersion.eql? "false"
+      break
     end
-	return firmwareVersion
   end
+  return firmwareVersion
+end
 
 def getfirmwareversion(filename)
-    dev = Puppet::Util::NetworkDevice.current
-	firmwarelocation = filename
-    firmwareversiondata = ""
-    dev.transport.command("show os-version #{firmwarelocation}") do |firmwareresponse|
-      firmwareversiondata << firmwareresponse
-    end
-    firmwarewversionlineArr = firmwareversiondata.match(/^\s*(.*:\s*\b([A-Za-z]{1}[A-Za-z0-9]*)\b\s*\b([0-9]{1}[0-9\-\.]*)\b.*)/)
-    if firmwarewversionlineArr.nil?
-	   return "false"
-	end
-	firmwarewversionline = firmwarewversionlineArr[1]
-    Puppet.debug("The version of the firmware update file is  #{firmwarewversionline.split("\ ")[2]}")
-    newfirmwareversion = firmwarewversionline.split("\ ")[2]
-    Puppet.debug("firmwareversion  is: " + newfirmwareversion )
+  dev = Puppet::Util::NetworkDevice.current
+  firmwarelocation = filename
+  firmwareversiondata = ""
+  dev.transport.command("show os-version #{firmwarelocation}") do |firmwareresponse|
+    firmwareversiondata << firmwareresponse
+  end
+  firmwarewversionlineArr = firmwareversiondata.match(/^\s*(.*:\s*\b([A-Za-z]{1}[A-Za-z0-9]*)\b\s*\b([0-9]{1}[0-9\-\.]*)\b.*)/)
+  if firmwarewversionlineArr.nil?
+    return "false"
+  end
+  firmwarewversionline = firmwarewversionlineArr[1]
+  Puppet.debug("The version of the firmware update file is  #{firmwarewversionline.split("\ ")[2]}")
+  newfirmwareversion = firmwarewversionline.split("\ ")[2]
+  Puppet.debug("firmwareversion  is: " + newfirmwareversion )
 
-    if firmwareversiondata.to_s == '' or firmwarewversionline.to_s == '' or newfirmwareversion.to_s == ''
-      err = "Unable to determine the version of the update file. Firmware update failed"
-      Puppet.debug(err)
-      deleteflashfile flashfilename
-      raise err
-    end
-	return newfirmwareversion
+  if firmwareversiondata.to_s == '' or firmwarewversionline.to_s == '' or newfirmwareversion.to_s == ''
+    err = "Unable to determine the version of the update file. Firmware update failed"
+    Puppet.debug(err)
+    deleteflashfile flashfilename
+    raise err
+  end
+  return newfirmwareversion
 end
+
 def deleteflashfile(filename)
   Puppet.debug("Strating to delete the backed up image")
   dev = Puppet::Util::NetworkDevice.current
@@ -216,19 +218,19 @@ def deleteflashfile(filename)
   dev.transport.command("delete #{filename}")  do |out|
     firstresponse =out.scan("Proceed to delete")
     Puppet.debug(out)
-		unless firstresponse.empty?
-        		flagfirstresponse=true
-        		break
-    		 end
-		
+    unless firstresponse.empty?
+      flagfirstresponse=true
+      break
+    end
+
   end
   if flagfirstresponse
-			txt= ''
-			dev.transport.command("yes") do |out|
-				txt << out
-			end
-			Puppet.info(txt)
+    txt= ''
+    dev.transport.command("yes") do |out|
+      txt << out
+    end
+    Puppet.info(txt)
   else
-	return
-  end 
+    return
+  end
 end

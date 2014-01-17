@@ -7,7 +7,7 @@ describe Puppet::Type.type(:force10_firmwareupdate) do
     described_class.new(
 		:name          		=> 'firmwareupdate',
 		:firmwarelocation    	=> 'tftp://172.152.0.89/Force10/FTOS-SE-9.2.0.2.bin',
-		:forceupdate		=> false,
+		:force		=> false,
     )
    end
 
@@ -24,7 +24,7 @@ describe Puppet::Type.type(:force10_firmwareupdate) do
     end 
     
     describe "when validating attributes" do   
-      [:name,:forceupdate].each do |param|
+      [:name,:force].each do |param|
 	 it "should hava a #{param} parameter" do
         described_class.attrtype(param).should == :param
       end

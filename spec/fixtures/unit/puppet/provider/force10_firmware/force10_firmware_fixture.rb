@@ -1,4 +1,4 @@
-class force10_firmware_fixture
+class Force10_firmware_fixture
 
   attr_accessor :force10_firmware, :provider
   def initialize
@@ -12,7 +12,7 @@ class force10_firmware_fixture
     Puppet::Type.type(:force10_firmwareupdate).new(
     :name               => 'image1',
     :firmwarelocation    => 'tftp://172.152.0.89/Force10/FTOS-SE-9.2.0.2.bin',
-    :forceupdate        => true
+    :force        => true
     )
   end
 

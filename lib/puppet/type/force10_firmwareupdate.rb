@@ -8,7 +8,7 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
     isnamevar
   end
 
-  newparam(:forceupdate) do
+  newparam(:force) do
     desc "This flag denotes force apply of firmware"
     newvalues(:true, :false)
     defaultto :false
@@ -43,7 +43,7 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
 
     def sync
       event = :executed_command
-      out = provider.run(self.resource[:firmwarelocation], self.resource[:forceupdate])
+      out = provider.run(self.resource[:firmwarelocation], self.resource[:force])
       event
     end
   end
