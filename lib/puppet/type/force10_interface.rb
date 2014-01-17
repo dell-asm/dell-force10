@@ -35,7 +35,7 @@ Puppet::Type.newtype(:force10_interface) do
   end
 
   newproperty(:switchport) do
-    desc "The switchport flag of the interface, true mean move the interface to Layer2, else interface will be in Layer1"
+    desc "The switchport flag of the interface, true means move the interface to Layer2, else interface will be in Layer3"
     defaultto(:false)
     newvalues(:false,:true)
   end
