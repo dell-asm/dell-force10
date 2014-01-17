@@ -6,7 +6,7 @@ describe Puppet::Type.type(:force10_firmwareupdate) do
    let :resource do
     described_class.new(
 		:name          		=> 'firmwareupdate',
-		:firmwarelocation    	=> 'tftp://172.152.0.89/Force10/FTOS-SE-9.2.0.2.bin',
+		:url    	=> 'tftp://172.152.0.89/Force10/FTOS-SE-9.2.0.2.bin',
 		:force		=> false,
     )
    end
@@ -29,7 +29,7 @@ describe Puppet::Type.type(:force10_firmwareupdate) do
         described_class.attrtype(param).should == :param
       end
      end
-    [:firmwarelocation].each do |property|
+    [:url].each do |property|
      it "should have a #{property} property" do
         described_class.attrtype(property).should == :property
       end

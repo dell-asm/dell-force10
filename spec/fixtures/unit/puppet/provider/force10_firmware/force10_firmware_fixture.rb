@@ -11,15 +11,15 @@ class Force10_firmware_fixture
   def  get_force10_firmware
     Puppet::Type.type(:force10_firmwareupdate).new(
     :name               => 'image1',
-    :firmwarelocation    => 'tftp://172.152.0.89/Force10/FTOS-SE-9.2.0.2.bin',
+    :url    => 'tftp://172.152.0.89/Force10/FTOS-SE-9.2.0.2.bin',
     :force        => true
     )
   end
 
   public
 
-  def getfirmwarelocation
-    force10_firmware[:firmwarelocation]
+  def geturl
+    force10_firmware[:url]
   end
 end
   

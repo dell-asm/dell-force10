@@ -3,21 +3,21 @@ require 'puppet/provider/dell_ftos'
 
 Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet::Provider do
   mk_resource_methods
-  def run(firmwarelocation, force)
+  def run(url, force)
     Puppet.debug("Puppet::Force10_firmwareUpdate*********************")
-    Puppet.debug("firmware Image path is: #{firmwarelocation} and force update flag is: #{force}")
+    Puppet.debug("firmware Image path is: #{url} and force update flag is: #{force}")
     dev = Puppet::Util::NetworkDevice.current
     #    tryrebootswitch()
     currentfirmwareversion = dev.switch.facts['dell_force10_application_software_version']
     Puppet.debug(" currentfirmwareversion: #{currentfirmwareversion}")
-    #newfirmwareversion = firmwarelocation.split("\/").last.split("-").last.split(".bin").first
+    #newfirmwareversion = url.split("\/").last.split("-").last.split(".bin").first
 
     copyresponse = ""
-    flashfilename= "flash://#{firmwarelocation.split("\/").last}"
+    flashfilename= "flash://#{url.split("\/").last}"
     deleteflashfile flashfilename
     Puppet.debug("Starting to copy the file to flash drive of switch")
     copysuccessful = false;
-    dev.transport.command("copy #{firmwarelocation} flash://#{firmwarelocation.split("\/").last}") do |response|
+    dev.transport.command("copy #{url} flash://#{url.split("\/").last}") do |response|
       firstresponse = response.scan("successfully copied")
       unless firstresponse.empty?
         copysuccessful=true
@@ -37,7 +37,7 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
       txt = "Existing Firmware versions is same as new Firmware version, so not doing firmware update"
       return txt
     end
-    dev.transport.command("upgrade system #{firmwarelocation} A:")  do |out|
+    dev.transport.command("upgrade system #{url} A:")  do |out|
       txt << out
     end
     item = txt.scan("successfully")
@@ -48,7 +48,7 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
       raise txt
     end
     Puppet.debug("firmware update done for image A:")
-    dev.transport.command("upgrade system #{firmwarelocation} B:")  do |out|
+    dev.transport.command("upgrade system #{url} B:")  do |out|
       txt << out
     end
     item = txt.scan("successfully")
@@ -188,9 +188,9 @@ end
 
 def getfirmwareversion(filename)
   dev = Puppet::Util::NetworkDevice.current
-  firmwarelocation = filename
+  url = filename
   firmwareversiondata = ""
-  dev.transport.command("show os-version #{firmwarelocation}") do |firmwareresponse|
+  dev.transport.command("show os-version #{url}") do |firmwareresponse|
     firmwareversiondata << firmwareresponse
   end
   firmwarewversionlineArr = firmwareversiondata.match(/^\s*(.*:\s*\b([A-Za-z]{1}[A-Za-z0-9]*)\b\s*\b([0-9]{1}[0-9\-\.]*)\b.*)/)

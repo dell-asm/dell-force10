@@ -14,10 +14,10 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
     defaultto :false
   end
 
-  newproperty(:firmwarelocation) do
+  newproperty(:url) do
     desc "URL of Firmware location "
-    validate do |firmwarelocation|
-      raise ArgumentError, "Command must be a String, got value of class #{firmwarelocation.class}" unless firmwarelocation.is_a? String
+    validate do |url|
+      raise ArgumentError, "Command must be a String, got value of class #{url.class}" unless url.is_a? String
     end
 
   end
@@ -43,7 +43,7 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
 
     def sync
       event = :executed_command
-      out = provider.run(self.resource[:firmwarelocation], self.resource[:force])
+      out = provider.run(self.resource[:url], self.resource[:force])
       event
     end
   end
