@@ -1,7 +1,7 @@
 require 'puppet/provider/dell_ftos'
 
 Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Provider::Dell_ftos do
-  desc "force 10 Switch Interface Provider for Device Configuration."
+  desc "Dell Force10 switch provider for interface configuration."
   mk_resource_methods
   def initialize(device, *args)
     super

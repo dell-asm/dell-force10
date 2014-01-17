@@ -4,7 +4,7 @@ require 'puppet/provider/dell_ftos'
 
 Puppet::Type.type(:force10_vlan).provide :dell_ftos, :parent => Puppet::Provider::Dell_ftos do
 
-  desc "Dell force10 switch provider for VLAN configuration."
+  desc "Dell Force10 switch provider for vlan configuration."
 
   mk_resource_methods
   def initialize(device, *args)

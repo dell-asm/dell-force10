@@ -6,7 +6,7 @@
 #   force - boolean value, if true means forcefully apply the configuration though there is no configuration change
 
 Puppet::Type.newtype(:force10_config) do
-  @doc = "This will apply configuration on Dell force10 switch."
+  @doc = "This will apply configuration on Dell Force10 switch."
 
   apply_to_device
 

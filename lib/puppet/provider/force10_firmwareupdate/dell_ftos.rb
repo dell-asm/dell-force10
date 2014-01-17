@@ -2,6 +2,7 @@ require 'puppet/util/network_device'
 require 'puppet/provider/dell_ftos'
 
 Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet::Provider do
+  desc "Dell Force10 switch provider for firmware updates."
   mk_resource_methods
   def run(url, force)
     Puppet.debug("Puppet::Force10_firmwareUpdate*********************")

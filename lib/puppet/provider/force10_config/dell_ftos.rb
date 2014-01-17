@@ -7,6 +7,7 @@ require 'puppet/provider/dell_ftos'
 require 'digest/md5'
 
 Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provider do
+  desc "Dell Force10 switch provider for configuration updates."
   mk_resource_methods
   def run(url, startup_config, force)
     if startup_config == :true

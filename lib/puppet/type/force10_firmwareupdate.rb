@@ -1,5 +1,5 @@
 Puppet::Type.newtype(:force10_firmwareupdate) do
-  @doc = "This will execute firmware Update on Dell force10 switch."
+  @doc = "This will perform firmware update on Dell Force10 switch."
 
   apply_to_device
 

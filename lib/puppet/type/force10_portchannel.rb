@@ -1,5 +1,5 @@
 Puppet::Type.newtype(:force10_portchannel) do
-  @doc = "This represents Dell force10 switch port-channel."
+  @doc = "This represents Dell Force10 switch port-channel."
 
   apply_to_device
 

@@ -2,6 +2,7 @@ require 'puppet/util/network_device'
 require 'puppet/provider/dell_ftos'
 
 Puppet::Type.type(:force10_exec).provide :dell_ftos, :parent => Puppet::Provider do
+  desc "Dell Force10 switch provider for switch commands execution."
   mk_resource_methods
   def run(command, context)
     dev = Puppet::Util::NetworkDevice.current
