@@ -8,7 +8,7 @@
 	- [Requirements](#requirements)
 	- [Usage](#usage)
 		- [Device Setup](#device-setup)
-		- [Dell Force10 operations](#Dell-Force10-operations)
+		- [Dell Force10 Operations](#dell-force10-operations)
 
 ## Overview
 The Dell Force10 switch module is designed to extend the support for managing Dell Force10 switch configuration using Puppet and its Network Device functionality.
