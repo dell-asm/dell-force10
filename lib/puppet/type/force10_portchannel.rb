@@ -33,7 +33,7 @@ Puppet::Type.newtype(:force10_portchannel) do
   end
 
   newproperty(:switchport) do
-    desc "The switchport flag of the port-channel, true means move the port-channel to Layer2, else interface will be in Layer3"
+    desc "The switchport flag of the port-channel, true means move the port-channel to Layer2, else interface will be in Layer1"
     defaultto(:false)
     newvalues(:false,:true)
   end
