@@ -114,6 +114,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       cmd 'sh run'
       add do |transport, value|
         if value != 'absent'
+          transport.command("no untagged TenGigabitEthernet #{value}")
           transport.command("tagged TenGigabitEthernet #{value}") do |out|
             txt<< out
           end
@@ -133,6 +134,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       cmd 'sh run'
       add do |transport, value|
         if value != 'absent'
+          transport.command("no untagged fortyGigE #{value}")
           transport.command("tagged fortyGigE #{value}") do |out|
             txt<< out
           end
@@ -152,6 +154,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       cmd 'sh run'
       add do |transport, value|
         if value != 'absent'
+          transport.command("no untagged Port-channel #{value}")
           transport.command("tagged Port-channel #{value}") do |out|
             txt<< out
           end
@@ -171,6 +174,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       cmd 'sh run'
       add do |transport, value|
         if value != 'absent'
+          transport.command("no untagged GigabitEthernet #{value}")
           transport.command("tagged GigabitEthernet #{value}") do |out|
             txt<< out
           end
@@ -190,6 +194,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       cmd 'sh run'
       add do |transport, value|
         if value != 'absent'
+          transport.command("no untagged Sonet #{value}")
           transport.command("tagged Sonet #{value}") do |out|
             txt<< out
           end
@@ -209,6 +214,9 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       cmd 'sh run'
       add do |transport, value|
         if value != 'absent'
+          #untagged interfaces can only belong to one VLAN at a time - and so checking for mappings and so doing no untag
+          nountagintffromoothervlans("TenGigabitEthernet",value,base.name)
+          transport.command("no tagged TenGigabitEthernet #{value}")
           transport.command("untagged TenGigabitEthernet #{value}") do |out|
             txt<< out
           end
@@ -228,6 +236,8 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       cmd 'sh run'
       add do |transport, value|
         if value != 'absent'
+          nountagintffromoothervlans("fortyGigE",value,base.name)
+          transport.command("no tagged fortyGigE #{value}")
           transport.command("untagged fortyGigE #{value}") do |out|
             txt<< out
           end
@@ -247,6 +257,8 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       cmd 'sh run'
       add do |transport, value|
         if value != 'absent'
+          nountagintffromoothervlans("Port-channel",value,base.name)
+          transport.command("no tagged Port-channel #{value}")
           transport.command("untagged Port-channel #{value}") do |out|
             txt<< out
           end
@@ -266,6 +278,8 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       cmd 'sh run'
       add do |transport, value|
         if value != 'absent'
+          nountagintffromoothervlans("GigabitEthernet",value,base.name)
+          transport.command("no tagged GigabitEthernet #{value}")
           transport.command("untagged GigabitEthernet #{value}") do |out|
             txt<< out
           end
@@ -285,6 +299,8 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
       cmd 'sh run'
       add do |transport, value|
         if value != 'absent'
+          nountagintffromoothervlans("Sonet",value,base.name)
+          transport.command("no tagged Sonet #{value}")
           transport.command("untagged Sonet #{value}") do |out|
             txt<< out
           end
