@@ -40,8 +40,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
 
     base.register_param 'management_ip' do
       match do |txt|
-        item = txt.scan(/ManagementEthernet\s\d+\/\d+\s+((?:\d{1,3}\.){3}\d{1,3})\s+.*/).flatten.first
-        item.strip unless item.nil?
+		base.transport.host
       end
       cmd CMD_SHOW_IP_INTERFACE_BRIEF
     end
