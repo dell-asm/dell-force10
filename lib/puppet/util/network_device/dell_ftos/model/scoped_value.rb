@@ -1,4 +1,4 @@
-#The class has the methods for parsing and keeping parameters of resource type(Like vlan, portchannel etc) values  
+#The class has the methods for parsing and keeping parameters of resource type(Like vlan, portchannel etc) values
 require 'puppet/util/network_device/dell_ftos/model'
 require 'puppet/util/network_device/dell_ftos/model/generic_value'
 require 'puppet/util/monkey_patches_ftos'
@@ -63,5 +63,30 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::ScopedValue < Puppet::Util:
       Puppet.info "ERROR:#{$1}"
       raise "Unable to "+placestr+".Reason:#{$1}"
     end
+  end
+
+  #untagged interfaces can only belong to one VLAN at a time - and so checking for mappings and so doing no untag
+  def nountagintffromoothervlans(interfacename, interfacevalue, vlanname)
+    transport.command("exit")
+    transport.command("exit")
+    outtxt=""
+    transport.command("show interfaces switchport #{interfacename} #{interfacevalue}") do |out|
+      outtxt<< out
+    end
+    chkvlan=outtxt.match(/.*Vlans\s+(U)\s+(.*$)/)
+    if chkvlan.nil?
+      Puppet.debug "interface #{interfacename} #{interfacevalue} not UNTAGGED to any other VLAN "
+    else
+      transport.command("conf")
+      #Except Default VLAN
+      unless $2=="1"
+        transport.command("interface vlan #{$2}")
+        transport.command("no untagged #{interfacename} #{interfacevalue}")
+        transport.command("exit")
+        transport.command("exit")
+      end
+    end
+    transport.command("conf")
+    transport.command("interface vlan #{vlanname}")
   end
 end
