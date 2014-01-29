@@ -78,10 +78,13 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::ScopedValue < Puppet::Util:
       Puppet.debug "interface #{interfacename} #{interfacevalue} not UNTAGGED to any other VLAN "
     else
       transport.command("conf")
-      transport.command("interface vlan #{$2}")
-      transport.command("no untagged #{interfacename} #{interfacevalue}")
-      transport.command("exit")
-      transport.command("exit")
+      #Except Default VLAN
+      unless $2=="1"
+        transport.command("interface vlan #{$2}")
+        transport.command("no untagged #{interfacename} #{interfacevalue}")
+        transport.command("exit")
+        transport.command("exit")
+      end
     end
     transport.command("conf")
     transport.command("interface vlan #{vlanname}")
