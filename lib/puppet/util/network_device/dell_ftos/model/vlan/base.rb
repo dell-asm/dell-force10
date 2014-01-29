@@ -122,9 +122,9 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         end
       end
       remove do |transport, old_value|
-        transport.command("no tagged TenGigabitEthernet #{old_value}") do |out|
-          txt<< out
-        end
+        #transport.command("no tagged TenGigabitEthernet #{old_value}") do |out|
+        #  txt<< out
+        #end
         parseforerror(txt,"remove the old property value of the parameter 'tagged TenGigabitEthernet'")
       end
     end
@@ -224,9 +224,9 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         end
       end
       remove do |transport, old_value|
-        transport.command("no untagged TenGigabitEthernet #{old_value}") do |out|
-          txt<< out
-        end
+        #transport.command("no untagged TenGigabitEthernet #{old_value}") do |out|
+        #  txt<< out
+        #end
         parseforerror(txt,"remove the old property value of the parameter 'untagged TenGigabitEthernet'")
       end
     end
