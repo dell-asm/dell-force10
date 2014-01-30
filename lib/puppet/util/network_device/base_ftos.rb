@@ -3,6 +3,7 @@ require 'openssl'
 require 'cgi'
 require 'puppet/util/network_device/transport_ftos'
 require 'puppet/util/network_device/transport_ftos/base_ftos'
+require '/etc/puppetlabs/puppet/modules/asm_lib/lib/security/encode'
 
 class Puppet::Util::NetworkDevice::Base_ftos
   attr_accessor :url, :transport, :crypt
@@ -25,7 +26,7 @@ class Puppet::Util::NetworkDevice::Base_ftos
         @transport.password = decrypt(master, [@url.password].pack('h*')) unless @url.password.nil? || @url.password.empty?
       else
         @transport.user = URI.decode(@url.user) unless @url.user.nil? || @url.user.empty?
-        @transport.password = URI.decode(@url.password) unless @url.password.nil? || @url.password.empty?
+        @transport.password = URI.decode(asm_decrypt(@url.password)) unless @url.password.nil? || @url.password.empty?
       end
     end
   end
