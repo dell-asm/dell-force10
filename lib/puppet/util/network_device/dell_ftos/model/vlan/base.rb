@@ -220,8 +220,6 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
           transport.command("untagged TenGigabitEthernet #{value}") do |out|
             txt<< out
           end
-          transport.command("exit")
-          transport.command("exit")
           parseforerror(txt,"add the property value for the parameter 'untagged TenGigabitEthernet'")
         end
       end
