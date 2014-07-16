@@ -9,6 +9,6 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch::Base
     base.register_model(:vlan, Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan, /^(\d+)\s\S+/, 'show vlan brief')
     base.register_model(:interface, Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface, /^interface\s+(\S+)\r*$/, 'show running-config')
     base.register_model(:portchannel, Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel, /^L*\s*(\d+)\s+.*/, 'show interfaces port-channel brief')
-
+    base.register_model(:feature, Puppet::Util::NetworkDevice::Dell_ftos::Model::Feature, /feature*\s*(\S+)/, 'show running-config')
   end
 end
