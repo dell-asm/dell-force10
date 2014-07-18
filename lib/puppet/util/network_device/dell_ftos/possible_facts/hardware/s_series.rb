@@ -22,7 +22,8 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
   
   CMD_FC_MODE="show fc switch" unless const_defined?(:CMD_FC_MODE)    
 
-  CMD_SHOW_FC_NEIGHBORS  ="show fc ns fabric" unless const_defined?(:CMD_SHOW_FC_NEIGHBORS)      
+  CMD_SHOW_FC_NEIGHBORS="show fc ns fabric" unless const_defined?(:CMD_SHOW_FC_NEIGHBORS)
+          
   def self.register(base)
 
     base.register_param 'system_description' do
@@ -249,25 +250,24 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
       remote_device = nil
       output = ""
       match do |txt|
-        output << txt
+        txt.each_line do |line|
+          output << line
+        end
+        results = output.scan(/(Switch Name.*?Port Type\s+\S+)/m)
+        fc_device_info = {}
+        (results || []).each_with_index do |result,index|
+          fc_info = {}
+          fc_info['switch_name']=result[0].scan(/Switch Name\s+(\S+)/)[0][0]
+          fc_info['domain_id']=result[0].scan(/Domain Id\s+(\d+)/)[0][0]
+          fc_info['port_name']=result[0].scan(/Port Name\s+(\S+)/)[0][0]
+          fc_info['node_name']=result[0].scan(/Node Name\s+(\S+)/)[0][0]
+          fc_info['cos'] =result[0].scan(/Class of Service\s+(\d+)/)[0][0]
+          fc_info['sym_port_name'] = result[0].scan(/Symbolic Port Name\s+(.*)?$/)[0][0]
+          fc_info['port_type'] = result[0].scan(/Port Type\s+(\S+)/)[0][0]
+          fc_device_info[index] = fc_info
+        end
+        fc_device_info.to_json
       end
-      results = output.scan(/(^Switch Name.*?Port Type\s+\S+$)/m)
-      fc_device_info = {}
-      (results || []).each_with_index do |result,index|
-        fc_info = {}
-        #puts("Result: #{result}")
-        fc_info['switch_name']=result[0].scan(/Switch Name\s+(\S+)/)[0][0]
-        fc_info['domain_id']=result[0].scan(/Domain Id\s+(\d+)/)[0][0]
-        fc_info['port_name']=result[0].scan(/Port Name\s+(\S+)/)[0][0]
-        fc_info['node_name']=result[0].scan(/Node Name\s+(\S+)/)[0][0]
-        fc_info['cos'] =result[0].scan(/Class of Service\s+(\d+)/)[0][0]
-        fc_info['sym_port_name'] = result[0].scan(/Symbolic Port Name\s+(.*)?$/)[0][0]
-        fc_info['port_type'] = result[0].scan(/Port Type\s+(\S+)/)[0][0]
-        #puts "FC Info: #{fc_info}"
-        fc_device_info[index] = fc_info
-      end
-      #puts "FC Device Info: #{fc_device_info}"
-      fc_device_info
       cmd CMD_SHOW_FC_NEIGHBORS
     end
 
