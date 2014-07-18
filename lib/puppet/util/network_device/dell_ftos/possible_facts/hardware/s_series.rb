@@ -19,6 +19,10 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
   CMD_SHOW_STARTUP_CONFIG_VERSION="show startup-config | grep \"! Version\"" unless const_defined?(:CMD_SHOW_STARTUP_CONFIG_VERSION)
 
   CMD_SHOW_RUNNING_CONFIG_VERSION="show running-config | grep \"! Version\"" unless const_defined?(:CMD_SHOW_RUNNING_CONFIG_VERSION)
+  
+  CMD_FC_MODE="show fc switch" unless const_defined?(:CMD_FC_MODE)    
+
+  CMD_SHOW_FC_NEIGHBORS  ="show fc ns fabric" unless const_defined?(:CMD_SHOW_FC_NEIGHBORS)      
   def self.register(base)
 
     base.register_param 'system_description' do
@@ -233,6 +237,38 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
     base.register_param 'running_config_version' do
       match /^.*Version\s(.*$)/
       cmd CMD_SHOW_RUNNING_CONFIG_VERSION
+    end
+    
+    base.register_param 'switch_fc_mode' do
+      match /^.*Switch Mode\s:\s+(.*$)/
+      cmd CMD_FC_MODE
+    end
+    
+    base.register_param 'remote_fc_device_info' do
+      remote_device_info = {}
+      remote_device = nil
+      output = ""
+      match do |txt|
+        output << txt
+      end
+      results = output.scan(/(^Switch Name.*?Port Type\s+\S+$)/m)
+      fc_device_info = {}
+      (results || []).each_with_index do |result,index|
+        fc_info = {}
+        #puts("Result: #{result}")
+        fc_info['switch_name']=result[0].scan(/Switch Name\s+(\S+)/)[0][0]
+        fc_info['domain_id']=result[0].scan(/Domain Id\s+(\d+)/)[0][0]
+        fc_info['port_name']=result[0].scan(/Port Name\s+(\S+)/)[0][0]
+        fc_info['node_name']=result[0].scan(/Node Name\s+(\S+)/)[0][0]
+        fc_info['cos'] =result[0].scan(/Class of Service\s+(\d+)/)[0][0]
+        fc_info['sym_port_name'] = result[0].scan(/Symbolic Port Name\s+(.*)?$/)[0][0]
+        fc_info['port_type'] = result[0].scan(/Port Type\s+(\S+)/)[0][0]
+        #puts "FC Info: #{fc_info}"
+        fc_device_info[index] = fc_info
+      end
+      #puts "FC Device Info: #{fc_device_info}"
+      fc_device_info
+      cmd CMD_SHOW_FC_NEIGHBORS
     end
 
   end
