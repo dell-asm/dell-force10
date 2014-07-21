@@ -5,6 +5,9 @@ require 'puppet/util/network_device/dell_ftos/model/base'
 require 'puppet/util/network_device/dell_ftos/model/generic_value'
 require 'puppet/util/network_device/dell_ftos/model/interface'
 require 'puppet/util/network_device/dell_ftos/model/portchannel'
+require 'puppet/util/network_device/dell_ftos/model/feature'
+require 'puppet/util/network_device/dell_ftos/model/zone'
+require 'puppet/util/network_device/dell_ftos/model/zoneset'
 
 class Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch < Puppet::Util::NetworkDevice::Dell_ftos::Model::Base
 
@@ -15,6 +18,7 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch < Puppet::Util::Netw
     @params         ||= {}
     @vlans          ||= []
     @portchannels   ||= []
+    @features       ||= []
     # Register all needed Modules based on the availiable Facts
     register_modules
   end
@@ -49,6 +53,9 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch < Puppet::Util::Netw
     :vlan,
     :interface,
     :portchannel,
+    :feature,
+    :zone,
+    :zoneset
   ].each do |key|
     define_method key.to_s do |name|
       grp = params[key].value.find { |resourcegrp| resourcegrp.name == name }
