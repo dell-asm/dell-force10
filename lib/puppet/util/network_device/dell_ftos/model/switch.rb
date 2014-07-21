@@ -7,6 +7,7 @@ require 'puppet/util/network_device/dell_ftos/model/interface'
 require 'puppet/util/network_device/dell_ftos/model/portchannel'
 require 'puppet/util/network_device/dell_ftos/model/feature'
 require 'puppet/util/network_device/dell_ftos/model/zone'
+require 'puppet/util/network_device/dell_ftos/model/zoneset'
 
 class Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch < Puppet::Util::NetworkDevice::Dell_ftos::Model::Base
 
@@ -53,7 +54,8 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch < Puppet::Util::Netw
     :interface,
     :portchannel,
     :feature,
-    :zone
+    :zone,
+    :zoneset
   ].each do |key|
     define_method key.to_s do |name|
       grp = params[key].value.find { |resourcegrp| resourcegrp.name == name }
