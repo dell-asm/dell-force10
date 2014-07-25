@@ -108,6 +108,24 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel::Base
       end
       remove { |*_| }
     end
+    
+    base.register_scoped :fcoe_map, general_scope do
+      match do |txt|
+        paramsarray=txt.match(/^fcoe-map\s+(\S+)/)
+        if paramsarray.nil?
+          param1 = :absent
+        else
+          param1 = paramsarray[1]
+        end
+        param1
+      end
+
+      cmd "show running-config interface port-channel #{portchannelval}"
+      add do |transport, value|
+        transport.command("fcoe-map #{value}")
+      end
+      remove { |*_| }
+    end
 
   end
 end

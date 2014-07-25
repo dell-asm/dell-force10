@@ -314,6 +314,19 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Vlan::Base
         parseforerror(txt,"remove the property value of the parameter 'untagged Sonet'")
       end
     end
+    
+    base.register_scoped :fc_map, /^(interface Vlan\s+(\S+).*?)^!/m do
+      match /^\s*fip-snooping fc-map\s+(.*?)\s*$/
+      cmd 'sh run'
+      add do |transport, value|
+        if value != ''
+          transport.command("fip-snooping fc-map #{value}",:prompt => /Changing fc-map deletes sessions using it.*/)
+          transport.command("y")
+          transport.command("fip-snooping enable") 
+        end
+      end
+      remove { |*_| }
+    end
   end
 
 end

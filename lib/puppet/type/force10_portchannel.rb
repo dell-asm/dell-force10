@@ -43,5 +43,13 @@ Puppet::Type.newtype(:force10_portchannel) do
     defaultto(:false)
     newvalues(:false,:true)
   end
+  
+  newproperty(:fcoe_map) do
+    desc "fcoe map that needs to be associated with the port-channel"
+    validate do |value|
+      all_valid_characters = value =~ /^[A-Za-z0-9_]+$/
+      raise ArgumentError, "Invalid fcoe-map name" unless all_valid_characters
+    end
+  end
 
 end
