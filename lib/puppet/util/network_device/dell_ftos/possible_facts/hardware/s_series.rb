@@ -23,6 +23,8 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
   CMD_FC_MODE="show fc switch" unless const_defined?(:CMD_FC_MODE)    
 
   CMD_SHOW_FC_NEIGHBORS="show fc ns fabric" unless const_defined?(:CMD_SHOW_FC_NEIGHBORS)
+    
+  CMD_SHOW_ACTIVE_ZONESET="show fc zoneset" unless const_defined?(:CMD_SHOW_ACTIVE_ZONESET)
           
   def self.register(base)
 
@@ -243,6 +245,11 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
     base.register_param 'switch_fc_mode' do
       match /^.*Switch Mode\s:\s+(.*$)/
       cmd CMD_FC_MODE
+    end
+    
+    base.register_param 'switch_fc_active_zoneset' do
+      match /^.*Active Zoneset:\s+(.*$)/
+      cmd CMD_SHOW_ACTIVE_ZONESET
     end
     
     base.register_param 'remote_fc_device_info' do

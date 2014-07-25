@@ -5,6 +5,7 @@ require 'puppet/util/network_device/dell_ftos/model/interface'
 require 'puppet/util/network_device/dell_ftos/model/feature'
 require 'puppet/util/network_device/dell_ftos/model/zone'
 require 'puppet/util/network_device/dell_ftos/model/zoneset'
+require 'puppet/util/network_device/dell_ftos/model/fcoemap'
 
 module Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch::Base
   def self.register(base)
@@ -15,5 +16,6 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch::Base
     base.register_model(:feature, Puppet::Util::NetworkDevice::Dell_ftos::Model::Feature, /feature*\s*(\S+)/, 'show running-config')
     base.register_model(:zone, Puppet::Util::NetworkDevice::Dell_ftos::Model::Zone, /^(\S+)\s+/, 'show fc zone')
     base.register_model(:zoneset, Puppet::Util::NetworkDevice::Dell_ftos::Model::Zoneset, /^(\S+)\s+/, 'show fc zoneset')
+    base.register_model(:fcoemap, Puppet::Util::NetworkDevice::Dell_ftos::Model::Fcoemap, /^fcoe-map\s+(\S+)/, 'show running-config')
   end
 end
