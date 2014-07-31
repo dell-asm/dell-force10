@@ -102,6 +102,22 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
       end
       remove { |*_| }
     end
-
+    
+    ifprop(base, :dcb_map) do
+      match /^\s*dcb-map\s+(.*?)\s*$/
+      add do |transport, value|
+        transport.command("dcb-map #{value}")
+      end
+      remove { |*_| }
+    end
+    
+    ifprop(base, :fcoe_map) do
+      match /^\s*fcoe-map\s+(.*?)\s*$/
+      add do |transport, value|
+        transport.command("fcoe-map #{value}")
+      end
+      remove { |*_| }
+    end
+    
   end
 end
