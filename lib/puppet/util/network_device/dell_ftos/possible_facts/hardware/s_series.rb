@@ -27,6 +27,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
   CMD_SHOW_ACTIVE_ZONESET="show fc zoneset" unless const_defined?(:CMD_SHOW_ACTIVE_ZONESET)
   
   CMD_SHOW_DCB_MAP="show running-config dcb-map" unless const_defined?(:CMD_SHOW_DCB_MAP)
+    
   CMD_SHOW_FCOE_MAP="show running-config fcoe-map" unless const_defined?(:CMD_SHOW_FCOE_MAP)
           
   def self.register(base)
@@ -256,12 +257,12 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::S_series
     end
     
     base.register_param 'dcb-map' do
-      match /^.*dcb-map\s+(.*$)/
+      match /!\s*dcb-map\s+(.*$)/
       cmd CMD_SHOW_DCB_MAP
     end
     
     base.register_param 'fcoe-map' do
-      match /^.*fcoe-map\s+(.*$)/
+      match /!\s.*fcoe-map\s+(.*$)/
       cmd CMD_SHOW_FCOE_MAP
     end
     

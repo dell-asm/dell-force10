@@ -36,7 +36,6 @@ Puppet::Type.newtype(:force10_fcoemap) do
   
   newproperty(:fabric_type) do
     desc "FCoE Fabric Type"
-    defaultto('full-fabric')
   end
 
  end
