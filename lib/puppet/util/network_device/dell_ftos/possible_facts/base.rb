@@ -11,12 +11,20 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
   CMD_SHOW_ENVIRONMENT = "show environment" unless const_defined?(:CMD_SHOW_ENVIRONMENT)
 
   CMD_SHOW_SYSTEM_BRIEF="show system brief" unless const_defined?(:CMD_SHOW_SYSTEM_BRIEF)
-
+    
+  CMD_SHOW_HOSTNAME="show running-config | grep hostname" unless const_defined?(:CMD_SHOW_HOSTNAME)
+   
   CMD_SHOW_IP_INTERFACE_BRIEF="show ip interface brief | grep ManagementEthernet" unless const_defined?(:CMD_SHOW_IP_INTERFACE_BRIEF)
+    
   def self.register(base)
 
-    base.register_param ['hostname', 'uptime'] do
-      match /^\s*([\w-]+)\s+uptime is (.*?)$/
+    base.register_param 'hostname' do
+      match /^hostname\s+(\S+)$/
+      cmd CMD_SHOW_HOSTNAME
+    end
+        
+    base.register_param 'uptime' do
+      match /uptime is (.*?)$/
       cmd CMD_SHOW_VERSION
     end
 
@@ -40,7 +48,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
 
     base.register_param 'management_ip' do
       match do |txt|
-		base.transport.host
+    base.transport.host
       end
       cmd CMD_SHOW_IP_INTERFACE_BRIEF
     end
@@ -128,12 +136,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
     end
 
     base.register_param 'dell_force10_operating_system_version' do
-      match /^Dell\s+Force10\s+Operating\s+System\s+Version:\s+(\S+)$/
+      match do |txt|
+        version = txt.scan(/^Dell\s+Force10\s+Operating\s+System\s+Version:\s+(\S+)$|Dell Operating System Version:\s+(.*?)$/m)[0]
+      end
       cmd CMD_SHOW_VERSION
     end
 
     base.register_param 'dell_force10_application_software_version' do
-      match /^Dell\s+Force10\s+Application\s+Software\s+Version:\s+(\S+)$/
+      match /^Dell\s+Force10\s+Application\s+Software\s+Version:\s+(\S+)$|Dell Application Software Version:\s+(.*?)$/m
       cmd CMD_SHOW_VERSION
     end
 
