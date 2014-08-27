@@ -5,6 +5,8 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
 
   # Module Constants
   CMD_SHOW_SYSTEM_STACK_UNIT = "show system stack-unit" unless const_defined?(:CMD_SHOW_SYSTEM_STACK_UNIT)
+  CMD_SHOW_INTERFACES = "show interface status" unless const_defined?(:CMD_SHOW_INTERFACES) 
+  CMD_SHOW_INVENTORY_MEDIA = "show inventory media" unless const_defined?(:CMD_SHOW_INVENTORY_MEDIA) 
   def self.register(base)
 
     # system_management_unit is expected to be populated before this registration
@@ -84,6 +86,23 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
       end
       cmd CMD_SHOW_SYSTEM_STACK_UNIT+" "+unit_number
     end
-
+    
+    base.register_param 'interfaces' do
+      match do |txt|
+        item = txt.scan(/^(Te|Fo|Fc)\s+(\d+\/\d+)/m).flatten
+        #item.strip unless item.nil?
+      end
+      cmd CMD_SHOW_INTERFACES
+    end
+    
+    
+    base.register_param 'modules' do
+      match do |txt|
+        item = txt.scan(/^\s+(\d+)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\S+).*?Yes/)
+        #item.strip unless item.nil?
+      end
+      cmd CMD_SHOW_INVENTORY_MEDIA
+    end
+    
   end
 end
