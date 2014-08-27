@@ -4,15 +4,26 @@ require 'puppet/provider/dell_ftos'
 Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet::Provider do
   desc "Dell Force10 switch provider for firmware updates."
   mk_resource_methods
+
   def run(url, force)
     Puppet.debug("Puppet::Force10_firmwareUpdate*********************")
     Puppet.debug("firmware Image path is: #{url} and force update flag is: #{force}")
     dev = Puppet::Util::NetworkDevice.current
     #    tryrebootswitch()
     currentfirmwareversion = dev.switch.facts['dell_force10_application_software_version']
+    systemimage = dev.switch.facts['system_image']
+    unless currentfirmwareversion and systemimage
+      out = dev.transport.command("show version")
+      versionmatch = out.match(/^Dell\s+Force10\s+Application\s+Software\s+Version:\s+(\S+)$|Dell Application Software Version:\s+(.*?)$/m)
+      currentfirmwareversion = versionmatch[2]
+      imagematch = out.match(/^System image file is\s*"(.*)"/)
+      systemimage = imagematch[1][-1]
+    end
+    # Set the non boot image to oposite of system (we will only flash nonboot)
+    nonbootimage = systemimage == 'A' ? 'B' : 'A'
     Puppet.debug(" currentfirmwareversion: #{currentfirmwareversion}")
+    Puppet.debug(" systembootimage: #{systemimage}")
     #newfirmwareversion = url.split("\/").last.split("-").last.split(".bin").first
-
     copyresponse = ""
     flashfilename= "flash://#{url.split("\/").last}"
     deleteflashfile flashfilename
@@ -38,7 +49,7 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
       txt = "Existing Firmware versions is same as new Firmware version, so not doing firmware update"
       return txt
     end
-    dev.transport.command("upgrade system #{url} A:")  do |out|
+    dev.transport.command("upgrade system #{url} #{nonbootimage}:")  do |out|
       txt << out
     end
     item = txt.scan("successfully")
@@ -48,24 +59,21 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
       deleteflashfile flashfilename
       raise txt
     end
-    Puppet.debug("firmware update done for image A:")
-    dev.transport.command("upgrade system #{url} B:")  do |out|
-      txt << out
-    end
-    item = txt.scan("successfully")
-    if item.empty?
-      txt = "Firmware update is not successful"
-      Puppet.debug(txt)
-      deleteflashfile flashfilename
-      raise txt
-    end
-    Puppet.debug("firmware update done for image B:")
-    deleteflashfile flashfilename
-    tryrebootswitch()
+    Puppet.debug("firmware update done for image #{nonbootimage}:")
+    change_boot_image(nonbootimage)
     updatestartupconfig()
-    txt = "firmware update is successful"
+    tryrebootswitch()
+    txt ="firmware update is successfull"
     return txt
   end
+
+  def change_boot_image(nonbootimage)
+    dev = Puppet::Util::NetworkDevice.current
+    dev.transport.command("config")
+    dev.transport.command("boot system stack-unit all primary system #{nonbootimage}:")
+    dev.transport.command("exit")
+  end
+  
 
   def updatestartupconfig()
     flagfirstresponse=false
