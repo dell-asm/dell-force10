@@ -20,7 +20,8 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
       systemimage = imagematch[1][-1]
     end
     # Set the non boot image to oposite of system (we will only flash nonboot)
-    nonbootimage = systemimage == 'A' ? 'B' : 'A'
+    nonbootimage = systemimage[-1] == 'A' ? 'B' : 'A'
+    exit
     Puppet.debug(" currentfirmwareversion: #{currentfirmwareversion}")
     Puppet.debug(" systembootimage: #{systemimage}")
     #newfirmwareversion = url.split("\/").last.split("-").last.split(".bin").first
