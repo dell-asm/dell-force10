@@ -7,6 +7,9 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
   CMD_SHOW_SYSTEM_STACK_UNIT = "show system stack-unit" unless const_defined?(:CMD_SHOW_SYSTEM_STACK_UNIT)
   CMD_SHOW_INTERFACES = "show interface status" unless const_defined?(:CMD_SHOW_INTERFACES) 
   CMD_SHOW_INVENTORY_MEDIA = "show inventory media" unless const_defined?(:CMD_SHOW_INVENTORY_MEDIA) 
+  CMD_SHOW_DCB_MAP="show running-config dcb-map" unless const_defined?(:CMD_SHOW_DCB_MAP)
+  CMD_SHOW_FCOE_MAP="show running-config fcoe-map" unless const_defined?(:CMD_SHOW_FCOE_MAP)  
+    
   def self.register(base)
 
     # system_management_unit is expected to be populated before this registration
@@ -89,7 +92,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
     
     base.register_param 'interfaces' do
       match do |txt|
-        item = txt.scan(/^(Te|Fo|Fc)\s+(\d+\/\d+)/m).flatten
+        item = txt.scan(/^(\S+\s+\d+\/\d+)/m).flatten
         #item.strip unless item.nil?
       end
       cmd CMD_SHOW_INTERFACES
@@ -102,6 +105,20 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
         #item.strip unless item.nil?
       end
       cmd CMD_SHOW_INVENTORY_MEDIA
+    end
+    
+    base.register_param 'dcb-map' do
+      match do |txt|
+        item = txt.scan(/!\s*dcb-map\s+(.*$)/).flatten
+      end      
+      cmd CMD_SHOW_DCB_MAP
+    end
+
+    base.register_param 'fcoe-map' do
+      match do |txt|
+        item = txt.scan(/!\s.*fcoe-map\s+(.*$)/).flatten
+      end
+      cmd CMD_SHOW_FCOE_MAP
     end
     
   end

@@ -6,6 +6,8 @@ require 'puppet/util/network_device/dell_ftos/model/feature'
 require 'puppet/util/network_device/dell_ftos/model/zone'
 require 'puppet/util/network_device/dell_ftos/model/zoneset'
 require 'puppet/util/network_device/dell_ftos/model/fcoemap'
+require 'puppet/util/network_device/dell_ftos/model/dcbmap'
+require 'puppet/util/network_device/dell_ftos/model/uplinkstategroup'
 
 module Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch::Base
   def self.register(base)
@@ -17,5 +19,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch::Base
     base.register_model(:zone, Puppet::Util::NetworkDevice::Dell_ftos::Model::Zone, /^(\S+)\s+/, 'show fc zone')
     base.register_model(:zoneset, Puppet::Util::NetworkDevice::Dell_ftos::Model::Zoneset, /^(\S+)\s+/, 'show fc zoneset')
     base.register_model(:fcoemap, Puppet::Util::NetworkDevice::Dell_ftos::Model::Fcoemap, /^fcoe-map\s+(\S+)/, 'show running-config')
+    base.register_model(:dcbmap, Puppet::Util::NetworkDevice::Dell_ftos::Model::Dcbmap, /^dcb-map\s+(\S+)/, 'show running-config')
+    base.register_model(:uplinkstategroup, Puppet::Util::NetworkDevice::Dell_ftos::Model::UplinkStategroup, /^uplink-state-group\s+(\S+)/, 'show running-config')
   end
 end
