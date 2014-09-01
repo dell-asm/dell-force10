@@ -9,6 +9,8 @@ require 'puppet/util/network_device/dell_ftos/model/feature'
 require 'puppet/util/network_device/dell_ftos/model/zone'
 require 'puppet/util/network_device/dell_ftos/model/zoneset'
 require 'puppet/util/network_device/dell_ftos/model/fcoemap'
+require 'puppet/util/network_device/dell_ftos/model/dcbmap'
+require 'puppet/util/network_device/dell_ftos/model/uplinkstategroup'
 
 class Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch < Puppet::Util::NetworkDevice::Dell_ftos::Model::Base
 
@@ -57,7 +59,9 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch < Puppet::Util::Netw
     :feature,
     :zone,
     :zoneset,
-    :fcoemap
+    :fcoemap,
+    :dcbmap,
+    :uplinkstategroup
   ].each do |key|
     define_method key.to_s do |name|
       grp = params[key].value.find { |resourcegrp| resourcegrp.name == name }

@@ -106,6 +106,15 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
     ifprop(base, :dcb_map) do
       match /^\s*dcb-map\s+(.*?)\s*$/
       add do |transport, value|
+        # Commands to remove the dcb ets and pfc settings
+        # Without these settings removed, DCB is not applied
+        transport.command("no dcb-policy input pfc")
+        transport.command("no dcb-policy output ets")
+        
+        # Command to enable the spanning tree edge port
+        transport.command("spanning-tree estp edge-port")
+        
+        # Command to associate DCB map with the interface
         transport.command("dcb-map #{value}")
       end
       remove { |*_| }
@@ -115,6 +124,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
       match /^\s*fcoe-map\s+(.*?)\s*$/
       add do |transport, value|
         transport.command("fcoe-map #{value}")
+      end
+      remove { |*_| }
+    end
+    
+    ifprop(base, :fabric) do
+      match /^\s*fabric\s+(.*?)\s*$/
+      add do |transport, value|
+        transport.command("fabric #{value}")
       end
       remove { |*_| }
     end
