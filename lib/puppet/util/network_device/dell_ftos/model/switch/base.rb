@@ -20,6 +20,6 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch::Base
     base.register_model(:zoneset, Puppet::Util::NetworkDevice::Dell_ftos::Model::Zoneset, /^(\S+)\s+/, 'show fc zoneset')
     base.register_model(:fcoemap, Puppet::Util::NetworkDevice::Dell_ftos::Model::Fcoemap, /^fcoe-map\s+(\S+)/, 'show running-config')
     base.register_model(:dcbmap, Puppet::Util::NetworkDevice::Dell_ftos::Model::Dcbmap, /^dcb-map\s+(\S+)/, 'show running-config')
-    base.register_model(:uplinkstategroup, Puppet::Util::NetworkDevice::Dell_ftos::Model::UplinkStategroup, /^uplink-state-group\s+(\S+)/, 'show running-config')
+    base.register_model(:uplinkstategroup, Puppet::Util::NetworkDevice::Dell_ftos::Model::Uplinkstategroup, /^uplink-state-group\s+(\S+)/, 'show running-config')
   end
 end
