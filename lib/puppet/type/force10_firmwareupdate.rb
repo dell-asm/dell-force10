@@ -14,6 +14,10 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
     defaultto :false
   end
 
+  newparam(:copy_to_tftp, :boolean => true) do
+    "Set to true if you need to copy the binary to the tftp share"
+  end
+
   newproperty(:url) do
     desc "URL of Firmware location "
     validate do |url|
@@ -43,6 +47,7 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
 
     def sync
       event = :executed_command
+      self.resource[:copy_to_tftp] == true ? $copy_to_tftp = true : nil
       out = provider.run(self.resource[:url], self.resource[:force])
       event
     end

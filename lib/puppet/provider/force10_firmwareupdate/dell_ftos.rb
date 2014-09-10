@@ -1,12 +1,30 @@
 require 'puppet/util/network_device'
 require 'puppet/provider/dell_ftos'
+require 'fileutils'
 
 Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet::Provider do
   desc "Dell Force10 switch provider for firmware updates."
   mk_resource_methods
 
+  def move_to_tftp(url)
+    Puppet.debug("Copying files to TFTP share")
+    path = url.split('tftp://')[1]
+    ip = path.split('/')[0]
+    catalog_id = path.split('/')[4]
+    tftp_share = "/var/lib/tftpboot/#{catalog_id}"
+    FileUtils.mkdir tftp_share
+    FileUtils.cp path.split(ip)[1], tftp_share + "/FTOS-FIRM.bin"
+    FileUtils.chown_R "tomcat", "tomcat", tftp_share
+    FileUtils.chmod_R 0755, tftp_share
+    return "tftp://#{ip}/#{catalog_id}/FTOS-FIRM.bin"
+  end
+
   def run(url, force)
     Puppet.debug("Puppet::Force10_firmwareUpdate*********************")
+    if $copy_to_tftp 
+      new_tftp_path = move_to_tftp(url)
+      url = new_tftp_path
+    end
     Puppet.debug("firmware Image path is: #{url} and force update flag is: #{force}")
     dev = Puppet::Util::NetworkDevice.current
     #    tryrebootswitch()
