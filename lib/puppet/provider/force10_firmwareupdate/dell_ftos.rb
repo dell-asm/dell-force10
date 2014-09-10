@@ -13,7 +13,6 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
     tftp_share = destination.split('/')[0..-2].join('/')
     FileUtils.mkdir tftp_share
     FileUtils.cp source, destination
-    FileUtils.chown_R "tomcat", "tomcat", tftp_share
     FileUtils.chmod_R 0755, tftp_share
   end
 
