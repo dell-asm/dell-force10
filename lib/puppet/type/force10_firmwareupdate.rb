@@ -14,6 +14,10 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
     defaultto :false
   end
 
+  newparam(:copy_to_tftp) do
+    "2 element array, [source_path,destination_path]"
+  end
+
   newproperty(:url) do
     desc "URL of Firmware location "
     validate do |url|
@@ -43,7 +47,8 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
 
     def sync
       event = :executed_command
-      out = provider.run(self.resource[:url], self.resource[:force])
+      self.resource[:copy_to_tftp] ? copy_to_tftp = self.resource[:copy_to_tftp] : nil
+      out = provider.run(self.resource[:url], self.resource[:force], copy_to_tftp)
       event
     end
   end
