@@ -9,7 +9,8 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
   CMD_SHOW_INVENTORY_MEDIA = "show inventory media" unless const_defined?(:CMD_SHOW_INVENTORY_MEDIA) 
   CMD_SHOW_DCB_MAP="show running-config dcb-map" unless const_defined?(:CMD_SHOW_DCB_MAP)
   CMD_SHOW_FCOE_MAP="show running-config fcoe-map" unless const_defined?(:CMD_SHOW_FCOE_MAP)  
-    
+  CMD_SHOW_PORT_CHANNELS  ="show interfaces port-channel brief" unless const_defined?(:CMD_SHOW_PORT_CHANNELS) 
+  CMD_SHOW_QUAD_MODE_INTERFACES  ="show running-config | grep \"portmode quad\"" unless const_defined?(:CMD_SHOW_QUAD_MODE_INTERFACES)  
   def self.register(base)
 
     # system_management_unit is expected to be populated before this registration
@@ -121,5 +122,87 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
       cmd CMD_SHOW_FCOE_MAP
     end
     
+    #Display information on configured Port Channel groups in JSON Format
+    base.register_param 'port_channels' do
+      port_channels = {}
+      port_channel = nil
+      match do |txt|
+        txt.each_line do |line|
+          case line
+          when /^.*LAG\s+Mode\s+Status\s+Uptime\s+Ports.*$/
+            #Puppet.debug("starting: #{line}")
+            next
+          when /^(L*)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+\s+\d+\/\d+)\s+(\S+).*$/
+            #Puppet.debug("port_channels with ports: #{line}")
+            lacp = "true"
+            if $1.nil? || $1.empty? then
+              lacp = "false"
+            end
+            port_channel = { :port_channel => $2.strip, :lacp => lacp, :mode => $3.strip,:status => $4.strip,:uptime => $5.strip,:ports => [] }
+            port_channel[:ports] = $6.strip+" "+$7.strip
+            port_channels[port_channel[:port_channel]] = port_channel
+          when /^(L*)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+.*$/
+            #Puppet.debug("port_channels with no ports: #{line}")
+            lacp = "true"
+            if $1.nil? || $1.empty? then
+              lacp = "false"
+            end
+            port_channel = { :port_channel => $2.strip, :lacp => lacp, :mode => $3.strip,:status => $4.strip,:uptime => $5.strip, :ports => "" }
+            #port_channel[:ports] = $6.strip
+            port_channels[port_channel[:port_channel]] = port_channel
+          when /^\s+(\S+\s+\d+\/\d+)\s+(\S+).*$/
+            raise "Invalid show interfaces port-channel brief" unless port_channel
+            #Puppet.debug("ports: #{line}")
+            port_channel[:ports] += ","+$1.strip+" "+$2.strip
+          else
+            next
+          end
+        end
+        port_channels.to_json
+      end
+      cmd CMD_SHOW_PORT_CHANNELS
+    end
+    
+    base.register_param 'quad_port_interfaces' do
+      retval = []
+      match do |txt|
+        item = (txt.scan(/port\s+(\d+)/) || []).flatten
+      end
+      cmd CMD_SHOW_QUAD_MODE_INTERFACES
+    end
+    
+    base.register_param 'flexio_modules' do
+      flexio_module_info = {}
+      module1_interfaces = 33..40
+      module2_interfaces = 41..48
+      module3_interfaces = 49..56
+      module1_interface = []
+      module2_interface = []
+      module3_interface = []
+      interface_info = {}
+      match do |txt|
+        txt.each_line do |line|
+          case line
+          when /^(\S+)\s+(\d+)\/(\d+)/m
+            if module1_interfaces.include?($3.strip.to_i)
+              module1_interface.push("#{$1} #{$2}/#{$3}")
+            end
+            if module2_interfaces.include?($3.strip.to_i)
+              module2_interface.push("#{$1} #{$2}/#{$3}")
+            end
+            if module3_interfaces.include?($3.strip.to_i)
+              module3_interface.push("#{$1} #{$2}/#{$3}")
+            end
+            next
+          end
+        end
+        interface_info[:module1_interface] = module1_interface.flatten
+        interface_info[:module2_interface] = module2_interface.flatten  
+        interface_info[:module3_interface] = module3_interface.flatten  
+        interface_info.to_json
+      end
+      cmd CMD_SHOW_INTERFACES
+    end
+
   end
 end
