@@ -16,6 +16,8 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
    
   CMD_SHOW_IP_INTERFACE_BRIEF="show ip interface brief | grep ManagementEthernet" unless const_defined?(:CMD_SHOW_IP_INTERFACE_BRIEF)
     
+  CMD_SHOW_PORTCHANNEL_BRIEF="show interface port-channel brief" unless const_defined?(:CMD_SHOW_PORTCHANNEL_BRIEF)
+      
   def self.register(base)
 
     base.register_param 'hostname' do
@@ -194,6 +196,8 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
       end
       cmd CMD_SHOW_INVENTORY
     end
+    
+    
 
     base.register_module_after 'system_type', 's_series', 'hardware' do
       base.facts['system_type'].value =~ /S4810/i ||  base.facts['system_type'].value =~ /S5000/i ||  base.facts['system_type'].value =~ /S6000/i
