@@ -19,7 +19,7 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
   end
 
   newparam(:path) do
-    "The original catalog location path.  This has to be used in conjuction with to copy_to_tftp param"
+    "The original firmware location path.  This has to be used in conjuction with to copy_to_tftp param"
   end
 
   newproperty(:url) do
