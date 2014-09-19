@@ -6,20 +6,23 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
   desc "Dell Force10 switch provider for firmware updates."
   mk_resource_methods
 
-  def move_to_tftp(copy_to_tftp)
+  def move_to_tftp(copy_to_tftp, path)
     Puppet.debug("Copying files to TFTP share")
-    source = copy_to_tftp[0]
-    destination = copy_to_tftp[1]
-    tftp_share = destination.split('/')[0..-2].join('/')
-    FileUtils.mkdir tftp_share
-    FileUtils.cp source, destination
-    FileUtils.chmod_R 0755, tftp_share
+    tftp_share = copy_to_tftp[0]
+    tftp_path = copy_to_tftp[1]
+    full_tftp_path = tftp_share + "/" + tftp_path
+    tftp_dir = full_tftp_path.split('/')[0..-2].join('/')
+    if !File.exist? tftp_dir
+      FileUtils.mkdir_p tftp_dir
+    end
+    FileUtils.cp path, full_tftp_path
+    FileUtils.chmod_R 0755, tftp_dir
   end
 
-  def run(url, force, copy_to_tftp=nil)
+  def run(url, force, copy_to_tftp=nil, path=nil)
     Puppet.debug("Puppet::Force10_firmwareUpdate*********************")
     if copy_to_tftp 
-      move_to_tftp(copy_to_tftp)
+      move_to_tftp(copy_to_tftp,path)
     end
     Puppet.debug("firmware Image path is: #{url} and force update flag is: #{force}")
     dev = Puppet::Util::NetworkDevice.current

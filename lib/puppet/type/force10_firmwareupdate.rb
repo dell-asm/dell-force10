@@ -15,7 +15,11 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
   end
 
   newparam(:copy_to_tftp) do
-    "2 element array, [source_path,destination_path]"
+    "2 element array, ['path to tftp share','path under tftp share']\nFor example: ['/var/lib/tftpshare','catalog1/firmware.bin']\n***Requires path param"
+  end
+
+  newparam(:path) do
+    "The original catalog location path.  This has to be used in conjuction with to copy_to_tftp param"
   end
 
   newproperty(:url) do
@@ -48,7 +52,8 @@ Puppet::Type.newtype(:force10_firmwareupdate) do
     def sync
       event = :executed_command
       self.resource[:copy_to_tftp] ? copy_to_tftp = self.resource[:copy_to_tftp] : nil
-      out = provider.run(self.resource[:url], self.resource[:force], copy_to_tftp)
+      self.resource[:path] ? path = self.resource[:path] : nil
+      out = provider.run(self.resource[:url], self.resource[:force], copy_to_tftp, path)
       event
     end
   end
