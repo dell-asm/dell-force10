@@ -37,10 +37,16 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
     ifprop(base, :portchannel) do
       match /^  port-channel (\d+)\s+.*$/
       add do |transport, value|
-        transport.command("port-channel-protocol lacp")
-        transport.command("port-channel #{value} mode active")
+        if value.to_i == 0
+          transport.command("no port-channel-protocol lacp")
+        else
+          transport.command("port-channel-protocol lacp")
+          transport.command("port-channel #{value} mode active")
+        end
       end
-      remove { |*_| }
+      remove do |transport, value|
+        transport.command("no port-channel-protocol lacp")
+      end
     end
 
     ifprop(base, :shutdown) do
