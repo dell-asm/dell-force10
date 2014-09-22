@@ -11,6 +11,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
   CMD_SHOW_FCOE_MAP="show running-config fcoe-map" unless const_defined?(:CMD_SHOW_FCOE_MAP)  
   CMD_SHOW_PORT_CHANNELS  ="show interfaces port-channel brief" unless const_defined?(:CMD_SHOW_PORT_CHANNELS) 
   CMD_SHOW_QUAD_MODE_INTERFACES  ="show running-config | grep \"portmode quad\"" unless const_defined?(:CMD_SHOW_QUAD_MODE_INTERFACES)  
+  CMD_SHOW_RUNNING_INTERFACE ="show running-config interface" unless const_defined?(:CMD_SHOW_RUNNING_INTERFACE) 
   def self.register(base)
 
     # system_management_unit is expected to be populated before this registration
@@ -163,6 +164,66 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
       cmd CMD_SHOW_PORT_CHANNELS
     end
     
+    #Display information on configured Port Channel groups in JSON Format
+    base.register_param 'port_channel_members' do
+      port_channels = {}
+      match do |txt|
+        interfaces = (txt.scan(/(!\s+interface\s+\w+\s+\d+\/\d+.*?shutdown\s+)/m) || [] ).flatten
+        interfaces.each do |interface_detail|
+          if interface_detail.match(/^interface\s+(\w+\s+\d+\/\d+).*port-channel\s+(\d+)/m)
+            port_channels[$2.strip] ||= []
+            port_channels[$2.strip].push($1.strip)
+          end
+        end
+        port_channels.to_json
+      end
+      cmd CMD_SHOW_RUNNING_INTERFACE
+    end
+    
+    #Display information on configured Port Channel groups in JSON Format
+    base.register_param 'vlan_information' do
+      vlan_information = {}
+      match do |txt|
+        interfaces = (txt.scan(/((!\s+interface\s+Vlan\s+\d+.*?shutdown\s+))/m) || [] ).flatten
+        interfaces.each do |interface_detail|
+          interface_location = interface_detail.scan(/^interface Vlan\s+(\d+)/).flatten.first
+          vlan_information[interface_location] ||= {}
+          vlan_information[interface_location]['tagged_tengigabit'] ||= {}
+          vlan_information[interface_location]['untagged_tengigabit'] ||= {}
+          vlan_information[interface_location]['tagged_fortygigabit'] ||= {}
+          vlan_information[interface_location]['untagged_fortygigabit'] ||= {}
+          vlan_information[interface_location]['tagged_portchannel'] ||= {}
+          vlan_information[interface_location]['untagged_portchannel'] ||= {}
+                    
+          if interface_detail.match(/^\stagged\s+TenGigabitEthernet\s+(.*?)$/mi)
+            vlan_information[interface_location]['tagged_tengigabit'] = $1
+          end
+          
+          if interface_detail.match(/^\stagged\s+Port-channel\s+(.*?)$/mi)
+            vlan_information[interface_location]['tagged_portchannel'] = $1
+          end
+          
+          if interface_detail.match(/^\suntagged\s+TenGigabitEthernet\s+(.*?)$/mi)
+            vlan_information[interface_location]['untagged_tengigabit'] = $1
+          end
+
+          if interface_detail.match(/^\suntagged\s+Port-channel\s+(.*?)$/mi)
+            vlan_information[interface_location]['untagged_portchannel'] = $1
+          end
+          
+          if interface_detail.match(/^\stagged\s+FortyGigE\s+(.*?)$/mi)
+            vlan_information[interface_location]['tagged_fortygigabit'] = $1
+          end
+          
+          if interface_detail.match(/^\suntagged\s+FortyGigE\s+(.*?)$/mi)
+            vlan_information[interface_location]['untagged_fortygigabit'] = $1
+          end
+        end
+        vlan_information.to_json
+      end
+      cmd CMD_SHOW_RUNNING_INTERFACE
+    end
+
     base.register_param 'quad_port_interfaces' do
       retval = []
       match do |txt|
