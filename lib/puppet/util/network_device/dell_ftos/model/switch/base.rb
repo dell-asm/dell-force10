@@ -8,6 +8,7 @@ require 'puppet/util/network_device/dell_ftos/model/zoneset'
 require 'puppet/util/network_device/dell_ftos/model/fcoemap'
 require 'puppet/util/network_device/dell_ftos/model/dcbmap'
 require 'puppet/util/network_device/dell_ftos/model/uplinkstategroup'
+require 'puppet/util/network_device/dell_ftos/model/quadmode'
 
 module Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch::Base
   def self.register(base)
@@ -21,5 +22,6 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Switch::Base
     base.register_model(:fcoemap, Puppet::Util::NetworkDevice::Dell_ftos::Model::Fcoemap, /^fcoe-map\s+(\S+)/, 'show running-config')
     base.register_model(:dcbmap, Puppet::Util::NetworkDevice::Dell_ftos::Model::Dcbmap, /^dcb-map\s+(\S+)/, 'show running-config')
     base.register_model(:uplinkstategroup, Puppet::Util::NetworkDevice::Dell_ftos::Model::Uplinkstategroup, /^uplink-state-group\s+(\S+)/, 'show running-config')
+    base.register_model(:quadmode, Puppet::Util::NetworkDevice::Dell_ftos::Model::Quadmode, /^stack-unit 0 port\s+(\d+)/, 'show running-config | grep quad')
   end
 end

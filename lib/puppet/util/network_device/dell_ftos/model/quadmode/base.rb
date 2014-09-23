@@ -4,11 +4,13 @@ require 'puppet/util/network_device/dell_ftos/model'
 require 'puppet/util/network_device/dell_ftos/model/quadmode'
 
 module Puppet::Util::NetworkDevice::Dell_ftos::Model::Quadmode::Base
+
   def self.ifprop(base, param, base_command = param, &block)
-    Puppet.debug("Base: #{base}, param: #{param}, base_command: #{base_command}")
-    base.register_scoped param, /^(stack-unit 0 port (\d+) portmode quad)/m do
+    Puppet.debug("Base: #{base.name}, param: #{param}, base_command: #{base_command}")
+    interface_num = base.name.scan(/(\d+)/).flatten.last.to_i
+    base.register_scoped param, /(stack-unit 0 port\s+(\d+)\s+portmode quad)/ do
       cmd 'show running-config | grep quad'
-      match /^(stack-unit 0 port (\d+) portmode quad)/
+      match /\d+/
       add do |transport, value|
         transport.command("#{base_command} #{value}")
       end
@@ -21,12 +23,11 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Quadmode::Base
 
   def self.register(base)
     txt = ''
-    ifprop(base, :ensure) do
-      Puppet.debug("TXT to match: #{match}")
-      port_num = @resource[:name].scan(/(\d+)/).flatten.last
+     ifprop(base, :ensure) do
       match do |txt|
+        Puppet.debug("Value of txt: #{txt}")
         unless txt.nil?
-          txt.match(/stack-unit 0 port \d+ portmode quad/) ? :present : :absent
+          txt.match(/stack.*/) ? :present : :absent
         else
           :absent
         end
@@ -35,7 +36,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Quadmode::Base
       add { |*_| }
       remove { |*_| }
     end
-    
+
   end
 
 end
