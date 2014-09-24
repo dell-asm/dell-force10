@@ -84,12 +84,36 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Portchannel::Base
         if value == :false
           transport.command("no switchport")
         else
+          transport.command("portmode hybrid")
           transport.command("switchport")
         end
       end
       remove { |*_| }
     end
 
+    base.register_scoped :fip_snooping_fcf, general_scope do
+      match do |txt|
+        paramsarray=txt.match(/fip-snooping port-mode fcf/)
+        if paramsarray.nil?
+          param1 = :true
+        else
+          param1 = :false
+        end
+        param1
+      end
+
+      cmd "show interface port-channel #{portchannelval}"
+      default :absent
+      add do |transport, value|
+        if value == :true
+          transport.command("fip-snooping port-mode fcf")
+        else
+          transport.command("no fip-snooping port-mode fcf")
+        end
+      end
+      remove { |*_| }
+    end
+      
 
     base.register_scoped :desc, general_scope do
       match do |txt|

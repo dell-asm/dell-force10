@@ -34,16 +34,16 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface < Puppet::Util::N
   end
 
   def before_update
-
     transport.command("show interfaces #{@name}")do |out|
       if out =~/Error:\s*(.*)/
         Puppet.debug "errror msg ::::#{$1}"
-        raise "The entered interface does not exist. Enter the correct interface."
+        Puppet.debug("Wait for 1 minute before re-validating")
+        sleep(60)
+        new_out = transport.command("show interfaces #{@name}")
+        raise "The entered interface does not exist. Enter the correct interface." if new_out =~/Error:\s*(.*)/
       end
     end
-
     super
-
     transport.command("interface #{@name}", :prompt => /\(conf-if-\S+\)#\z/n)
   end
 
