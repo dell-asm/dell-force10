@@ -22,34 +22,11 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Quadmode < Puppet::Util::Ne
   def update(is = {}, should = {}, reboot_required = false)
     Puppet.debug("Value of resource: #{reboot_required}")
     Puppet.debug("Is: #{is}, should = #{should}")
-    #return unless configuration_changed?(is, should, :keep_ensure => true)
-#    missing_commands = [is.keys, should.keys].flatten.uniq.sort - @params.keys.flatten.uniq.sort
-#    missing_commands.delete(:ensure)
-#    raise Puppet::Error, "Undefined commands for #{missing_commands.join(', ')}" unless missing_commands.empty?
-#    [is.keys, should.keys].flatten.uniq.sort.each do |property|
-#      next if property == :acl_type
-#      next if should[property] == :undef
-#      @params[property].value = :absent if should[property] == :absent || should[property].nil?
-#      @params[property].value = should[property] unless should[property] == :absent || should[property].nil?
-#    end
-    #before_update
-#    @params[:ensure].value = :absent if should[:ensure] == :absent || should[:ensure].nil?
-#    @params[:ensure].value = should[:ensure] unless should[:ensure] == :absent || should[:ensure].nil?
     before_update
     perform_update(is, should, reboot_required)
     after_update
   end
 
-#  def before_update
-#    transport.command("show interfaces #{@name}")do |out|
-#      if out =~/Error:\s*(.*)/
-#        Puppet.debug "errror msg ::::#{$1}"
-#        raise "The entered interface does not exist. Enter the correct interface."
-#      end
-#    end
-#    super
-#  end
-  
   def after_update
     transport.command("exit")
     super
@@ -59,14 +36,12 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Quadmode < Puppet::Util::Ne
     interface_num = @name.scan(/(\d+)/).flatten.last
     if should[:ensure] == :present and is[:ensure] == :absent
       out = transport.command("stack-unit 0 port #{interface_num} portmode quad")
-      #transport.command("exit")
       elsif should[:ensure] == :absent and is[:ensure] == :present
       # Ensure that we are on the normal prompt
       transport.command("end")
       transport.command("conf")
       transport.command("no stack-unit 0 port #{interface_num} portmode quad", :prompt => /confirm.*|conf.*/)
       transport.command("yes")
-      #transport.command("end")
     end
         
     # Reload switch
