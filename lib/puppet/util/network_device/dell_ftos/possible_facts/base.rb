@@ -139,13 +139,15 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
 
     base.register_param 'dell_force10_operating_system_version' do
       match do |txt|
-        version = txt.scan(/^Dell\s+Force10\s+Operating\s+System\s+Version:\s+(\S+)$|Dell Operating System Version:\s+(.*?)$/m)[0]
+        version = txt.scan(/^Dell\s+Force10\s+Operating\s+System\s+Version:\s+(\S+)$|Dell Operating System Version:\s+(.*?)$/m).flatten.compact.first
       end
       cmd CMD_SHOW_VERSION
     end
 
     base.register_param 'dell_force10_application_software_version' do
-      match /^Dell\s+Force10\s+Application\s+Software\s+Version:\s+(\S+)$|Dell Application Software Version:\s+(.*?)$/m
+      match do |txt|
+        version = txt.scan(/^Dell\s+Force10\s+Application\s+Software\s+Version:\s+(\S+)$|Dell Application Software Version:\s+(.*?)$/m).flatten.compact.first
+      end
       cmd CMD_SHOW_VERSION
     end
 
