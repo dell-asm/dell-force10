@@ -56,5 +56,20 @@ Puppet::Type.newtype(:force10_interface) do
     end
   end
 
+  newproperty(:portmode) do
+    desc "property to set the portmode hybrid setting on the port"
+    newvalues('hybrid')
+  end
+
+  newproperty(:portfast) do
+    desc "property to set the spanning tree portfast setting"
+    newvalues('portfast')
+  end
+
+  newproperty(:edge_port) do
+    desc "property to set the spanning-tree edge-port setting"
+    newvalues('edge-port')
+  end
+
 end
 

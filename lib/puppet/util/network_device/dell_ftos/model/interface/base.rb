@@ -141,6 +141,40 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
       end
       remove { |*_| }
     end
-    
+
+    ifprop(base, :portmode) do
+      match /^\s*portmode\s+(.*?)\s*$/
+      add do |transport, value|
+        #transport.command("fabric #{value}")
+        Puppet.debug('Need to remove existing configuration')
+        existing_config=(transport.command('show config') || '').split("\n").reverse
+        updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning/)}
+        updated_config.each do |remove_command|
+          transport.command("no #{remove_command}")
+        end
+        transport.command('portmode hybrid')
+        updated_config.reverse.each do |remove_command|
+          transport.command("#{remove_command}")
+        end
+      end
+      remove { |*_| }
+    end
+
+    ifprop(base, :portfast) do
+      match /^\s*spanning-tree 0 (.*?)\s*$/
+      add do |transport, value|
+        transport.command("spanning-tree 0 #{value}")
+      end
+      remove { |*_| }
+    end
+
+    ifprop(base, :edge_port) do
+      match /^\s*spanning-tree pvst\s+(.*?)\s*$/
+      add do |transport, value|
+        transport.command("spanning-tree pvst #{value}")
+      end
+      remove { |*_| }
+    end
+
   end
 end
