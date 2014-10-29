@@ -71,5 +71,10 @@ Puppet::Type.newtype(:force10_interface) do
     newvalues('edge-port')
   end
 
+  newproperty(:protocol) do
+    desc "property to set protcol lldp"
+    newvalues('lldp')
+  end
+
 end
 
