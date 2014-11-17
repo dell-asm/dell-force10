@@ -14,7 +14,7 @@ Puppet::Type.type(:force10_settings).provide :dell_ftos do
   def ntp_server2; end
 
   def ntp_server2=(ntp_server2)
-    send_cmd("ntp server #{ntp_server1}", :conf)
+    send_cmd("ntp server #{ntp_server2}", :conf)
     # return txt
   end
 
