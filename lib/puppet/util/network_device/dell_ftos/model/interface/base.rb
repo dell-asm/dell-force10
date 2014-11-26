@@ -176,5 +176,17 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
       remove { |*_| }
     end
 
+    ifprop(base, :protocol) do
+      match /^\s*protocol\s+(.*?)\s*$/
+      add do |transport, value|
+        transport.command('protocol lldp')
+        # Need to come out of the lldp context
+        transport.command('exit')
+      end
+      remove do |transport, value|
+        transport.command("no protocol lldp")
+      end
+    end
+
   end
 end
