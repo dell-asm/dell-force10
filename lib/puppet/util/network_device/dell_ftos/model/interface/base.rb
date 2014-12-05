@@ -148,7 +148,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
         #transport.command("fabric #{value}")
         Puppet.debug('Need to remove existing configuration')
         existing_config=(transport.command('show config') || '').split("\n").reverse
-        updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning/)}
+        updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning|vlan/)}
         updated_config.each do |remove_command|
           transport.command("no #{remove_command}")
         end

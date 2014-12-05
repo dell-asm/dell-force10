@@ -12,6 +12,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
   CMD_SHOW_PORT_CHANNELS  ="show interfaces port-channel brief" unless const_defined?(:CMD_SHOW_PORT_CHANNELS) 
   CMD_SHOW_QUAD_MODE_INTERFACES  ="show running-config | grep \"portmode quad\"" unless const_defined?(:CMD_SHOW_QUAD_MODE_INTERFACES)  
   CMD_SHOW_RUNNING_INTERFACE ="show running-config interface" unless const_defined?(:CMD_SHOW_RUNNING_INTERFACE) 
+  CMD_SHOW_SYSTEM_STACK_UNIT_IOM = 'show system stack-unit 0 iom-mode' unless const_defined?(:CMD_SHOW_SYSTEM_STACK_UNIT_IOM)
   def self.register(base)
 
     # system_management_unit is expected to be populated before this registration
@@ -263,6 +264,14 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
         interface_info.to_json
       end
       cmd CMD_SHOW_INTERFACES
+    end
+
+    base.register_param 'iom_mode' do
+      retval = []
+      match do |txt|
+        item = (txt.scan(/^\d+\s+(\S+)/) || []).flatten.first
+      end
+      cmd CMD_SHOW_SYSTEM_STACK_UNIT_IOM
     end
 
   end
