@@ -55,6 +55,7 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Base
   end
 
   def before_update
+    transport.command('enable')
     transport.command("conf", :prompt => /\(conf\)#\s?\z/n)
   end
 
