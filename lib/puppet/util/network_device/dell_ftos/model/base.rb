@@ -62,7 +62,9 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Base
   def after_update
     flagfirstresponse=false
     transport.command("end")
-	Puppet.info "Copying running-config to startup-config..."
+    # For some instances where after sending end, command prompt is going to non-privilege mode
+    transport.command("enable")
+	  Puppet.info "Copying running-config to startup-config..."
     transport.command("copy run start")  do |out|
       firstresponse =out.scan("Proceed to copy the file ")
       unless firstresponse.empty?
