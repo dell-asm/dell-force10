@@ -19,7 +19,9 @@ class Puppet::Util::NetworkDevice::Transport_ftos::Ssh < Puppet::Util::NetworkDe
   def connect(&block)
     begin
       Puppet.debug "Trying to connect to #{host} as #{user}"
-      @ssh = Net::SSH.start(host, user, :port => port, :password => password, :timeout => timeout)
+      @ssh = Net::SSH.start(host, user, :port => port, :password => password, :timeout => timeout,
+                            :paranoid => Net::SSH::Verifiers::Null.new,
+                            :global_known_hosts_file=>"/dev/null")
     rescue TimeoutError
       raise TimeoutError, "SSH timed out while trying to connect to #{host}"
     rescue Net::SSH::AuthenticationFailed
