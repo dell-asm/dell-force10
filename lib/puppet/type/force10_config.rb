@@ -13,11 +13,6 @@ Puppet::Type.newtype(:force10_config) do
   newparam(:name) do
     desc "Conifguration name, can be any unique name"
     isnamevar
-    validate do |value|
-      return if value == :absent
-      all_valid_characters = value =~ /^[a-zA-Z0-9_\s]+$/
-      raise ArgumentError, "An invalid configuration name is entered. The configuration name should contain only alphanumeric, space and underscore and also should not exceed 100 characters." unless all_valid_characters && value.length <= 100
-    end
     newvalues(/^(\w\s*)*?$/)
   end
 
