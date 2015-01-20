@@ -11,22 +11,40 @@ Puppet::Type.newtype(:force10_config) do
   apply_to_device
 
   newparam(:name) do
-    desc "Conifguration name, can be any unique name"
+    desc "Configuration name, can be any unique name"
     isnamevar
-    newvalues(/^(\w\s*)*?$/)
+    #newvalues(/^(\w\s*)*?$/)
   end
 
   newparam(:url) do
-    desc "Configuration TFTP URL"
+    desc 'Configuration TFTP URL'
     validate do |value|
-      raise ArgumentError, "An invalid url is entered.Url must be a in format of tftp://${deviceRepoServerIPAddress}/${fileLocation}." unless value.start_with?('tftp://')
+      if value.length > 0
+        raise ArgumentError, "An invalid url is entered.Url must be a in format of tftp://${deviceRepoServerIPAddress}/${fileLocation}." unless value.start_with?('tftp://')
+      end
     end
+    defaultto ''
   end
 
   newparam(:startup_config) do
     desc "This Flag denotes startup-config or running-config"
     newvalues(:true, :false)
     defaultto :false
+  end
+
+  newparam(:source_server) do
+    "Server where configuration files are located"
+    defaultto []
+  end
+
+  newparam(:source_file_path) do
+    'absolute location where source configuaration file located'
+    defaultto []
+  end
+
+  newparam(:copy_to_tftp) do
+    "2 element array, ['path to tftp share','path under tftp share']\nFor example: ['/var/lib/tftpshare','catalog1/firmware.cmc']"
+    defaultto ''
   end
 
   newparam(:force) do
@@ -57,7 +75,12 @@ Puppet::Type.newtype(:force10_config) do
     def sync
 
       event = :executed_command
-      out = provider.run(self.resource[:url], self.resource[:startup_config],self.resource[:force])
+      out = provider.run(self.resource[:url],
+                         self.resource[:startup_config],
+                         self.resource[:force],
+                         self.resource[:source_server],
+                         self.resource[:source_file_path],
+                         self.resource[:copy_to_tftp])
       event
     end
   end
