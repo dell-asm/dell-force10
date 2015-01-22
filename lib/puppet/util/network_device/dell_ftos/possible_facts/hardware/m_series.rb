@@ -13,6 +13,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
   CMD_SHOW_QUAD_MODE_INTERFACES  ="show running-config | grep \"portmode quad\"" unless const_defined?(:CMD_SHOW_QUAD_MODE_INTERFACES)  
   CMD_SHOW_RUNNING_INTERFACE ="show running-config interface" unless const_defined?(:CMD_SHOW_RUNNING_INTERFACE) 
   CMD_SHOW_SYSTEM_STACK_UNIT_IOM = 'show system stack-unit 0 iom-mode' unless const_defined?(:CMD_SHOW_SYSTEM_STACK_UNIT_IOM)
+  CMD_RUNNING_CONFIG = 'show running-config' unless const_defined?(:CMD_RUNNING_CONFIG)
   def self.register(base)
 
     # system_management_unit is expected to be populated before this registration
@@ -243,7 +244,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
       module3_interface = []
       interface_info = {}
       match do |txt|
-        base.facts['product_name'].match(/IOA/) ? module1_interfaces = 9..12 : module1_interfaces = 33..40
+        base.facts['product_name'].value.match(/IOA/) ? module1_interfaces = 9..12 : module1_interfaces = 33..40
         txt.each_line do |line|
           case line
           when /^(\S+)\s+(\d+)\/(\d+)/m
@@ -273,6 +274,13 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
         item = (txt.scan(/^\d+\s+(\S+)/) || []).flatten.first
       end
       cmd CMD_SHOW_SYSTEM_STACK_UNIT_IOM
+    end
+
+    base.register_param 'running_config' do
+      match do |txt|
+        item = txt
+      end
+      cmd CMD_RUNNING_CONFIG
     end
 
   end
