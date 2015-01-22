@@ -244,7 +244,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
       module3_interface = []
       interface_info = {}
       match do |txt|
-        base.facts['product_name'].match(/IOA/) ? module1_interfaces = 9..12 : module1_interfaces = 33..40
+        base.facts['product_name'].value.match(/IOA/) ? module1_interfaces = 9..12 : module1_interfaces = 33..40
         txt.each_line do |line|
           case line
           when /^(\S+)\s+(\d+)\/(\d+)/m
