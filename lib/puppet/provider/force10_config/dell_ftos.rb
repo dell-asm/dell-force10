@@ -14,10 +14,25 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
     @source_file_path = source_file_path
     @copy_to_tftp = copy_to_tftp
     @source_server = source_server
+    disable_bmp_mode
     if startup_config == :true
       return applyconfig(url,'startup-config', force)
     else
       return applyconfig(url,'running-config',force)
+    end
+  end
+
+  def disable_bmp_mode
+    dev = Puppet::Util::NetworkDevice.current
+    dev.transport.command('enable')
+    reload_type = dev.transport.command('show reload-type').scan(/Next boot\s*:\s*(\S+)/).flatten.first
+    Puppet.debug("Reload Type: #{reload_type}")
+    if !reload_type.match(/normal-reload/)
+      Puppet.debug("Reload type is not 'normal-reload', updated the reload-type of the switch")
+      dev.transport.command('conf')
+      dev.transport.command('reload-type normal-reload')
+      dev.transport.command('end')
+      dev.transport.command('write memory')
     end
   end
 
