@@ -283,5 +283,12 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
       cmd CMD_RUNNING_CONFIG
     end
 
+    base.register_param 'ioa_ethernet_mode' do
+      match do |txt|
+        txt = (txt.scan(/(stack-unit 0 port-group 0 portmode ethernet)/) || []).flatten.first
+      end
+      cmd CMD_RUNNING_CONFIG
+    end
+
   end
 end
