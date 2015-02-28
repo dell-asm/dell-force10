@@ -110,7 +110,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
     end
 
     base.register_param 'stack_mac' do
-      match /^.*Stack MAC\s\:\s(\S+).*/
+      match /^.*Stack MAC\s*\:\s*(\S+).*/
       cmd CMD_SHOW_SYSTEM_BRIEF
     end
 
