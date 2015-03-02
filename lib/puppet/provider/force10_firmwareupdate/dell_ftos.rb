@@ -86,10 +86,11 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
     end
     item = txt.scan("successfully")
     if item.empty?
-      txt="Firmware update is not successful"
+      msg = "Firmware update is not successful"
+      Puppet.debug(msg)
       Puppet.debug(txt)
       deleteflashfile flashfilename
-      raise txt
+      raise msg
     end
     Puppet.debug("firmware update done for image #{nonbootimage}:")
     change_boot_image(nonbootimage)
