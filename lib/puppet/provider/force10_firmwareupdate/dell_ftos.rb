@@ -21,6 +21,10 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
 
   def disable_bmp_mode
     dev = Puppet::Util::NetworkDevice.current
+    # Need to skip disable BMP mode configuration for IO Aggregators and FNIOA
+    switch_model = ( dev.switch.facts['product_name'] || '' )
+    return true if switch_model.match(/IOA|Aggregator/i)
+
     dev.transport.command('enable')
     reload_type = dev.transport.command('show reload-type').scan(/Next boot\s*:\s*(\S+)/).flatten.first
     Puppet.debug("Reload Type: #{reload_type}")
