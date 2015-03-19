@@ -5,15 +5,34 @@
 require 'puppet/util/network_device'
 require 'puppet/provider/dell_ftos'
 require 'digest/md5'
+require 'fileutils'
 
 Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provider do
   desc "Dell Force10 switch provider for configuration updates."
   mk_resource_methods
-  def run(url, startup_config, force)
+  def run(url, startup_config, force, source_server, source_file_path, copy_to_tftp)
+    @source_file_path = source_file_path
+    @copy_to_tftp = copy_to_tftp
+    @source_server = source_server
+    disable_bmp_mode
     if startup_config == :true
-      return applyconfig(url,'startup-config',force)
+      return applyconfig(url,'startup-config', force)
     else
       return applyconfig(url,'running-config',force)
+    end
+  end
+
+  def disable_bmp_mode
+    dev = Puppet::Util::NetworkDevice.current
+    dev.transport.command('enable')
+    reload_type = dev.transport.command('show reload-type').scan(/Next boot\s*:\s*(\S+)/).flatten.first
+    Puppet.debug("Reload Type: #{reload_type}")
+    if !reload_type.match(/normal-reload/)
+      Puppet.debug("Reload type is not 'normal-reload', updated the reload-type of the switch")
+      dev.transport.command('conf')
+      dev.transport.command('reload-type normal-reload')
+      dev.transport.command('end')
+      dev.transport.command('write memory')
     end
   end
 
@@ -25,12 +44,18 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
     configexists=true
     startupconfigchanged=false
 
+    copy_files if @copy_to_tftp
+    Puppet.debug("URL location before: #{url}")
+    url = "tftp://#{@source_server}/#{@copy_to_tftp[1]}"  if @source_server and url.length == 0
+    Puppet.debug ("URL location: #{url}, source server: #{@source_server}")
+
     #delete temporary configuration files if exists
     dev.transport.command('delete flash://temp-config no-confirm')
     dev.transport.command('delete flash://last-config no-confirm')
 
     #Calculate MD5 for running configuration, if exists
     localfilecontent  =''
+    Puppet.debug("Config name: #{config}")
     if config=='startup-config'
       if dev.transport.class.name.include? "Telnet"
         dev.transport.command('show file flash://startup-config') do |out|
@@ -162,6 +187,21 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 
     end
     return txt
+  end
+
+  def copy_files
+    Puppet.debug("Copying files to TFTP share")
+    tftp_share = @copy_to_tftp[0]
+    tftp_path = @copy_to_tftp[1]
+    firmware_name = tftp_path.split('/')[-1]
+    full_tftp_path = tftp_share + "/" + tftp_path
+    tftp_dir = full_tftp_path.split('/')[0..-2].join('/')
+    if !File.exist? tftp_dir
+      FileUtils.mkdir_p tftp_dir
+    end
+    FileUtils.cp @source_file_path, full_tftp_path
+    FileUtils.chmod_R 0777, tftp_dir
+    return tftp_path
   end
 
   def parseforerror(outtxt,placestr)

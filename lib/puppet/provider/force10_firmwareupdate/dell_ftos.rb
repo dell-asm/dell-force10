@@ -19,8 +19,27 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
     FileUtils.chmod_R 0755, tftp_dir
   end
 
+  def disable_bmp_mode
+    dev = Puppet::Util::NetworkDevice.current
+    # Need to skip disable BMP mode configuration for IO Aggregators and FNIOA
+    switch_model = ( dev.switch.facts['product_name'] || '' )
+    return true if switch_model.match(/IOA|Aggregator/i)
+
+    dev.transport.command('enable')
+    reload_type = dev.transport.command('show reload-type').scan(/Next boot\s*:\s*(\S+)/).flatten.first
+    Puppet.debug("Reload Type: #{reload_type}")
+    if !reload_type.match(/normal-reload/)
+      Puppet.debug("Reload type is not 'normal-reload', updated the reload-type of the switch")
+      dev.transport.command('conf')
+      dev.transport.command('reload-type normal-reload')
+      dev.transport.command('end')
+      dev.transport.command('write memory')
+    end
+  end
+
   def run(url, force, copy_to_tftp=nil, path=nil)
     Puppet.debug("Puppet::Force10_firmwareUpdate*********************")
+    disable_bmp_mode
     if copy_to_tftp 
       move_to_tftp(copy_to_tftp,path)
     end
@@ -71,10 +90,11 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
     end
     item = txt.scan("successfully")
     if item.empty?
-      txt="Firmware update is not successful"
+      msg = "Firmware update is not successful"
+      Puppet.debug(msg)
       Puppet.debug(txt)
       deleteflashfile flashfilename
-      raise txt
+      raise msg
     end
     Puppet.debug("firmware update done for image #{nonbootimage}:")
     change_boot_image(nonbootimage)
