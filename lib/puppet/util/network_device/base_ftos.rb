@@ -9,6 +9,7 @@ class Puppet::Util::NetworkDevice::Base_ftos
   attr_accessor :url, :transport, :crypt
   def initialize(url)
     @url = URI.parse(url)
+    @query = Hash.new([])
     @query = CGI.parse(@url.query) if @url.query
 
     require "puppet/util/network_device/transport_ftos/#{@url.scheme}"
@@ -28,6 +29,17 @@ class Puppet::Util::NetworkDevice::Base_ftos
         @transport.user = URI.decode(@url.user) unless @url.user.nil? || @url.user.empty?
         @transport.password = URI.decode(asm_decrypt(@url.password)) unless @url.password.nil? || @url.password.empty?
       end
+
+      override_using_credential_id
+    end
+  end
+
+  def override_using_credential_id
+    if id = @query.fetch('credential_id', []).first
+      require 'asm/cipher'
+      cred = ASM::Cipher.decrypt_credential(id)
+      @transport.user = cred.username
+      @transport.password = cred.password
     end
   end
 
