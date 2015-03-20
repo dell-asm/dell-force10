@@ -148,7 +148,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
         #transport.command("fabric #{value}")
         Puppet.debug('Need to remove existing configuration')
         existing_config=(transport.command('show config') || '').split("\n").reverse
-        updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning/)}
+        updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning|vlan/)}
         updated_config.each do |remove_command|
           transport.command("no #{remove_command}")
         end
@@ -174,6 +174,18 @@ module Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface::Base
         transport.command("spanning-tree pvst #{value}")
       end
       remove { |*_| }
+    end
+
+    ifprop(base, :protocol) do
+      match /^\s*protocol\s+(.*?)\s*$/
+      add do |transport, value|
+        transport.command('protocol lldp')
+        # Need to come out of the lldp context
+        transport.command('exit')
+      end
+      remove do |transport, value|
+        transport.command("no protocol lldp")
+      end
     end
 
   end

@@ -12,6 +12,10 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
   CMD_SHOW_PORT_CHANNELS  ="show interfaces port-channel brief" unless const_defined?(:CMD_SHOW_PORT_CHANNELS) 
   CMD_SHOW_QUAD_MODE_INTERFACES  ="show running-config | grep \"portmode quad\"" unless const_defined?(:CMD_SHOW_QUAD_MODE_INTERFACES)  
   CMD_SHOW_RUNNING_INTERFACE ="show running-config interface" unless const_defined?(:CMD_SHOW_RUNNING_INTERFACE) 
+  CMD_SHOW_SYSTEM_STACK_UNIT_IOM = 'show system stack-unit 0 iom-mode' unless const_defined?(:CMD_SHOW_SYSTEM_STACK_UNIT_IOM)
+  CMD_RUNNING_CONFIG = 'show running-config' unless const_defined?(:CMD_RUNNING_CONFIG)
+  CMD_STACK_PORT_TOPOLOGY = 'show system stack-port topology' unless const_defined?(:CMD_STACK_PORT_TOPOLOGY)
+  CMD_SHOW_LLDP_NEIGHBORS  ="show lldp neighbors" unless const_defined?(:CMD_SHOW_LLDP_NEIGHBORS)
   def self.register(base)
 
     # system_management_unit is expected to be populated before this registration
@@ -242,6 +246,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
       module3_interface = []
       interface_info = {}
       match do |txt|
+        base.facts['product_name'].value.match(/IOA/) ? module1_interfaces = 9..12 : module1_interfaces = 33..40
         txt.each_line do |line|
           case line
           when /^(\S+)\s+(\d+)\/(\d+)/m
@@ -263,6 +268,102 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Hardware::M_series
         interface_info.to_json
       end
       cmd CMD_SHOW_INTERFACES
+    end
+
+    base.register_param 'iom_mode' do
+      retval = []
+      match do |txt|
+        item = (txt.scan(/^\d+\s+(\S+)/) || []).flatten.first
+      end
+      cmd CMD_SHOW_SYSTEM_STACK_UNIT_IOM
+    end
+
+    base.register_param 'running_config' do
+      match do |txt|
+        item = txt
+      end
+      cmd CMD_RUNNING_CONFIG
+    end
+
+    base.register_param 'ioa_ethernet_mode' do
+      match do |txt|
+        txt = (txt.scan(/(stack-unit 0 port-group 0 portmode ethernet)/) || []).flatten.first
+      end
+      cmd CMD_RUNNING_CONFIG
+    end
+
+    base.register_param 'stack_port_topology' do
+      match do |txt|
+        txt = (txt.scan(/Topology:\s*(.*)?/) || []).flatten.first
+      end
+      cmd CMD_STACK_PORT_TOPOLOGY
+    end
+
+    base.register_param 'stack_port_topology' do
+      match do |txt|
+        txt = (txt.scan(/Topology:\s*(.*)?/) || []).flatten.first
+      end
+      cmd CMD_STACK_PORT_TOPOLOGY
+    end
+
+    base.register_param 'stack_unit_0' do
+      match do |txt|
+        item = txt
+      end
+      cmd 'show system stack-unit 0'
+    end
+
+    base.register_param 'stack_unit_1' do
+      match do |txt|
+        item = txt
+      end
+      cmd 'show system stack-unit 1'
+    end
+
+    base.register_param 'stack_unit_2' do
+      match do |txt|
+        item = txt
+      end
+      cmd 'show system stack-unit 2'
+    end
+
+    base.register_param 'stack_unit_3' do
+      match do |txt|
+        item = txt
+      end
+      cmd 'show system stack-unit 3'
+    end
+
+    base.register_param 'stack_unit_4' do
+      match do |txt|
+        item = txt
+      end
+      cmd 'show system stack-unit 4'
+    end
+
+    base.register_param 'stack_unit_5' do
+      match do |txt|
+        item = txt
+      end
+      cmd 'show system stack-unit 5'
+    end
+
+    base.register_param 'remote_device_info' do
+      remote_device_info = {}
+      remote_device = nil
+      match do |txt|
+        txt.each_line do |line|
+          case line
+            when /^\s+(\S+\s+\d+\/\d+)\s+(\S+)\s+(.*)\s+(([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2})).*$/
+              remote_device = { :interface => $1.strip, :location => $3.strip,:remote_mac => $4.strip,:remote_system_name => $2.strip}
+              remote_device_info[remote_device[:interface]] = remote_device
+            else
+              next
+          end
+        end
+        remote_device_info.to_json
+      end
+      cmd CMD_SHOW_LLDP_NEIGHBORS
     end
 
   end

@@ -110,7 +110,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
     end
 
     base.register_param 'stack_mac' do
-      match /^.*Stack MAC\s\:\s(\S+).*/
+      match /^.*Stack MAC\s*\:\s*(\S+).*/
       cmd CMD_SHOW_SYSTEM_BRIEF
     end
 
@@ -206,7 +206,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
     end
 
     base.register_module_after 'system_type', 'm_series', 'hardware' do
-      base.facts['system_type'].value =~ /I\/O-Aggregator/i || base.facts['system_type'].value =~ /MXL/i
+      base.facts['system_type'].value =~ /I\/O-Aggregator|IOA/i || base.facts['system_type'].value =~ /MXL/i
     end
 
   end
