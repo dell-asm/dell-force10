@@ -202,7 +202,7 @@ module Puppet::Util::NetworkDevice::Dell_ftos::PossibleFacts::Base
     
 
     base.register_module_after 'system_type', 's_series', 'hardware' do
-      base.facts['system_type'].value =~ /S4810/i ||  base.facts['system_type'].value =~ /S5000/i ||  base.facts['system_type'].value =~ /S6000/i
+      base.facts['system_type'].value =~ /S48*/i ||  base.facts['system_type'].value =~ /S5000/i ||  base.facts['system_type'].value =~ /S6000/i
     end
 
     base.register_module_after 'system_type', 'm_series', 'hardware' do
