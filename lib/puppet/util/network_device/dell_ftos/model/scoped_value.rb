@@ -40,7 +40,9 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::ScopedValue < Puppet::Util:
 
     munged.collect do |pair|
       (content,name) = pair
-      content if name == @scope_name
+      # We want to compare the strings without spaces and caps
+      # Example:  Interface could be something like "TenGigabitEthernet 0/23" with spaces or "tengigabitethernet0/23", and both are valid for command line
+      content if name.gsub(/\s+/, "").casecmp(@scope_name.gsub(/\s+/, "")) == 0
     end.reject { |val| val.nil? }.first
   end
 

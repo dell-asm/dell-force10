@@ -33,7 +33,7 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface < Puppet::Util::N
     register_new_module(:base)
   end
 
-  def before_update
+  def before_update(params_to_update=[])
     transport.command("show interfaces #{@name}")do |out|
       if out =~/Error:\s*(.*)/
         Puppet.debug "errror msg ::::#{$1}"
@@ -44,6 +44,14 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::Interface < Puppet::Util::N
       end
     end
     super
+    # Need to remove port from all vlans if we want to change the portmode
+    if params_to_update.collect{|param| param.name}.include?(:portmode)
+      Puppet.info("Removing all vlans for #{name} so portmode can be set.")
+      transport.command("interface range vlan 1-4094")
+      transport.command("no tagged #{name}")
+      transport.command("no untagged #{name}")
+      transport.command("exit")
+    end
     transport.command("interface #{@name}", :prompt => /\(conf-if-\S+\)#\z/n)
   end
 
