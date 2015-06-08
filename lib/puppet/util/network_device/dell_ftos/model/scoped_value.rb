@@ -42,7 +42,7 @@ class Puppet::Util::NetworkDevice::Dell_ftos::Model::ScopedValue < Puppet::Util:
       (content,name) = pair
       # We want to compare the strings without spaces and caps
       # Example:  Interface could be something like "TenGigabitEthernet 0/23" with spaces or "tengigabitethernet0/23", and both are valid for command line
-      content if name.gsub(/\s+/, "").casecmp(@scope_name.gsub(/\s+/, "")) == 0
+      content if (name || '').gsub(/\s+/, "").casecmp(@scope_name.gsub(/\s+/, "")) == 0
     end.reject { |val| val.nil? }.first
   end
 
