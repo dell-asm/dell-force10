@@ -1,8 +1,6 @@
 Puppet::Type.newtype(:force10_interface) do
   @doc = "This represents Dell Force10 switch interface."
 
-  apply_to_device
-
   newparam(:name) do
     desc "Interface name, represents an interface"
     isrequired

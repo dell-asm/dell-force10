@@ -17,10 +17,6 @@
 Puppet::Type.newtype(:force10_vlan) do
   @doc = "This represents Dell Force10 switch vlan."
 
-  apply_to_device
-
-  ensurable
-
   newparam(:name) do
     desc "VLAN ID, represents VLAN"
     isnamevar
@@ -54,7 +50,7 @@ Puppet::Type.newtype(:force10_vlan) do
   end
 
   newproperty(:mtu) do
-    desc "MTU value"    
+    desc "MTU value"
   end
 
   newproperty(:shutdown) do

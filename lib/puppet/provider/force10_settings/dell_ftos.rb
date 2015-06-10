@@ -40,18 +40,18 @@ Puppet::Type.type(:force10_settings).provide :dell_ftos do
   end
 
 
-  def dev
-    @dev ||= Puppet::Util::NetworkDevice.current
+  def transport
+    @transport ||= PuppetX::Force10::Transport.new(Puppet[:certname])
   end
 
   def send_cmd(command, context='')
     out = ''
     if context == :conf
-      dev.transport.command('conf')
+      transport.command('conf')
       out = dev.transport.command(command)
-      dev.transport.command('end')
+      transport.command('end')
     else
-      out = dev.transport.command(command)
+      out = transport.command(command)
     end
     if out.include?("Error:")
       Puppet.err("Could not send command #{command}.\nMessage: #{out}")
@@ -59,7 +59,7 @@ Puppet::Type.type(:force10_settings).provide :dell_ftos do
     else
       #Remove the prompt text and the command text since those are not important
       out.split("\n").reject do |x| 
-        x =~ dev.transport.default_prompt || x == command
+        x =~ transport.default_prompt || x == command
       end
     end
   end

@@ -1,0 +1,640 @@
+Current Configuration ...
+! Version 9.5(0.1)
+! Last configuration change at Mon Mar 30 20:20:41 2015 by root
+! Startup-config last updated at Mon Mar 30 20:20:42 2015 by root
+!
+boot system stack-unit 0 primary system: B:
+boot system stack-unit 0 secondary system: B:
+boot system stack-unit 0 default system: B:
+boot system gateway 192.168.2.2
+!
+redundancy auto-synchronize full
+!
+logging console emergencies
+!
+hostname A2-Env15
+!
+username root password 7 d7acc8a1dcd4f698 privilege 15 role sysadmin
+!
+stack-unit 0 provision MXL-10/40GbE
+!
+interface TenGigabitEthernet 0/1
+ no ip address
+ mtu 12000
+ portmode hybrid
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/2
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/3
+ no ip address
+ mtu 12000
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/4
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/5
+ no ip address
+ mtu 11000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/6
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/7
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/8
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree mstp edge-port
+ spanning-tree rstp edge-port
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/9
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree mstp edge-port
+ spanning-tree rstp edge-port
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/10
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/11
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/12
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/13
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/14
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/15
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree mstp edge-port
+ spanning-tree rstp edge-port
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/16
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree mstp edge-port
+ spanning-tree rstp edge-port
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/17
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/18
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/19
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/20
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/21
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/22
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/23
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree mstp edge-port
+ spanning-tree rstp edge-port
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/24
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree mstp edge-port
+ spanning-tree rstp edge-port
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/25
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/26
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/27
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/28
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/29
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/30
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/31
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree mstp edge-port
+ spanning-tree rstp edge-port
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/32
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree mstp edge-port
+ spanning-tree rstp edge-port
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+ dcb-policy input pfc
+ dcb-policy output ets
+!
+ protocol lldp
+ no shutdown
+!
+interface fortyGigE 0/33
+ no ip address
+ shutdown
+!
+interface fortyGigE 0/37
+ no ip address
+ shutdown
+!
+interface TenGigabitEthernet 0/41
+ no ip address
+!
+ port-channel-protocol LACP
+  port-channel 128 mode active
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/42
+ no ip address
+!
+ port-channel-protocol LACP
+  port-channel 128 mode active
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/43
+ no ip address
+!
+ port-channel-protocol LACP
+  port-channel 128 mode active
+!
+ protocol lldp
+ no shutdown
+!
+interface TenGigabitEthernet 0/44
+ no ip address
+!
+ port-channel-protocol LACP
+  port-channel 128 mode active
+!
+ protocol lldp
+ no shutdown
+!
+interface fortyGigE 0/49
+ no ip address
+ shutdown
+!
+interface fortyGigE 0/53
+ no ip address
+ shutdown
+!
+interface ManagementEthernet 0/0
+ ip address dhcp
+ no shutdown
+!
+interface Port-channel 128
+ no ip address
+ switchport
+ no shutdown
+!
+interface Vlan 1
+ ip address dhcp
+!untagged TenGigabitEthernet 0/17-19,21-22,25-30
+ no shutdown
+!
+interface Vlan 2
+ description VLAN 2 created by ASM
+ name VLAN_2
+ no ip address
+ mtu 12000
+ tagged TenGigabitEthernet 0/11,15
+!
+interface Vlan 16
+ description VLAN 16 created by ASM
+ name VLAN_16
+ no ip address
+ mtu 12000
+ tagged TenGigabitEthernet 0/1-32
+ no shutdown
+!
+interface Vlan 17
+ description VLAN 17 created by ASM
+ name VLAN_17
+ no ip address
+ mtu 12000
+ tagged TenGigabitEthernet 0/12
+ tagged Port-channel 128
+ no shutdown
+!
+interface Vlan 18
+ no ip address
+ mtu 12000
+ tagged Port-channel 128
+ no shutdown
+!
+interface Vlan 20
+ description VLAN 20 created by ASM
+ name VLAN_20
+ no ip address
+ mtu 12000
+ tagged TenGigabitEthernet 0/1-5,8,10-23,25-30
+ tagged Port-channel 128
+ untagged TenGigabitEthernet 0/6-7,9,24,31-32
+ no shutdown
+!
+interface Vlan 21
+ description VLAN 21 created by ASM
+ name VLAN_21
+ no ip address
+ mtu 12000
+ tagged TenGigabitEthernet 0/7,16
+ tagged Port-channel 128
+ no shutdown
+!
+interface Vlan 22
+ description VLAN 22 created by ASM
+ name VLAN_22
+ no ip address
+ mtu 12000
+ tagged TenGigabitEthernet 0/4,7,17-22,25-30,32
+ tagged Port-channel 128
+ untagged TenGigabitEthernet 0/2-3,5,8,11-12,15-16,23
+ no shutdown
+!
+interface Vlan 23
+ description VLAN 23 created by ASM
+ name VLAN_23
+ no ip address
+ mtu 12000
+ tagged TenGigabitEthernet 0/1-32
+ tagged Port-channel 128
+ no shutdown
+!
+interface Vlan 24
+ description VLAN 24 created by ASM
+ name VLAN_24
+ no ip address
+ mtu 12000
+ tagged TenGigabitEthernet 0/2-32
+ tagged Port-channel 128
+ no shutdown
+!
+interface Vlan 25
+ description VLAN 25 created by ASM
+ name VLAN_25
+ no ip address
+ mtu 12000
+ tagged TenGigabitEthernet 0/17-22,25-30,32
+ tagged Port-channel 128
+ untagged TenGigabitEthernet 0/1,10,13-14
+ no shutdown
+!
+service-class dynamic dot1p
+!
+snmp-server community public ro
+ip ssh server version 2
+!
+qos-policy-output OTHER ets
+ bandwidth-percentage 50
+!
+qos-policy-output iSCSI ets
+ bandwidth-percentage 50
+!
+dcb-input pfc
+ pfc priority 4
+!
+priority-group OTHER
+ priority-list 0-3,5-7
+ set-pgid 2
+!
+priority-group iSCI
+ set-pgid 1
+!
+priority-group iSCSI
+ priority-list 4
+ set-pgid 1
+!
+dcb-output ets
+ priority-group OTHER qos-policy OTHER
+ priority-group iSCSI qos-policy iSCSI
+!
+dcb-map FLEXIO_DCB_MAP_PFC_OFF
+ no pfc mode on
+!
+protocol lldp
+ advertise management-tlv system-capabilities system-description system-name
+!
+line console 0
+line vty 0
+line vty 1
+line vty 2
+line vty 3
+line vty 4
+line vty 5
+line vty 6
+line vty 7
+line vty 8
+line vty 9
+!
+uplink-state-group 1
+!
+reload-type normal-reload
+!
+end

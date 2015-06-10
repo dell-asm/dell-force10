@@ -7,16 +7,13 @@ Puppet::Type.type(:force10_zoneset).provide :dell_ftos, :parent => Puppet::Provi
   desc "Dell Force10 switch provider for zoneset configuration."
 
   mk_resource_methods
-  def initialize(device, *args)
-    super
-  end
 
-  def self.lookup(device, name)
-    device.switch.zoneset(name).params_to_hash
+  def self.get_current(name)
+    transport.switch.zoneset(name).params_to_hash
   end
 
   def flush
-    device.switch.zoneset(name).update(former_properties, properties)
+    transport.switch.zoneset(name).update(former_properties, properties)
     super
   end
 end

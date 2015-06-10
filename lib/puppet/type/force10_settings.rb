@@ -1,8 +1,6 @@
 Puppet::Type.newtype(:force10_settings) do
   @doc = "A generic way to setup various settings on Dell Force10 switch."
 
-  apply_to_device
-
   newparam(:name) do
     desc "Name, can be any unique name"
     isnamevar

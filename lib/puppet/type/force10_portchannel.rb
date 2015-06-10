@@ -1,10 +1,6 @@
 Puppet::Type.newtype(:force10_portchannel) do
   @doc = "This represents Dell Force10 switch port-channel."
 
-  apply_to_device
-
-  ensurable
-
   newparam(:name) do
     desc "Port-channel name, represents Port-channel"
     isnamevar
@@ -43,7 +39,7 @@ Puppet::Type.newtype(:force10_portchannel) do
     defaultto(:false)
     newvalues(:false,:true)
   end
-  
+
   newproperty(:fcoe_map) do
     desc "fcoe map that needs to be associated with the port-channel"
     validate do |value|

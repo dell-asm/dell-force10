@@ -1,8 +1,6 @@
 Puppet::Type.newtype(:force10_firmwareupdate) do
   @doc = "This will perform firmware update on Dell Force10 switch."
 
-  apply_to_device
-
   newparam(:name) do
     desc "Firmware name, can be any unique name"
     isnamevar
