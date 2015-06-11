@@ -1,5 +1,6 @@
 require 'puppet/util'
 
+#TODO:  This might be able to be removed.  Can't find any references anywhere.
 module Puppet::Util::HostListProp
   def newhostlistprop(name, options = {}, &block)
     # hostlists do array_matching all by default

@@ -1,7 +1,6 @@
 Puppet::Type.newtype(:force10_exec) do
   @doc = "A generic way to execute various commands on Dell Force10 switch."
 
-  apply_to_device
   def self.newcheck(name, options = {}, &block)
     @checks ||= {}
     check = newparam(name, options, &block)

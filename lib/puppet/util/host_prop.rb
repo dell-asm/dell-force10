@@ -2,6 +2,7 @@ require 'puppet/util'
 
 # defines a shortcut to create properties with a single IP address
 # or hostname as value
+#TODO:  This might be able to be removed.  Can't find any references anywhere.
 module Puppet::Util::HostProp
   def newhostprop(name, options = {}, &block)
 

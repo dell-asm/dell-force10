@@ -4,10 +4,6 @@
 Puppet::Type.newtype(:force10_fcoemap) do
   @doc = "This represents Dell Force10 fcoemap configuration."
 
-  apply_to_device
-
-  ensurable
-
   newparam(:name) do
     desc "This parameter describes the fcoe-map name to be created on the Force10 switch.
           The valid zoneset name does not allow blank value, special character except _ ,numeric char at the start, and length above 64 chars"
@@ -17,7 +13,7 @@ Puppet::Type.newtype(:force10_fcoemap) do
       raise ArgumentError, "Invalid fcoe-map name" unless all_valid_characters
     end
   end
-  
+
   newproperty(:fcoe_map) do
     desc "FC-MAP ID assocciated with the fcoe-map"
     validate do |value|
@@ -25,7 +21,7 @@ Puppet::Type.newtype(:force10_fcoemap) do
       raise ArgumentError, "Invalid fcoe-map ID" unless all_valid_characters
     end
   end
-  
+
   newproperty(:fcoe_vlan) do
       desc "FCOE VLAN that needs to be configured"
       validate do |value|
@@ -33,7 +29,7 @@ Puppet::Type.newtype(:force10_fcoemap) do
         raise ArgumentError, "Invalid FCoE VLAN" unless all_valid_characters
       end
     end
-  
+
   newproperty(:fabric_type) do
     desc "FCoE Fabric Type"
   end

@@ -5,16 +5,13 @@ Puppet::Type.type(:force10_portchannel).provide :dell_ftos, :parent => Puppet::P
   desc "Dell Force10 switch provider for port-channel configuration."
 
   mk_resource_methods
-  def initialize(device, *args)
-    super
-  end
 
-  def self.lookup(device, name)
-    device.switch.portchannel(name).params_to_hash
+  def self.get_current(name)
+    transport.switch.portchannel(name).params_to_hash
   end
 
   def flush
-    device.switch.portchannel(name).update(former_properties, properties)
+    transport.switch.portchannel(name).update(former_properties, properties)
     super
   end
 end

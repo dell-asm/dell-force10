@@ -8,8 +8,6 @@
 Puppet::Type.newtype(:force10_config) do
   @doc = "This will apply configuration on Dell Force10 switch."
 
-  apply_to_device
-
   newparam(:name) do
     desc "Configuration name, can be any unique name"
     isnamevar
