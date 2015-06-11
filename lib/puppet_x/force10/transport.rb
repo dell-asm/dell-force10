@@ -1,8 +1,6 @@
 require 'uri'
 require 'openssl'
 require 'cgi'
-require '/etc/puppetlabs/puppet/modules/asm_lib/lib/security/encode'
-require 'asm/device_management'
 
 module PuppetX
   module Force10
@@ -14,6 +12,7 @@ module PuppetX
         if options[:device_config]
           device_conf = options[:device_config]
         else
+          require 'asm/device_management'
           device_conf = ASM::DeviceManagement.parse_device_config(certname)
         end
         scheme = device_conf[:scheme]
