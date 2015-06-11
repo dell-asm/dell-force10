@@ -12,8 +12,8 @@ require 'puppet_x/force10/transport'
 
 facts = {}
 opts = Trollop::options do
-  opt :server, 'switch address', :type => :string
-  opt :port, 'switch port', :default => 443
+  opt :server, 'switch address', :type => :string, :required => true
+  opt :port, 'switch port', :default => 22
   opt :username, 'switch username', :type => :string
   opt :password, 'switch password', :type => :string
   opt :timeout, 'command timeout', :default => 240
@@ -23,8 +23,9 @@ opts = Trollop::options do
 end
 
 begin
-  if (opts[:server].nil? || opts[:username].nil? || opts[:password].nil?) && opts[:credential_id].nil?
-    raise "Must give server,username,and password parameters, or a valid credential id parameter."
+  if (opts[:username].nil? || opts[:password].nil?) && opts[:credential_id].nil?
+    puts "Must give username and password parameters, or a valid credential id parameter."
+    exit 1
   end
   Timeout.timeout(opts[:timeout]) do
     device_conf = {:scheme => 'ssh', :host => opts[:server], :port => opts[:port], :password => opts[:password],
