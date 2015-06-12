@@ -25,7 +25,7 @@ class PuppetX::Force10::Model::Base
       @params[property].value = :absent if should[property] == :absent || should[property].nil?
       @params[property].value = should[property] unless should[property] == :absent || should[property].nil?
     end
-    before_update
+    params_to_update = []
     PuppetX::Force10::Sorter.new(@params).tsort.each do |param|
       # We dont want to change undefined values
       next if should[param.name] == :undef || should[param.name].nil?
