@@ -3,7 +3,7 @@ script: "bundle exec rake"
 rvm:
   - 1.9.3
 env:
-  - PUPPET_GEM_VERSION=">= 3.0.0"
+  - PUPPET_GEM_VERSION='3.6.2'
 matrix:
   allow_failures:
-    - env: PUPPET_GEM_VESRION=">= 3.0.0"
+    - env: PUPPET_GEM_VESRION="3.6.2"
