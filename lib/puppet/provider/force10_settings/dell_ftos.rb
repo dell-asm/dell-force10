@@ -20,7 +20,7 @@ Puppet::Type.type(:force10_settings).provide :dell_ftos do
 
   #hostname
   def hostname
-    dev.facts['hostname']
+    transport.facts['hostname']
   end
 
   def hostname=(hostname)
@@ -46,12 +46,13 @@ Puppet::Type.type(:force10_settings).provide :dell_ftos do
 
   def send_cmd(command, context='')
     out = ''
+    session = transport.session
     if context == :conf
-      transport.command('conf')
-      out = dev.transport.command(command)
-      transport.command('end')
+      session.command('conf')
+      out = session.command(command)
+      session.command('end')
     else
-      out = transport.command(command)
+      out = session.command(command)
     end
     if out.include?("Error:")
       Puppet.err("Could not send command #{command}.\nMessage: #{out}")
@@ -59,7 +60,7 @@ Puppet::Type.type(:force10_settings).provide :dell_ftos do
     else
       #Remove the prompt text and the command text since those are not important
       out.split("\n").reject do |x| 
-        x =~ transport.default_prompt || x == command
+        x =~ session.default_prompt || x == command
       end
     end
   end
