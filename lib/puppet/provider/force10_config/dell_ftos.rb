@@ -2,7 +2,6 @@
 #Compares provided configuration MD5 with existing configuration MD5 and so apply the configuration if any change found
 #Can use Force option for applying configuration always
 
-require 'puppet/util/network_device'
 require 'puppet/provider/dell_ftos'
 require 'digest/md5'
 require 'fileutils'
@@ -10,6 +9,17 @@ require 'fileutils'
 Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provider do
   desc "Dell Force10 switch provider for configuration updates."
   mk_resource_methods
+
+  def transport
+    @transport ||= PuppetX::Force10::Transport.new(Puppet[:certname])
+  end
+
+  def send_command(cmd, opts={})
+    transport.session.command(cmd, opts) do |line|
+      yield line if block_given?
+    end
+  end
+
   def run(url, startup_config, force, source_server, source_file_path, copy_to_tftp)
     @source_file_path = source_file_path
     @copy_to_tftp = copy_to_tftp
@@ -23,21 +33,19 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
   end
 
   def disable_bmp_mode
-    dev = Puppet::Util::NetworkDevice.current
-    dev.transport.command('enable')
-    reload_type = dev.transport.command('show reload-type').scan(/Next boot\s*:\s*(\S+)/).flatten.first
+    send_command('enable')
+    reload_type = send_command('show reload-type').scan(/Next boot\s*:\s*(\S+)/).flatten.first
     Puppet.debug("Reload Type: #{reload_type}")
     if !reload_type.match(/normal-reload/)
       Puppet.debug("Reload type is not 'normal-reload', updated the reload-type of the switch")
-      dev.transport.command('conf')
-      dev.transport.command('reload-type normal-reload')
-      dev.transport.command('end')
-      dev.transport.command('write memory')
+      send_command('conf')
+      send_command('reload-type normal-reload')
+      send_command('end')
+      send_command('write memory')
     end
   end
 
   def applyconfig(url, config, force)
-    dev = Puppet::Util::NetworkDevice.current
     txt = ''
     digesttftpfile=''
     digestlocalfile=''
@@ -50,34 +58,34 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
     Puppet.debug ("URL location: #{url}, source server: #{@source_server}")
 
     #delete temporary configuration files if exists
-    dev.transport.command('delete flash://temp-config no-confirm')
-    dev.transport.command('delete flash://last-config no-confirm')
+    send_command('delete flash://temp-config no-confirm')
+    send_command('delete flash://last-config no-confirm')
 
     #Calculate MD5 for running configuration, if exists
     localfilecontent  =''
     Puppet.debug("Config name: #{config}")
     if config=='startup-config'
-      if dev.transport.class.name.include? "Telnet"
-        dev.transport.command('show file flash://startup-config') do |out|
+      if transport.session.class.name.include? "Telnet"
+        send_command('show file flash://startup-config') do |out|
           localfilecontent<< out
         end
       else
         # In case of SSH 'out' is not returning continuous chunks of the console output
         # SSH 'out' chunks having repeat data i.e. each chunk having data from command output 'starting line'
         # And so clearing localfilecontent in loop, and so taking last output chunk
-        dev.transport.command('show file flash://startup-config') do |out|
+        send_command('show file flash://startup-config') do |out|
           localfilecontent =''
           localfilecontent<< out
         end
       end
     else
-      dev.transport.command('copy running-config flash://last-config')
-      if dev.transport.class.name.include? "Telnet"
-        dev.transport.command('show file flash://last-config') do |out|
+      send_command('copy running-config flash://last-config')
+      if transport.session.class.name.include? "Telnet"
+        send_command('show file flash://last-config') do |out|
           localfilecontent<< out
         end
       else
-        dev.transport.command('show file flash://last-config') do |out|
+        send_command('show file flash://last-config') do |out|
           localfilecontent =''
           localfilecontent<< out
         end
@@ -102,19 +110,19 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 
     #Copy TFTP file to local
     tftpcopytxt=''
-    dev.transport.command('copy ' +url+' flash://temp-config') do |out|
+    send_command('copy ' +url+' flash://temp-config') do |out|
       tftpcopytxt<< out
     end
     parseforerror(tftpcopytxt,'copy the TFTP file')
 
     #Calculate MD5 for TFTP config file
     tftpfilecontent=''
-    if dev.transport.class.name.include? "Telnet"
-      dev.transport.command('show file flash://temp-config') do |out|
+    if transport.session.class.name.include? "Telnet"
+      send_command('show file flash://temp-config') do |out|
         tftpfilecontent<< out
       end
     else
-      dev.transport.command('show file flash://temp-config') do |out|
+      send_command('show file flash://temp-config') do |out|
         tftpfilecontent=''
         tftpfilecontent<< out
       end
@@ -146,22 +154,22 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 
       #Taking Backup of existing configuration
       #Delete existing backup file
-      dev.transport.command('delete flash://'+config+'-backup  no-confirm')
-      dev.transport.command('copy '+config+' flash://'+config+'-backup')
+      send_command('delete flash://'+config+'-backup  no-confirm')
+      send_command('copy '+config+' flash://'+config+'-backup')
 
       #In case startup-config already exists it will prompt for overwrite confirmation
       if config=='startup-config'
         if configexists
-          dev.transport.command('copy flash://temp-config '+config, :prompt => /.\n/)
-          dev.transport.command("yes")
+          send_command('copy flash://temp-config '+config, :prompt => /.\n/)
+          send_command("yes")
         else
-          dev.transport.command('copy flash://temp-config '+config) do |out|
+          send_command('copy flash://temp-config '+config) do |out|
             txt<< out
           end
         end
         startupconfigchanged=true
       else
-        dev.transport.command('copy flash://temp-config '+config) do |out|
+        send_command('copy flash://temp-config '+config) do |out|
           txt<< out
         end
         parseforerror(txt,"apply the running configuration")
@@ -174,8 +182,8 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 
     #ensure: Always delete the temporary files
   ensure
-    dev.transport.command('delete flash://last-config no-confirm')
-    dev.transport.command('delete flash://temp-config no-confirm')
+    send_command('delete flash://last-config no-confirm')
+    send_command('delete flash://temp-config no-confirm')
 
     if startupconfigchanged
       #TODO:Sending notification to all opened terminals
@@ -219,13 +227,12 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
     end
   end
 
-  def rebootswitch()
-    dev = Puppet::Util::NetworkDevice.current
+  def rebootswitch
     flagfirstresponse=false
     flagsecondresponse=false
     flagthirdresponse=false
 
-    dev.transport.command("reload")  do |out|
+    send_command("reload")  do |out|
       firstresponse =out.scan("System configuration has been modified")
       secondresponse = out.scan("Proceed with reload")
       unless firstresponse.empty?
@@ -244,7 +251,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
     end
 
     if flagfirstresponse
-      dev.transport.command("no") do |out|
+      send_command("no") do |out|
         thirdresponse = out.scan("Proceed with reload")
         unless thirdresponse.empty?
           flagthirdresponse=true
@@ -252,7 +259,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
         end
       end
       if flagthirdresponse
-        dev.transport.command("yes") do |out|
+        send_command("yes") do |out|
           #without this block expecting for prompt and so hanging
           break
         end
@@ -263,7 +270,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
       Puppet.debug "ELSE BLOCK1.1"
     end
     if flagsecondresponse
-      dev.transport.command("yes") do |out|
+      send_command("yes") do |out|
         #without this block expecting for prompt and so hanging
         break
       end
@@ -277,7 +284,7 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
 
     Puppet.info("Checking if switch is up, pinging now...")
     for i in 0..20
-      if pingable?(dev.transport.host)
+      if pingable?(transport.session.host)
         Puppet.info("Ping Succeeded, trying to reconnect to switch...")
         break
       else
@@ -287,8 +294,8 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
     end
 
     #Re-esatblish transport session
-    dev.connect_transport
-    dev.switch.transport=dev.transport
+    transport.connect_session
+    transport.switch.transport=transport.session
     Puppet.info("Session established...")
     return true
   end
@@ -299,13 +306,12 @@ Puppet::Type.type(:force10_config).provide :dell_ftos, :parent => Puppet::Provid
   end
 
   def sendnotification(msg)
-    dev = Puppet::Util::NetworkDevice.current
-    dev.transport.command("send *",:prompt => /Enter message./)
-    if dev.transport.class.name.include? "Telnet"
-      dev.transport.command(msg+"\x1A",:prompt => /Send message./)
+    send_command("send *",:prompt => /Enter message./)
+    if transport.session.class.name.include? "Telnet"
+      send_command(msg+"\x1A",:prompt => /Send message./)
     else
-      dev.transport.sendwithoutnewline(msg+"\x1A")
+      transport.session.sendwithoutnewline(msg+"\x1A")
     end
-    dev.transport.command("\r")
+    send_command("\r")
   end
 end
