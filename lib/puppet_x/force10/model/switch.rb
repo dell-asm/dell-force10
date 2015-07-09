@@ -28,15 +28,15 @@ class PuppetX::Force10::Model::Switch < PuppetX::Force10::Model::Base
   end
 
   def mod_path_base
-    return 'puppet_x/force10/model/switch'
+    'puppet_x/force10/model/switch'
   end
 
   def mod_const_base
-    return PuppetX::Force10::Model
+    PuppetX::Force10::Model::Switch
   end
 
   def param_class
-    return PuppetX::Force10::Model::GenericValue
+    PuppetX::Force10::Model::GenericValue
   end
 
   def register_modules
