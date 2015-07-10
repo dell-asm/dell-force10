@@ -65,11 +65,9 @@ module PuppetX
         session.command(enable_password, :noop => false)
       end
 
-      # @comment Why are we using the dell_iom model instead of the force10 model?
-      # Creates a dependency on the dell_iom module, which has a dependency on the force10 module
       def init_switch
-        require 'puppet_x/dell_iom/model/switch'
-        @switch ||= PuppetX::Dell_iom::Model::Switch.new(session, @facts.facts_to_hash)
+        require 'puppet_x/force10/model/switch'
+        @switch ||= PuppetX::Force10::Model::Switch.new(session, @facts.facts_to_hash)
         @switch.retrieve
       end
 
