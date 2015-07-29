@@ -15,8 +15,8 @@ module PuppetX
           require 'asm/device_management'
           device_conf = ASM::DeviceManagement.parse_device_config(certname)
         end
-        scheme = device_conf[:scheme]
 
+        device_conf[:arguments] ||= {}
         @enable_password = options[:enable_password] || device_conf[:arguments]['enable']
 
         unless @session
