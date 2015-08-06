@@ -22,15 +22,6 @@ module PuppetX::Force10::Model::Zone::Base
     end
 
     base.register_scoped :zonemember, zonemember_scope do
-#      match do |txt|
-#        paramsarray=txt.match(/^\s+ (\d+)/)
-#        if paramsarray.nil?
-#          param1 = :absent
-#        else
-#          param1 = paramsarray[1]
-#        end
-#      end
-      param = ":absent"
       cmd "show fc zone #{zonenameval}"
       default :absent
       add do |transport, value|
