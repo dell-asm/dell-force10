@@ -5,6 +5,8 @@
 Puppet::Type.newtype(:force10_zone) do
   @doc = "This represents Dell Force10 zone configuration."
 
+  ensurable
+
   newparam(:name) do
     desc "This parameter describes the zone name to be created on the Force10 switch.
           The valid zone name does not allow blank value, special character except _ ,numeric char at the start, and length above 64 chars"

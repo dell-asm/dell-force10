@@ -20,11 +20,11 @@ class Puppet::Provider::Dell_ftos < Puppet::Provider::NetworkDevice
     resources.each do |name, resource|
       result = get_current(name)
       #We want to pass the transport through so we don't keep initializing new ssh connections for every single resource
-      result[:transport] = transport
       if result
+        result[:transport] = transport
         resource.provider = new(result)
       else
-        resource.provider = new(:ensure => :absent)
+        resource.provider = new(:ensure => :absent, :transport => transport)
       end
     end
   end
