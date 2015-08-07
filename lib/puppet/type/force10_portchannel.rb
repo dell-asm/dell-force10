@@ -1,6 +1,8 @@
 Puppet::Type.newtype(:force10_portchannel) do
   @doc = "This represents Dell Force10 switch port-channel."
 
+  ensurable
+
   newparam(:name) do
     desc "Port-channel name, represents Port-channel"
     isnamevar
