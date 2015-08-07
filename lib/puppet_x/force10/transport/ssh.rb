@@ -1,4 +1,5 @@
 require 'puppet/util/network_device/transport/ssh'
+require 'timeout'
 
 class PuppetX::Force10::Transport::Ssh < Puppet::Util::NetworkDevice::Transport::Ssh
 
@@ -54,6 +55,13 @@ class PuppetX::Force10::Transport::Ssh < Puppet::Util::NetworkDevice::Transport:
   def send(cmd, noop=false)
     Puppet.debug "SSH send: #{cmd}" if @verbose
     @channel.send_data(cmd + "\n") unless noop
+  end
+
+  def expect(prompt)
+    time_out = 300
+    result = Timeout::timeout(time_out) do
+      super
+    end
   end
 
   def command(cmd, options = {})
