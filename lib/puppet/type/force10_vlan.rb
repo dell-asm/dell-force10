@@ -17,6 +17,8 @@
 Puppet::Type.newtype(:force10_vlan) do
   @doc = "This represents Dell Force10 switch vlan."
 
+  ensurable
+
   newparam(:name) do
     desc "VLAN ID, represents VLAN"
     isnamevar
