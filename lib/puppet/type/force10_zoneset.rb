@@ -17,11 +17,6 @@ Puppet::Type.newtype(:force10_zoneset) do
     end
   end
 
-  newproperty(:ensure) do
-    newvalues(:present, :absent)
-    defaultto(:present)
-  end
-
   newproperty(:zone) do
     desc "zones that needs to be added to the zoneset"
     end
