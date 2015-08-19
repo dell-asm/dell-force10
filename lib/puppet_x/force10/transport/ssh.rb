@@ -54,11 +54,11 @@ class PuppetX::Force10::Transport::Ssh < Puppet::Util::NetworkDevice::Transport:
 
   def send(cmd, noop=false)
     Puppet.debug "SSH send: #{cmd}" if @verbose
-    @channel.send_data(cmd + "\n") unless noop
+    @channel.send_data(cmd + "\r") unless noop
   end
 
   def expect(prompt)
-    time_out = 300
+    time_out = 1200 #20 min timeout to allow for the firmware update command to finish
     result = Timeout::timeout(time_out) do
       super
     end
