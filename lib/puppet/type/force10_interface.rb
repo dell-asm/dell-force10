@@ -1,6 +1,8 @@
 Puppet::Type.newtype(:force10_interface) do
   @doc = "This represents Dell Force10 switch interface."
 
+  ensurable  # Setting to absent will remote interface from all vLAN's
+
   newparam(:name) do
     desc "Interface name, represents an interface"
     isrequired
