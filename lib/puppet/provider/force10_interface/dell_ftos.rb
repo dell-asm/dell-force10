@@ -25,7 +25,7 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
     if @iface.include? 'Tengigabitethernet'
       @iface.slice! 'Tengigabitethernet'
       type = 'tengigabit'
-    elsif @iface.inclde? 'Fortygige'
+    elsif @iface.include? 'Fortygige'
       @iface.slice! 'Fortygige'
       type = 'fortygigabit'
     else
