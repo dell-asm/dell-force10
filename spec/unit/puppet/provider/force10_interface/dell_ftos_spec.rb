@@ -29,7 +29,44 @@ describe Puppet::Type.type(:force10_interface).provider(:dell_ftos) do
         "24"=>["tagged_tengigabit"],
         "28"=>["tagged_tengigabit"]
     }
-    @iface = '0/1'
+  end
+
+  describe '#exists?' do
+    context 'when vlan exists' do
+      it 'returns true using "Tengigabitethernet" name' do
+        vlan_data = eval(File.read(File.join(@fixture_dir,'vlan_information_s')))
+        vlan_info = JSON.parse(vlan_data)
+        provider.stub(:get_vlan_info).and_return(vlan_info)
+        provider.stub(:get_iface).and_return('Tengigabitethernet0/3')
+        expect(provider.exists?).to eq(true)
+      end
+
+      it 'returns true using "Te" name' do
+        vlan_data = eval(File.read(File.join(@fixture_dir,'vlan_information_s')))
+        vlan_info = JSON.parse(vlan_data)
+        provider.stub(:get_vlan_info).and_return(vlan_info)
+        provider.stub(:get_iface).and_return('Te 0/3')
+        expect(provider.exists?).to eq(true)
+      end
+    end
+
+    context 'when vlan does not exist' do
+      it 'returns false using "Tengigabitethernet" name' do
+        vlan_data = eval(File.read(File.join(@fixture_dir,'vlan_information_s')))
+        vlan_info = JSON.parse(vlan_data)
+        provider.stub(:get_vlan_info).and_return(vlan_info)
+        provider.stub(:get_iface).and_return('Tengigabitethernet0/1')
+        expect(provider.exists?).to eq(false)
+      end
+
+      it 'returns false using "Te" name' do
+        vlan_data = eval(File.read(File.join(@fixture_dir,'vlan_information_s')))
+        vlan_info = JSON.parse(vlan_data)
+        provider.stub(:get_vlan_info).and_return(vlan_info)
+        provider.stub(:get_iface).and_return('Te 0/1')
+        expect(provider.exists?).to eq(false)
+      end
+    end
   end
 
   describe '#destroy' do
@@ -37,7 +74,7 @@ describe Puppet::Type.type(:force10_interface).provider(:dell_ftos) do
       session = double('session')
       transport = double('transport')
       provider.stub(:get_interfaces_to_destroy).and_return(@ifaces_to_destroy)
-      provider.stub(:get_iface).and_return(@iface)
+      provider.stub(:get_iface).and_return('0/1')
       provider.stub(:transport).and_return(transport)
       transport.stub(:session).and_return(session)
       session.should_receive(:command).once.ordered.with('configure', {:prompt=>/\(conf\)#\s?\z/n})
@@ -85,6 +122,7 @@ describe Puppet::Type.type(:force10_interface).provider(:dell_ftos) do
           expect(vlans_to_remove).to eq(expected_result)
         end
       end
+
       context 'when vlans do not contain interface' do
         it 'returns empty hash' do
           iface = '0/7'
@@ -94,8 +132,18 @@ describe Puppet::Type.type(:force10_interface).provider(:dell_ftos) do
           vlans_to_remove = provider.check_for_interface(vlan_info, iface, type)
           expect(vlans_to_remove).to eq({})
         end
+
+        it 'returns empty hash when port exists on another stack' do
+          iface = '2/1'
+          type = 'tengigabit'
+          vlan_data = eval(File.read(File.join(@fixture_dir,'vlan_information')))
+          vlan_info = JSON.parse(vlan_data)
+          vlans_to_remove = provider.check_for_interface(vlan_info, iface, type)
+          expect(vlans_to_remove).to eq({})
+        end
       end
     end
+
     context 'when s_series device' do
       context 'when vlan contains interfaces' do
         it 'returns hash with list where interface exists' do
@@ -118,9 +166,19 @@ describe Puppet::Type.type(:force10_interface).provider(:dell_ftos) do
           expect(vlans_to_remove).to eq(expected_results)
         end
       end
+
       context 'when vlans do not contain interface' do
         it 'returns empty hash' do
           iface = '0/1'
+          type = 'tengigabit'
+          vlan_data = eval(File.read(File.join(@fixture_dir,'vlan_information_s')))
+          vlan_info = JSON.parse(vlan_data)
+          vlans_to_remove = provider.check_for_interface(vlan_info, iface, type)
+          expect(vlans_to_remove).to eq({})
+        end
+        
+        it 'returns empty hash' do
+          iface = '2/16'
           type = 'tengigabit'
           vlan_data = eval(File.read(File.join(@fixture_dir,'vlan_information_s')))
           vlan_info = JSON.parse(vlan_data)

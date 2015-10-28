@@ -20,18 +20,20 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
 
   def exists?
     vlan_info = get_vlan_info
-    @iface = name.dup
+    iface = get_iface
+    iface = iface.gsub(/te |tengigabitethernet /i, "Tengigabitethernet ")
+    iface = iface.gsub(/fo |fortygige /i, "Fortygige ")
     # Name translation to map puppet resource name to fact key
-    if @iface.include? 'Tengigabitethernet'
-      @iface.slice! 'Tengigabitethernet'
+    if iface.include? 'Tengigabitethernet'
+      iface.slice! 'Tengigabitethernet '
       type = 'tengigabit'
-    elsif @iface.include? 'Fortygige'
-      @iface.slice! 'Fortygige'
+    elsif iface.include? 'Fortygige'
+      iface.slice! 'Fortygige '
       type = 'fortygigabit'
     else
-      raise Puppet::Error, "Unknown interface type #{@iface}"
+      raise Puppet::Error, "Unknown interface type #{iface}"
     end
-    @ifaces_to_destroy = check_for_interface(vlan_info, @iface, type)
+    @ifaces_to_destroy = check_for_interface(vlan_info, iface, type)
     @ifaces_to_destroy.any?
   end
 
@@ -64,7 +66,7 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
   end
 
   def get_iface
-    @iface
+    @iface ||= name.dup
   end
 
   def create
@@ -76,6 +78,7 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
   end
 
   def check_for_interface(vlan_info, iface, type)
+    stack = iface.split('/')[0]
     port = iface.split('/')[1]
     remove = {}
     vlan_info.each do |vlan_id, info|
@@ -84,9 +87,11 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
         if info[k].is_a? String
           info[k].split(',').each do |e|
             if e.include? '/' and e.include? '-'
+              next unless e.split('/')[0] == stack
               range = e.split('/')[1]
               remove_type << k if port.between?(range.split('-')[0], range.split('-')[1])
             elsif e.include? '/'
+              next unless e.split('/')[0] == stack
               remove_type << k if e.split('/')[1] == port
             elsif e.include? '-'
               remove_type << k if port.between?(e.split('-')[0], e.split('-')[1])
