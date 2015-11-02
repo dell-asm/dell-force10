@@ -306,19 +306,19 @@ module PuppetX::Force10::PossibleFacts::Hardware::M_series
     end
 
     base.register_param 'remote_device_info' do
-      remote_device_info = {}
+      remote_device_info = []
       remote_device = nil
       match do |txt|
         txt.each_line do |line|
           case line
             when /^\s+(\S+\s+\d+\/\d+)\s+(\S+)\s+(.*)\s+(([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2})).*$/
               remote_device = { :interface => $1.strip, :location => $3.strip,:remote_mac => $4.strip,:remote_system_name => $2.strip}
-              remote_device_info[remote_device[:interface]] = remote_device
+              remote_device_info <<  remote_device
             else
               next
           end
         end
-        remote_device_info.to_json
+        remote_device_info.uniq.to_json
       end
       cmd CMD_SHOW_LLDP_NEIGHBORS
     end
