@@ -37,7 +37,7 @@ describe Puppet::Type.type(:force10_interface).provider(:dell_ftos) do
         vlan_data = eval(File.read(File.join(@fixture_dir,'vlan_information_s')))
         vlan_info = JSON.parse(vlan_data)
         provider.stub(:get_vlan_info).and_return(vlan_info)
-        provider.stub(:get_iface).and_return('Tengigabitethernet0/3')
+        provider.stub(:get_iface).and_return('Tengigabitethernet 0/16')
         expect(provider.exists?).to eq(true)
       end
 
@@ -45,7 +45,7 @@ describe Puppet::Type.type(:force10_interface).provider(:dell_ftos) do
         vlan_data = eval(File.read(File.join(@fixture_dir,'vlan_information_s')))
         vlan_info = JSON.parse(vlan_data)
         provider.stub(:get_vlan_info).and_return(vlan_info)
-        provider.stub(:get_iface).and_return('Te 0/3')
+        provider.stub(:get_iface).and_return('Te 0/16')
         expect(provider.exists?).to eq(true)
       end
     end
@@ -55,7 +55,7 @@ describe Puppet::Type.type(:force10_interface).provider(:dell_ftos) do
         vlan_data = eval(File.read(File.join(@fixture_dir,'vlan_information_s')))
         vlan_info = JSON.parse(vlan_data)
         provider.stub(:get_vlan_info).and_return(vlan_info)
-        provider.stub(:get_iface).and_return('Tengigabitethernet0/1')
+        provider.stub(:get_iface).and_return('Tengigabitethernet 0/1')
         expect(provider.exists?).to eq(false)
       end
 
