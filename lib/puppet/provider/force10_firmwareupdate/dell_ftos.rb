@@ -71,7 +71,7 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
     #newfirmwareversion = url.split("\/").last.split("-").last.split(".bin").first
     copyresponse = ""
     flashfilename= "flash://#{url.split("\/").last}"
-    deleteflashfile flashfilename
+    deleteflashfiles
     Puppet.debug("Starting to copy the file to flash drive of switch")
     copysuccessful = false;
     send_command("copy #{url} flash://#{url.split("\/").last}") do |response|
@@ -102,7 +102,7 @@ Puppet::Type.type(:force10_firmwareupdate).provide :dell_ftos, :parent => Puppet
       msg = "Firmware update is not successful"
       Puppet.debug(msg)
       Puppet.debug(txt)
-      deleteflashfile flashfilename
+      deleteflashfiles
       raise msg
     end
     Puppet.debug("firmware update done for image #{nonbootimage}:")
@@ -256,31 +256,14 @@ def getfirmwareversion(filename)
   if firmwareversiondata.to_s == '' or firmwarewversionline.to_s == '' or newfirmwareversion.to_s == ''
     err = "Unable to determine the version of the update file. Firmware update failed"
     Puppet.debug(err)
-    deleteflashfile flashfilename
+    deleteflashfiles
     raise err
   end
   return newfirmwareversion
 end
 
-def deleteflashfile(filename)
-  Puppet.debug("Starting to delete the backed up image")
-  flagfirstresponse=false
-  send_command("delete #{filename}")  do |out|
-    firstresponse =out.scan("Proceed to delete")
-    Puppet.debug(out)
-    unless firstresponse.empty?
-      flagfirstresponse=true
-      break
-    end
-
-  end
-  if flagfirstresponse
-    txt= ''
-    send_command("yes") do |out|
-      txt << out
-    end
-    Puppet.info(txt)
-  else
-    return
-  end
+def deleteflashfiles
+  Puppet.debug("Starting to delete the backed up images")
+  send_command("delete flash://*.bin no-confirm")
+  Puppet.debug("Binary images removed from flash storage")
 end
