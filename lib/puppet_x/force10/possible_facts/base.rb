@@ -255,6 +255,10 @@ module PuppetX::Force10::PossibleFacts::Base
       base.facts['system_type'].value =~ /I\/O-Aggregator|IOA/i || base.facts['system_type'].value =~ /MXL/i
     end
 
+    base.register_module_after 'vlan_information', 'ioa', 'hardware' do
+      base.facts['system_type'].value =~ /I\/O-Aggregator|IOA/i
+    end
+
   end
 
 end
