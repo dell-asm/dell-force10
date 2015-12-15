@@ -29,7 +29,7 @@ module PuppetX::Force10::PossibleFacts::Hardware::S_series
   CMD_SHOW_DCB_MAP="show running-config dcb-map" unless const_defined?(:CMD_SHOW_DCB_MAP)
     
   CMD_SHOW_FCOE_MAP="show running-config fcoe-map" unless const_defined?(:CMD_SHOW_FCOE_MAP)
-          
+
   def self.register(base)
 
     base.register_param 'system_description' do
