@@ -209,12 +209,12 @@ module PuppetX::Force10::PossibleFacts::Base
         interfaces.each do |interface_detail|
           interface_location = interface_detail.scan(/^interface Vlan\s+(\d+)/).flatten.first
           vlan_information[interface_location] ||= {}
-          vlan_information[interface_location]['tagged_tengigabit'] ||= {}
-          vlan_information[interface_location]['untagged_tengigabit'] ||= {}
-          vlan_information[interface_location]['tagged_fortygigabit'] ||= {}
-          vlan_information[interface_location]['untagged_fortygigabit'] ||= {}
-          vlan_information[interface_location]['tagged_portchannel'] ||= {}
-          vlan_information[interface_location]['untagged_portchannel'] ||= {}
+          vlan_information[interface_location]['tagged_tengigabit'] ||= ""
+          vlan_information[interface_location]['untagged_tengigabit'] ||= ""
+          vlan_information[interface_location]['tagged_fortygigabit'] ||= ""
+          vlan_information[interface_location]['untagged_fortygigabit'] ||= ""
+          vlan_information[interface_location]['tagged_portchannel'] ||= ""
+          vlan_information[interface_location]['untagged_portchannel'] ||= ""
 
           if interface_detail.match(/^\stagged\s+TenGigabitEthernet\s+(.*?)$/mi)
             vlan_information[interface_location]['tagged_tengigabit'] = $1

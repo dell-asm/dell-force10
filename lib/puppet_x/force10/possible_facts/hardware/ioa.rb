@@ -61,7 +61,6 @@ module PuppetX::Force10::PossibleFacts::Hardware::Ioa
             vlan_set.each do |v|
               vlan_information[v.to_s] ||= self.vlan_data
               vlan_information[v.to_s]["#{mode}_#{i_type}"] << interface_location
-              vlan_information[v.to_s]["#{mode}_#{i_type}"].uniq!
             end
           end
         end
@@ -69,8 +68,19 @@ module PuppetX::Force10::PossibleFacts::Hardware::Ioa
           (1..4095).each do |v|
             vlan_information[v.to_s] ||= self.vlan_data
             vlan_information[v.to_s]["tagged_#{i_type}"] << interface_location
-            vlan_information[v.to_s]["tagged_#{i_type}"].uniq!
           end
+        end
+      end
+      #Clean up data
+      vlan_information.each do |vlan, data|
+        data.each do |type, ports|
+          next unless ports
+          if ports.empty?
+            ports = ""
+          else
+            ports = ports.uniq.join(",") if ports.class == Array
+          end
+          data[type] = ports
         end
       end
     rescue => e
