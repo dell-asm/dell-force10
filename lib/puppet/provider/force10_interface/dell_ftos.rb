@@ -18,7 +18,7 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
     super
   end
 
-  def exists?
+  def get_interfaces_to_destroy
     vlan_info = get_vlan_info
     iface = get_iface
     iface = iface.gsub(/te |tengigabitethernet /i, "Tengigabitethernet ")
@@ -34,44 +34,42 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
       raise Puppet::Error, "Unknown interface type #{iface}"
     end
     @iface = iface
-    @ifaces_to_destroy = check_for_interface(vlan_info, iface, type)
-    @ifaces_to_destroy.any?
+    check_for_interface(vlan_info, iface, type)
   end
 
   def destroy
     interfaces_to_destroy = get_interfaces_to_destroy
-    iface = get_iface
-    Puppet.debug("Interfaces to destroy: #{interfaces_to_destroy}")
-    # translate fact key to switch command
-    iface_map = {
-        'tengigabit' => 'tengigabitethernet',
-        'fortygigabit' => 'fortyGigE',
-        'gigabit' => 'gigabitethernet'
-    }
-    transport.session.command('configure', :prompt => /\(conf\)#\s?\z/n)
-    interfaces_to_destroy.each do |vlan, interfaces|
-      transport.session.command("interface vlan #{vlan}", :prompt => /\(conf-if-vl-#{vlan}\)#\s?\z/n)
-      interfaces.each do |interface|
-        type = interface.split('_')[0]
-        speed = iface_map[interface.split('_')[1]]
-        command_str = "no #{type} #{speed} #{iface}"
-        transport.session.command(command_str)
+    if interfaces_to_destroy.any?
+      iface = get_iface
+      Puppet.debug("Interfaces to destroy: #{interfaces_to_destroy}")
+      # translate fact key to switch command
+      iface_map = {
+          'tengigabit' => 'tengigabitethernet',
+          'fortygigabit' => 'fortyGigE',
+          'gigabit' => 'gigabitethernet'
+      }
+      transport.session.command('configure', :prompt => /\(conf\)#\s?\z/n)
+      interfaces_to_destroy.each do |vlan, interfaces|
+        transport.session.command("interface vlan #{vlan}", :prompt => /\(conf-if-vl-#{vlan}\)#\s?\z/n)
+        interfaces.each do |interface|
+          type = interface.split('_')[0]
+          speed = iface_map[interface.split('_')[1]]
+          command_str = "no #{type} #{speed} #{iface}"
+          transport.session.command(command_str)
+        end
+        transport.session.command('exit')
       end
       transport.session.command('exit')
     end
-    transport.session.command('exit')
-  end
 
-  def get_interfaces_to_destroy
-    @ifaces_to_destroy
+    # HACK: set up @property_hash with any passed parameters so that they will
+    # be applied. See the parent implementation here:
+    # https://github.com/puppetlabs/puppet/blob/c2d2d7dda48cd948bf21df250bc45b431c571235/lib/puppet/provider/network_device.rb#L44-L51
+    create
   end
 
   def get_iface
     @iface ||= name.dup
-  end
-
-  def create
-    #Does nothing right now
   end
 
   def get_vlan_info

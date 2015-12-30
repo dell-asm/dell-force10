@@ -33,12 +33,24 @@ describe Puppet::Type.type(:force10_interface).provider(:dell_ftos) do
 
   describe '#exists?' do
     context 'when vlan exists' do
+      let(:expected) do
+        {"1" => ["tagged_tengigabit"],
+         "17" => ["tagged_tengigabit"],
+         "18" => ["tagged_tengigabit"],
+         "20" => ["tagged_tengigabit"],
+         "22" => ["tagged_tengigabit"],
+         "23" => ["tagged_tengigabit"],
+         "25" => ["tagged_tengigabit"],
+         "27" => ["tagged_tengigabit"],
+         "28" => ["tagged_tengigabit"]}
+      end
+
       it 'returns true using "Tengigabitethernet" name' do
         vlan_data = eval(File.read(File.join(@fixture_dir,'vlan_information_s')))
         vlan_info = JSON.parse(vlan_data)
         provider.stub(:get_vlan_info).and_return(vlan_info)
         provider.stub(:get_iface).and_return('Tengigabitethernet 0/16')
-        expect(provider.exists?).to eq(true)
+        expect(provider.get_interfaces_to_destroy).to eq(expected)
       end
 
       it 'returns true using "Te" name' do
@@ -46,7 +58,7 @@ describe Puppet::Type.type(:force10_interface).provider(:dell_ftos) do
         vlan_info = JSON.parse(vlan_data)
         provider.stub(:get_vlan_info).and_return(vlan_info)
         provider.stub(:get_iface).and_return('Te 0/16')
-        expect(provider.exists?).to eq(true)
+        expect(provider.get_interfaces_to_destroy).to eq(expected)
       end
     end
 
@@ -56,7 +68,7 @@ describe Puppet::Type.type(:force10_interface).provider(:dell_ftos) do
         vlan_info = JSON.parse(vlan_data)
         provider.stub(:get_vlan_info).and_return(vlan_info)
         provider.stub(:get_iface).and_return('Tengigabitethernet 0/1')
-        expect(provider.exists?).to eq(false)
+        expect(provider.get_interfaces_to_destroy).to eq({})
       end
 
       it 'returns false using "Te" name' do
@@ -64,7 +76,7 @@ describe Puppet::Type.type(:force10_interface).provider(:dell_ftos) do
         vlan_info = JSON.parse(vlan_data)
         provider.stub(:get_vlan_info).and_return(vlan_info)
         provider.stub(:get_iface).and_return('Te 0/1')
-        expect(provider.exists?).to eq(false)
+        expect(provider.get_interfaces_to_destroy).to eq({})
       end
     end
   end
