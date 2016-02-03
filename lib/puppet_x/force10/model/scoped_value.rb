@@ -71,24 +71,57 @@ class PuppetX::Force10::Model::ScopedValue < PuppetX::Force10::Model::GenericVal
   def nountagintffromoothervlans(interfacename, interfacevalue, vlanname)
     transport.command("exit")
     transport.command("exit")
-    outtxt=""
-    transport.command("show interfaces switchport #{interfacename} #{interfacevalue}") do |out|
-      outtxt<< out
-    end
-    chkvlan=outtxt.match(/.*Vlans\s+(U)\s+(.*$)/)
-    if chkvlan.nil?
-      Puppet.debug "interface #{interfacename} #{interfacevalue} not UNTAGGED to any other VLAN "
-    else
+
+    interfaces = parse_interface_value(interfacevalue)
+
+    interfaces.each do |interface|
+      outtxt=""
+      transport.command("show interfaces switchport #{interfacename} #{interface}") do |out|
+        outtxt<< out
+      end
+      chkvlan=outtxt.match(/.*Vlans\s+(U)\s+(.*$)/)
+      if chkvlan.nil?
+        Puppet.debug "interface #{interfacename} #{interface} not UNTAGGED to any other VLAN "
+      else
+        transport.command("conf")
+        #Except Default VLAN
+        unless $2=="1"
+          transport.command("interface vlan #{$2}")
+          transport.command("no untagged #{interfacename} #{interface}")
+          transport.command("exit")
+          transport.command("exit")
+        end
+      end
       transport.command("conf")
-      #Except Default VLAN
-      unless $2=="1"
-        transport.command("interface vlan #{$2}")
-        transport.command("no untagged #{interfacename} #{interfacevalue}")
-        transport.command("exit")
-        transport.command("exit")
+      transport.command("interface vlan #{vlanname}")
+    end
+  end
+
+  # Takes a string of interfaces and returns list
+  #
+  # @note ["0/1","0/3","0/5"] = parse_interface_value("0/1,3,5")
+  # @note ["0/1", "1/2"] = parse_interface_value("0/1,1/2")
+  # @interfacevalue [String] interface value from param. ex: "0/1,3,5"
+  # @return [Array<String>] returns list of interfaces
+  def parse_interface_value(interfacevalue)
+    curr_stack = 0
+    interfacevalue.split(",").map do |stack_and_port|
+      pieces = stack_and_port.split("/").map(&:strip)
+      case pieces.size
+        when 1
+          stack = curr_stack
+          port = pieces[0]
+        when 2
+          stack = curr_stack = pieces[0]
+          port = pieces[1]
+        else
+          raise(ArgumentError, "Invalid port %s (%s)" % [stack_and_port, interfacevalue])
+      end
+      begin
+        "%d/%d" % [stack, port]
+      rescue ArgumentError => e
+        raise(ArgumentError, "Non-numeric port or stack %s (%s)" % [stack_and_port, interfacevalue])
       end
     end
-    transport.command("conf")
-    transport.command("interface vlan #{vlanname}")
   end
 end
