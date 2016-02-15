@@ -19,15 +19,15 @@ module PuppetX::Force10::PossibleFacts::Hardware::S_series
   CMD_SHOW_STARTUP_CONFIG_VERSION="show startup-config | grep \"! Version\"" unless const_defined?(:CMD_SHOW_STARTUP_CONFIG_VERSION)
 
   CMD_SHOW_RUNNING_CONFIG_VERSION="show running-config | grep \"! Version\"" unless const_defined?(:CMD_SHOW_RUNNING_CONFIG_VERSION)
-  
-  CMD_FC_MODE="show fc switch" unless const_defined?(:CMD_FC_MODE)    
+
+  CMD_FC_MODE="show fc switch" unless const_defined?(:CMD_FC_MODE)
 
   CMD_SHOW_FC_NEIGHBORS="show fc ns fabric" unless const_defined?(:CMD_SHOW_FC_NEIGHBORS)
-    
+
   CMD_SHOW_ACTIVE_ZONESET="show fc zoneset" unless const_defined?(:CMD_SHOW_ACTIVE_ZONESET)
-  
+
   CMD_SHOW_DCB_MAP="show running-config dcb-map" unless const_defined?(:CMD_SHOW_DCB_MAP)
-    
+
   CMD_SHOW_FCOE_MAP="show running-config fcoe-map" unless const_defined?(:CMD_SHOW_FCOE_MAP)
 
   def self.register(base)
@@ -80,7 +80,7 @@ module PuppetX::Force10::PossibleFacts::Hardware::S_series
       match do |txt|
         txt.each_line do |line|
           case line
-          when /^Name:\s+(.*)/
+          when /^Name:\s+([^\(]+)/
             #Puppet.debug("Name: #{$1}")
             interface = { :name => $1.strip, :description =>"", :untagged_vlans => "", :tagged_vlans => ""}
             interfaces[interface[:name]] = interface
@@ -245,27 +245,27 @@ module PuppetX::Force10::PossibleFacts::Hardware::S_series
       match /^.*Version\s(.*$)/
       cmd CMD_SHOW_RUNNING_CONFIG_VERSION
     end
-    
+
     base.register_param 'switch_fc_mode' do
       match /^.*Switch Mode\s:\s+(.*$)/
       cmd CMD_FC_MODE
     end
-    
+
     base.register_param 'switch_fc_active_zoneset' do
       match /^.*Active Zoneset:\s+(.*$)/
       cmd CMD_SHOW_ACTIVE_ZONESET
     end
-    
+
     base.register_param 'dcb-map' do
       match /!\s*dcb-map\s+(.*$)/
       cmd CMD_SHOW_DCB_MAP
     end
-    
+
     base.register_param 'fcoe-map' do
       match /!\s.*fcoe-map\s+(.*$)/
       cmd CMD_SHOW_FCOE_MAP
     end
-    
+
     base.register_param 'remote_fc_device_info' do
       remote_device_info = {}
       remote_device = nil
