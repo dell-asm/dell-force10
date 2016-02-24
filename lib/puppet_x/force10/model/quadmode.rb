@@ -32,7 +32,7 @@ class PuppetX::Force10::Model::Quadmode < PuppetX::Force10::Model::Base
   def perform_update(is, should, reboot_required)
     interface_num = @name.scan(/(\d+)/).flatten.last
     if should[:ensure] == :present and is[:ensure] == :absent
-      transport.command("stack-unit 0 port #{interface_num} portmode quad")
+      transport.command("stack-unit 0 port #{interface_num} portmode quad", :prompt => /confirm.*|conf.*/)
       transport.command("yes")
     elsif should[:ensure] == :absent and is[:ensure] == :present
       # Ensure that we are on the normal prompt
