@@ -2,6 +2,7 @@ require 'puppet_x/force10/model'
 require 'puppet_x/force10/model/interface'
 
 module PuppetX::Force10::Model::Interface::Base
+
   def self.ifprop(base, param, base_command = param, &block)
     base.register_scoped param, /^(interface\s+(\S+\s\S+).*?shutdown)/m do
       cmd 'sh run'
@@ -188,5 +189,117 @@ module PuppetX::Force10::Model::Interface::Base
       end
     end
 
+    ifprop(base, :untagged_vlan) do
+      empty_match=''
+      match do |empty_match|
+        unless empty_match.nil?
+          :false  #This is so we always go through the "add" swimlane
+        end
+      end
+      add do |transport, value|
+        existing_config = transport.command('show config') || ''
+        iface = existing_config.match(/\s*interface\s+(.*?)\s*$/)[1]
+        type, interface_id = PuppetX::Force10::Model::Interface::Base.parse_interface(iface)
+        vlans = PuppetX::Force10::Model::Interface::Base.vlans_from_list(value)
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, vlans, false, [type, interface_id])
+      end
+      remove { |*_| }
+    end
+
+    ifprop(base, :tagged_vlan) do
+      empty_match=''
+      match do |empty_match|
+        unless empty_match.nil?
+          :false
+        end
+      end
+      add do |transport, value|
+        existing_config = transport.command('show config') || ''
+        iface = existing_config.match(/\s*interface\s+(.*?)\s*$/)[1]
+        type, interface_id = PuppetX::Force10::Model::Interface::Base.parse_interface(iface)
+        vlans = PuppetX::Force10::Model::Interface::Base.vlans_from_list(value)
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, vlans, true, [type, interface_id])
+      end
+      remove { |*_| }
+    end
   end
+
+  def self.update_vlans(transport, new_vlans, tagged, interface_info)
+    tagged ? vlan_type = "tagged" : vlan_type = "untagged"
+    interface_type = interface_info[0]
+    interface_id = interface_info[1]
+
+    transport.command("exit") # bring us back to config
+    transport.command("exit") # bring us back to main
+
+    current_vlan_info = transport.command("show interfaces switchport #{interface_type} #{interface_id}")
+    if tagged
+      current_vlans = current_vlan_info.match(/^T\s+(.*?)\s*$/)[1].split(",")
+    else
+      current_vlans = current_vlan_info.match(/^U\s+(.*?)\s*$/)[1].split(",")
+    end
+    all_current_vlans = []
+    current_vlans.each do |vlan_group|
+      Puppet.debug("LKstart: #{vlan_group}")
+      new_group = PuppetX::Force10::Model::Interface::Base.vlans_from_list(vlan_group)
+      Puppet.debug("LKnew: #{new_group}")
+      all_current_vlans.concat(new_group)
+    end
+    all_current_vlans.uniq!
+    vlans_to_remove = all_current_vlans - new_vlans
+    transport.command("config")
+    # Remove all the unused vlans
+    vlans_to_remove.each do |vlan|
+      Puppet.debug("Removing vlan #{vlan} from interface #{interface_id}")
+      transport.command("interface vlan #{vlan}")
+      transport.command("no #{vlan_type} #{interface_type} #{interface_id}")
+      transport.command("exit")
+    end
+    # Add the new vlans
+    new_vlans.each do |vlan|
+      Puppet.debug("Adding vlan #{vlan} to interface #{interface_id}")
+      transport.command("interface vlan #{vlan}")
+      transport.command("#{vlan_type} #{interface_type} #{interface_id}")
+    end
+    # Return transport back to beginning location
+    transport.command("interface #{interface_type} #{interface_id}")
+  end
+
+  def self.parse_interface(iface)
+    if iface.include? 'TenGigabitEthernet'
+      iface.slice! 'TenGigabitEthernet '
+      type = 'TenGigabitEthernet'
+    elsif iface.include? 'FortyGigE'
+      iface.slice! 'FortyGigE '
+      type = 'fortyGigE'
+    else
+      raise Puppet::Error, "Unknown interface type #{iface}"
+    end
+    [type, iface]
+  end
+
+  def self.vlans_from_list(value)
+    vlans = []
+    value = value.to_s
+    values = []
+    if value.include? ","
+      value.split(",").each do |vlan_group|
+        values << vlan_group
+      end
+    else value
+      values << value
+    end
+    values.each do |vlan_group|
+      if vlan_group.include? "-"
+        first = vlan_group.split("-")[0]
+        last = vlan_group.split("-")[1]
+        vlans.concat((first.to_i..last.to_i).to_a)
+      else
+        vlans << vlan_group
+      end
+    end
+    vlans.uniq!
+    vlans
+  end
+  
 end
