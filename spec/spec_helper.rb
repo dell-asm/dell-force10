@@ -8,6 +8,14 @@ fixture_path = File.expand_path(File.join(__FILE__, '..', 'fixtures'))
 
 module PuppetSpec
   FIXTURE_DIR = File.join(dir = File.expand_path(File.dirname(__FILE__)), "fixtures") unless defined?(FIXTURE_DIR)
+
+  def self.fixture_path(fixture)
+    File.join(FIXTURE_DIR, fixture)
+  end
+
+  def self.load_fixture(fixture)
+    File.read(fixture_path(fixture))
+  end
 end
 
 RSpec.configure do |c|

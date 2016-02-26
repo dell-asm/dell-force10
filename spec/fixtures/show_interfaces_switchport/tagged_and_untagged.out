@@ -1,0 +1,18 @@
+
+Codes:  U - Untagged, T - Tagged
+        x - Dot1x untagged, X - Dot1x tagged
+        G - GVRP tagged, M - Trunk, H - VSN tagged
+        i - Internal untagged, I - Internal tagged, v - VLT untagged, V - VLT tagged
+
+Name: TenGigabitEthernet 0/26
+Description: R620 41TBRW1
+802.1QTagged: Hybrid
+Vlan membership:
+Q       Vlans
+U       18
+T       16,20,23,28
+
+Native VlanId:    18.
+
+
+

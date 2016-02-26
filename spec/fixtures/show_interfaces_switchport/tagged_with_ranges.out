@@ -1,0 +1,18 @@
+
+Codes:  U - Untagged, T - Tagged
+        x - Dot1x untagged, X - Dot1x tagged
+        G - GVRP tagged, M - Trunk, H - VSN tagged
+        i - Internal untagged, I - Internal tagged, v - VLT untagged, V - VLT tagged
+
+Name: TenGigabitEthernet 0/39
+Description: C6320 64BQW52
+802.1QTagged: Hybrid
+Vlan membership:
+Q       Vlans
+U       25
+T       18-21,28
+
+Native VlanId:    25.
+
+
+

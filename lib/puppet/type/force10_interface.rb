@@ -76,5 +76,13 @@ Puppet::Type.newtype(:force10_interface) do
     newvalues('lldp')
   end
 
+  newproperty(:tagged_vlan) do
+    desc "comma-separated list of vlans"
+  end
+
+  newproperty(:untagged_vlan) do
+    desc "untagged vlan"
+  end
+
 end
 

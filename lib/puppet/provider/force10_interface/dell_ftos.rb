@@ -38,6 +38,7 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
   end
 
   def destroy
+    Puppet.debug("Removing vlans from interface")
     interfaces_to_destroy = get_interfaces_to_destroy
     if interfaces_to_destroy.any?
       iface = get_iface
