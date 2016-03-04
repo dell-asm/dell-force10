@@ -245,9 +245,9 @@ module PuppetX::Force10::Model::Interface::Base
   end
 
   def self.update_vlans(transport, new_vlans, tagged, interface_info)
-    tagged ? vlan_type = "tagged" : vlan_type = "untagged"
-    interface_type = interface_info[0]
-    interface_id = interface_info[1]
+    vlan_type = tagged ? "tagged" : "untagged"
+    opposite_vlan_type = tagged ? "untagged" : "tagged"
+    interface_type, interface_id = interface_info
 
     transport.command("exit") # bring us back to config
     transport.command("exit") # bring us back to main
@@ -255,12 +255,23 @@ module PuppetX::Force10::Model::Interface::Base
     curr_untagged_vlan, curr_tagged_vlans = show_interface_vlans(transport, interface_type, interface_id)
     if tagged
       current_vlans = curr_tagged_vlans
+      opposite_vlans_to_remove = new_vlans & [curr_untagged_vlan]
     else
       current_vlans = [curr_untagged_vlan]
+      opposite_vlans_to_remove = new_vlans & curr_tagged_vlans
     end
-    vlans_to_remove = current_vlans - new_vlans
     transport.command("config")
+
+    # Remove VLANs from the opposing VLAN type
+    opposite_vlans_to_remove.each do |vlan|
+      Puppet.debug("Removing opposing vlan #{vlan} from interface #{interface_id}")
+      transport.command("interface vlan #{vlan}")
+      transport.command("no #{opposite_vlan_type} #{interface_type} #{interface_id}")
+      transport.command("exit")
+    end
+
     # Remove all the unused vlans
+    vlans_to_remove = current_vlans - new_vlans
     vlans_to_remove.each do |vlan|
       Puppet.debug("Removing vlan #{vlan} from interface #{interface_id}")
       transport.command("interface vlan #{vlan}")
