@@ -5,6 +5,24 @@ describe PuppetX::Force10::Model::Interface::Base do
   let(:base) { PuppetX::Force10::Model::Interface::Base }
   let(:transport) { stub("rspec-transport") }
 
+  describe "#vlans_from_list" do
+    it "should return a single vlan as a list" do
+      expect(base.vlans_from_list("20")).to eq(["20"])
+    end
+
+    it "should return empty string as an empty list" do
+      expect(base.vlans_from_list("")).to eq([])
+    end
+
+    it "should split comma-separated vlans" do
+      expect(base.vlans_from_list("20,21,22")).to eq(%w(20 21 22))
+    end
+
+    it "should handle ranges" do
+      expect(base.vlans_from_list("18,20-22,28")).to eq(%w(18 20 21 22 28))
+    end
+  end
+
   describe "#show_interface_vlans" do
     it "should parse only untagged vlan" do
       out = PuppetSpec.load_fixture("show_interfaces_switchport/only_untagged.out")

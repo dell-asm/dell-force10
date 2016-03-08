@@ -306,12 +306,8 @@ module PuppetX::Force10::Model::Interface::Base
     vlans = []
     value = value.to_s
     values = []
-    if value.include? ","
-      value.split(",").each do |vlan_group|
-        values << vlan_group
-      end
-    else value
-      values << value
+    value.split(",").each do |vlan_group|
+      values << vlan_group
     end
     values.each do |vlan_group|
       if vlan_group.include? "-"
