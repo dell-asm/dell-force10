@@ -61,9 +61,13 @@ class PuppetX::Force10::Model::ScopedValue < PuppetX::Force10::Model::GenericVal
   end
 
   def parseforerror(outtxt,placestr)
-    if outtxt =~/Error:\s*(.*)/
-      Puppet.info "ERROR:#{$1}"
-      raise "Unable to "+placestr+".Reason:#{$1}"
+    match = outtxt.match(/Error:\s*(?<error>.*)/)
+
+    if match
+      return if match[:error] =~ /Name already exists/
+
+      Puppet.info("ERROR:%s" % match[:error])
+      raise("Unable to %s.Reason:%s" % [placestr, match[:error]])
     end
   end
 
