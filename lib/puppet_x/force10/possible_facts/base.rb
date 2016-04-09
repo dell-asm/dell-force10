@@ -19,12 +19,22 @@ module PuppetX::Force10::PossibleFacts::Base
   CMD_SHOW_PORTCHANNEL_BRIEF="show interface port-channel brief" unless const_defined?(:CMD_SHOW_PORTCHANNEL_BRIEF)
 
   CMD_SHOW_RUNNING_INTERFACE ="show running-config interface" unless const_defined?(:CMD_SHOW_RUNNING_INTERFACE)
+
+  CMD_SNMP_COMMUNITY ="show snmp community" unless const_defined?(:CMD_SNMP_COMMUNITY )
       
   def self.register(base)
 
     base.register_param 'hostname' do
       match /^hostname\s+(\S+)$/
       cmd CMD_SHOW_HOSTNAME
+    end
+
+    base.register_param 'snmp_community_string' do
+      match do |txt|
+        item = txt.scan(/Community:\s(.+)$/).flatten
+        item.to_json
+      end
+      cmd  CMD_SNMP_COMMUNITY
     end
         
     base.register_param 'uptime' do
