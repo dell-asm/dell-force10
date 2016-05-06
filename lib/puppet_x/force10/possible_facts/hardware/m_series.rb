@@ -5,11 +5,11 @@ module PuppetX::Force10::PossibleFacts::Hardware::M_series
 
   # Module Constants
   CMD_SHOW_SYSTEM_STACK_UNIT = "show system stack-unit" unless const_defined?(:CMD_SHOW_SYSTEM_STACK_UNIT)
-  CMD_SHOW_INTERFACES = "show interface status" unless const_defined?(:CMD_SHOW_INTERFACES) 
-  CMD_SHOW_INVENTORY_MEDIA = "show inventory media" unless const_defined?(:CMD_SHOW_INVENTORY_MEDIA) 
+  CMD_SHOW_INTERFACES = "show interface status" unless const_defined?(:CMD_SHOW_INTERFACES)
+  CMD_SHOW_INVENTORY_MEDIA = "show inventory media" unless const_defined?(:CMD_SHOW_INVENTORY_MEDIA)
   CMD_SHOW_DCB_MAP="show running-config dcb-map" unless const_defined?(:CMD_SHOW_DCB_MAP)
-  CMD_SHOW_FCOE_MAP="show running-config fcoe-map" unless const_defined?(:CMD_SHOW_FCOE_MAP)  
-  CMD_SHOW_PORT_CHANNELS  ="show interfaces port-channel brief" unless const_defined?(:CMD_SHOW_PORT_CHANNELS) 
+  CMD_SHOW_FCOE_MAP="show running-config fcoe-map" unless const_defined?(:CMD_SHOW_FCOE_MAP)
+  CMD_SHOW_PORT_CHANNELS  ="show interfaces port-channel brief" unless const_defined?(:CMD_SHOW_PORT_CHANNELS)
   CMD_SHOW_QUAD_MODE_INTERFACES  ="show running-config | grep \"portmode quad\"" unless const_defined?(:CMD_SHOW_QUAD_MODE_INTERFACES)
   CMD_SHOW_RUNNING_INTERFACE ="show running-config interface" unless const_defined?(:CMD_SHOW_RUNNING_INTERFACE)
   CMD_SHOW_SYSTEM_STACK_UNIT_IOM = 'show system stack-unit 0 iom-mode' unless const_defined?(:CMD_SHOW_SYSTEM_STACK_UNIT_IOM)
@@ -96,7 +96,7 @@ module PuppetX::Force10::PossibleFacts::Hardware::M_series
       end
       cmd CMD_SHOW_SYSTEM_STACK_UNIT+" "+unit_number
     end
-    
+
     base.register_param 'interfaces' do
       match do |txt|
         item = txt.scan(/^(\S+\s+\d+\/\d+)/m).flatten
@@ -104,8 +104,8 @@ module PuppetX::Force10::PossibleFacts::Hardware::M_series
       end
       cmd CMD_SHOW_INTERFACES
     end
-    
-    
+
+
     base.register_param 'modules' do
       match do |txt|
         item = txt.scan(/^\s+(\d+)\s+(\d+)\s+(\S+)\s+(\S+)\s+(\S+).*?Yes/)
@@ -113,11 +113,11 @@ module PuppetX::Force10::PossibleFacts::Hardware::M_series
       end
       cmd CMD_SHOW_INVENTORY_MEDIA
     end
-    
+
     base.register_param 'dcb-map' do
       match do |txt|
         item = txt.scan(/!\s*dcb-map\s+(.*$)/).flatten
-      end      
+      end
       cmd CMD_SHOW_DCB_MAP
     end
 
@@ -127,7 +127,7 @@ module PuppetX::Force10::PossibleFacts::Hardware::M_series
       end
       cmd CMD_SHOW_FCOE_MAP
     end
-    
+
     #Display information on configured Port Channel groups in JSON Format
     base.register_param 'port_channels' do
       port_channels = {}
@@ -168,7 +168,7 @@ module PuppetX::Force10::PossibleFacts::Hardware::M_series
       end
       cmd CMD_SHOW_PORT_CHANNELS
     end
-    
+
     #Display information on configured Port Channel groups in JSON Format
     base.register_param 'port_channel_members' do
       port_channels = {}
@@ -192,7 +192,7 @@ module PuppetX::Force10::PossibleFacts::Hardware::M_series
       end
       cmd CMD_SHOW_QUAD_MODE_INTERFACES
     end
-    
+
     base.register_param 'flexio_modules' do
       flexio_module_info = {}
       module1_interfaces = 33..40
@@ -220,8 +220,8 @@ module PuppetX::Force10::PossibleFacts::Hardware::M_series
           end
         end
         interface_info[:module1_interface] = module1_interface.flatten
-        interface_info[:module2_interface] = module2_interface.flatten  
-        interface_info[:module3_interface] = module3_interface.flatten  
+        interface_info[:module2_interface] = module2_interface.flatten
+        interface_info[:module3_interface] = module3_interface.flatten
         interface_info.to_json
       end
       cmd CMD_SHOW_INTERFACES
@@ -311,7 +311,7 @@ module PuppetX::Force10::PossibleFacts::Hardware::M_series
       match do |txt|
         txt.each_line do |line|
           case line
-            when /^\s+(\S+\s+\d+\/\d+)\s+(\S+)\s+(.*)\s+(([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2})).*$/
+            when /^\s+(\S+\s+\d+\/\d+)\s+([^\.{3}\s]+)\s*\.{0,3}(.*)\s+(([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2})).*$/
               remote_device = { :interface => $1.strip, :location => $3.strip,:remote_mac => $4.strip,:remote_system_name => $2.strip}
               remote_device_info <<  remote_device
             else
