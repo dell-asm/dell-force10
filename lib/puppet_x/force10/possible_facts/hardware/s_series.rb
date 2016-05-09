@@ -221,7 +221,7 @@ module PuppetX::Force10::PossibleFacts::Hardware::S_series
       match do |txt|
         txt.each_line do |line|
           case line
-          when ^\s+(\S+\s+\d+\/\d+)\s+([^\.{3}\s]+)\s*\.{0,3}(.*)\s+(([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2})).*$/
+          when /^\s+(\S+\s+\d+\/\d+)\s+([^\.{3}\s]+)\s*\.{0,3}(.*)\s+(([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2})).*$/
             #Puppet.debug("remote device info: #{line}")
             #remote_device = { :local_interface => $1.strip, :local_port_id => "", :remote_port_id => $3.strip,:remote_mac_address => $4.strip,:remote_system_name => $2.strip}
             #remote_device_info[remote_device[:local_interface]] = remote_device
