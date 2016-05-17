@@ -113,6 +113,8 @@ module PuppetX::Force10::Model::Portchannel::Base
       end
       remove { |*_| }
     end
+
+
       
 
     base.register_scoped :desc, general_scope do
@@ -147,6 +149,26 @@ module PuppetX::Force10::Model::Portchannel::Base
       cmd "show running-config interface port-channel #{portchannelval}"
       add do |transport, value|
         transport.command("fcoe-map #{value}")
+      end
+      remove { |*_| }
+    end
+
+    base.register_scoped :vltpeer, portchannel_scope do
+      match do |txt|
+        paramsarray=txt.match(/^\d+\s+(\w2)\s+\w+/)
+        if paramsarray.nil?
+          param1 = true
+        else
+          param1 = false
+        end
+        param1
+      end
+
+      cmd "show interface port-channel #{portchannelval}"
+      add do |transport, value|
+        if value == :true
+          transport.command("vlt-peer-lag po#{portchannelval}")
+        end
       end
       remove { |*_| }
     end
