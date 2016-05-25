@@ -19,6 +19,7 @@ opts = Trollop::options do
   opt :timeout, 'command timeout', :default => 240
   opt :community_string, 'dummy value for ASM, not used'
   opt :output, 'output facts to a file', :type => :string, :required => true
+  opt :credential_id, 'dummy value for ASM, not used'
 end
 
 begin
