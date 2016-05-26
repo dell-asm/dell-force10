@@ -109,7 +109,7 @@ module PuppetX::Force10::Model::Interface::Base
       end
       remove { |*_| }
     end
-    
+
     ifprop(base, :dcb_map) do
       match /^\s*dcb-map\s+(.*?)\s*$/
       add do |transport, value|
@@ -117,16 +117,16 @@ module PuppetX::Force10::Model::Interface::Base
         # Without these settings removed, DCB is not applied
         transport.command("no dcb-policy input pfc")
         transport.command("no dcb-policy output ets")
-        
+
         # Command to enable the spanning tree edge port
         transport.command("spanning-tree estp edge-port")
-        
+
         # Command to associate DCB map with the interface
         transport.command("dcb-map #{value}")
       end
       remove { |*_| }
     end
-    
+
     ifprop(base, :fcoe_map) do
       match /^\s*fcoe-map\s+(.*?)\s*$/
       add do |transport, value|
@@ -134,7 +134,7 @@ module PuppetX::Force10::Model::Interface::Base
       end
       remove { |*_| }
     end
-    
+
     ifprop(base, :fabric) do
       match /^\s*fabric\s+(.*?)\s*$/
       add do |transport, value|
@@ -172,7 +172,9 @@ module PuppetX::Force10::Model::Interface::Base
     ifprop(base, :edge_port) do
       match /^\s*spanning-tree pvst\s+(.*?)\s*$/
       add do |transport, value|
-        transport.command("spanning-tree pvst #{value}")
+        value = value.split(",")
+        stp_val = PuppetX::Force10::Model::Interface::Base.show_stp_val(transport, scope_name)
+        PuppetX::Force10::Model::Interface::Base.update_stp(transport, scope_name, stp_val, value)
       end
       remove { |*_| }
     end
@@ -321,5 +323,34 @@ module PuppetX::Force10::Model::Interface::Base
     vlans.uniq!
     vlans
   end
-  
+
+  def self.show_stp_val(transport, interface_id)
+    meta_data = transport.command('show config') || ''
+    result = []
+    regex = /spanning\-tree (\w+) edge-port/
+    meta_data.split("\n").each do |line|
+      match_data = line.match(regex)
+      if !match_data.nil?
+        result << match_data[1]
+      end
+    end
+    result
+  end
+
+  def self.update_stp(transport, interface_id, existing_stp_val, value)
+    remove_stp = existing_stp_val - value
+    remove_stp.each do |type|
+      transport.command("config")
+      transport.command("interface #{interface_id}")
+      transport.command("no spanning-tree #{type} edge-port")
+    end
+
+    adding_stp = value - existing_stp_val
+    adding_stp.each do |type|
+      transport.command("config")
+      transport.command("interface #{interface_id}")
+      transport.command("spanning-tree #{type} edge-port")
+    end
+  end
 end
+

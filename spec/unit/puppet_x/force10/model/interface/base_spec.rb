@@ -130,4 +130,54 @@ describe PuppetX::Force10::Model::Interface::Base do
       base.update_vlans(transport, ["18"], false, interface_info)
     end
   end
+
+  describe "#show_stp_val" do
+    let(:interface_type) { "Te 0/14" }
+    it "should parse only existing spanning-tree protcol edge-port"do
+      out = PuppetSpec.load_fixture("show_interfaces_switchport/show_switch_spt.out")
+      transport.stub(:command).with("show config").and_return(out)
+      expect(base.show_stp_val(transport,"Te 0/14")).to eq(["mstp","rstp","pvst"])
+    end
+    it "should parse no spanning-tree edge-port"do
+      out = PuppetSpec.load_fixture("show_interfaces_switchport/show_switch_no_spt.out")
+      transport.stub(:command).with("show config").and_return(out)
+      expect(base.show_stp_val(transport,"Te 0/14")).to eq([])
+    end
+  end
+
+  describe "#update_stp"do
+    it "should add valid spanning-tree protocol type"do
+     expect(transport).to receive(:command).with("config").ordered
+     expect(transport).to receive(:command).with("interface Te 0/14").ordered
+     expect(transport).to receive(:command).with("spanning-tree mvst edge-port").ordered
+     expect(transport).to receive(:command).with("config").ordered
+     expect(transport).to receive(:command).with("interface Te 0/14").ordered
+     expect(transport).to receive(:command).with("spanning-tree rstp edge-port").ordered
+     base.update_stp(transport,"Te 0/14",["pvst"],["mvst","rstp","pvst"])
+    end
+
+    it "should add correct spanning-tree protocol type"do
+      expect(transport).to receive(:command).with("config").ordered
+      expect(transport).to receive(:command).with("interface Te 0/14").ordered
+      expect(transport).to receive(:command).with("no spanning-tree mvst edge-port").ordered
+      expect(transport).to receive(:command).with("config").ordered
+      expect(transport).to receive(:command).with("interface Te 0/14").ordered
+      expect(transport).to receive(:command).with("no spanning-tree rstp edge-port").ordered
+      expect(transport).to receive(:command).with("config").ordered
+      expect(transport).to receive(:command).with("interface Te 0/14").ordered
+      expect(transport).to receive(:command).with("spanning-tree pvst edge-port").ordered
+      base.update_stp(transport,"Te 0/14", ["mvst","rstp"],["pvst"])
+    end
+
+     it "should add parsed spanning-tree protocol type"do
+       expect(transport).to receive(:command).with("config").ordered
+       expect(transport).to receive(:command).with("interface Te 0/14").ordered
+       expect(transport).to receive(:command).with("spanning-tree pvst edge-port").ordered
+       base.update_stp(transport,"Te 0/14", [],["pvst"])
+     end
+ end
 end
+
+
+
+
