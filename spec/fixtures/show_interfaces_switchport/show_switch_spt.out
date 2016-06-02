@@ -1,0 +1,13 @@
+!
+interface TenGigabitEthernet 0/14
+ no ip address
+ mtu 12000
+ portmode hybrid
+ switchport
+ spanning-tree mstp edge-port
+ spanning-tree rstp edge-port
+ spanning-tree 0 portfast
+ spanning-tree pvst edge-port
+!
+ protocol lldp
+ no shutdown

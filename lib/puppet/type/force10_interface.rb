@@ -68,7 +68,9 @@ Puppet::Type.newtype(:force10_interface) do
 
   newproperty(:edge_port) do
     desc "property to set the spanning-tree edge-port setting"
-    newvalues('edge-port')
+    validate do |value|
+      return if value.empty?
+    end
   end
 
   newproperty(:protocol) do
