@@ -71,11 +71,18 @@ class PuppetX::Force10::Transport::Ssh < Puppet::Util::NetworkDevice::Transport:
       send(cmd, noop)
       unless noop
         @cache[cmd] = expect(options[:prompt] || default_prompt)
+        txt = @cache[cmd]
+        if !txt.nil?
+          raise(ArgumentError, "Invalid Command:\t #{cmd} while configuring switch") if txt =~ /\sError: ((Invalid input)|(Incomplete command))\s/
+        end
       end
     else
       send(cmd, noop)
       unless noop
         expect(options[:prompt] || default_prompt) do |output|
+          if !output.nil?
+            raise(ArgumentError, "Invalid Command:\t #{cmd} while loading facts") if txt =~ /\sError: ((Invalid input)|(Incomplete command))\s/
+          end
           yield output if block_given?
         end
       end
