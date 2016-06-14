@@ -28,4 +28,8 @@ Puppet::Type.newtype(:force10_settings) do
     desc "The remote syslog location"
   end
 
+  newproperty(:spanning_tree_mode) do
+    desc "The spanning tree protocol will be set on switch"
+  end
+
 end
