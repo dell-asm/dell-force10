@@ -65,5 +65,44 @@ Puppet::Type.type(:force10_settings).provide :dell_ftos do
     end
   end
 
+  #switch spanning-tree protocol
+  def spanning_tree_mode; end
+
+  def spanning_tree_mode=(spanning_tree_mode)
+    session = transport.session
+    existing_protocol = show_protocol(session)
+    update_protocol(session,spanning_tree_mode,existing_protocol)
+  end
+
+  def show_protocol(session)
+    meta_data =  session.command('show running-config') || ''
+    result = []
+    match_data = /protocol spanning\-tree\s+(\w+)/
+    meta_data.split("\n").each do |line|
+      stp = line.match(match_data)
+      result << stp[1] if stp
+    end
+    result
+  end
+
+  def update_protocol(session, protocol, existing_protocol)
+    #Since we are receiving RSTP, PVST
+    if protocol.downcase == "none"
+      protocol = []
+    else
+      protocol = protocol.downcase.split(",")
+    end
+    disable_stp = existing_protocol - protocol
+    session.command("configure")
+    disable_stp.each do |stp|
+      session.command("no protocol spanning-tree #{stp}")
+    end
+    enable_stp = protocol - existing_protocol
+    enable_stp.each do |stp|
+      session.command("protocol spanning-tree #{stp}")
+      session.command("no disable")
+    end
+    session.command("end")
+  end
 
 end
