@@ -46,12 +46,12 @@ class PuppetX::Force10::Model::Interface < PuppetX::Force10::Model::Base
       transport.command("no untagged #{name}")
       transport.command("exit")
     end
-    transport.command("interface #{@name}", :prompt => /\(conf-if-\S+\)#\z/n)
-  end
 
-  def after_update
-    transport.command("exit")
-    super
+    transport.command("interface #{@name}", :prompt => /\(conf-if-\S+\)#\z/n)
+
+    unless params_to_update.find{|param| param.name == :portchannel}
+      transport.command("no port-channel-protocol lacp")
+    end
   end
 
 end

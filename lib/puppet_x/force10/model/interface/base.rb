@@ -38,12 +38,23 @@ module PuppetX::Force10::Model::Interface::Base
     ifprop(base, :portchannel) do
       match /^  port-channel (\d+)\s+.*$/
       add do |transport, value|
-        if value.to_i == 0
-          transport.command("no port-channel-protocol lacp")
-        else
-          transport.command("port-channel-protocol lacp")
-          transport.command("port-channel #{value} mode active")
+        Puppet.debug("Need to remove existing configuration")
+        existing_config=(transport.command("show config") || "").split("\n").reverse
+        updated_config = existing_config.find_all do |x|
+          x.match(/dcb|switchport|spanning|vlan|portmode/)
         end
+        updated_config.each do |remove_command|
+          transport.command("no #{remove_command}")
+        end
+
+        existing_config=(transport.command("show config") || "").split("\n")
+        # Remove existing port channel if one exists
+        if existing_config.find {|line| line =~ /port-channel/}
+          transport.command("no port-channel-protocol lacp")
+        end
+        transport.command("port-channel-protocol lacp")
+        transport.command("port-channel #{value} mode active")
+        transport.command("exit")
       end
       remove do |transport, value|
         transport.command("no port-channel-protocol lacp")
@@ -149,7 +160,7 @@ module PuppetX::Force10::Model::Interface::Base
         #transport.command("fabric #{value}")
         Puppet.debug('Need to remove existing configuration')
         existing_config=(transport.command('show config') || '').split("\n").reverse
-        updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning|vlan/)}
+        updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning|vlan|portmode/)}
         updated_config.each do |remove_command|
           transport.command("no #{remove_command}")
         end
@@ -257,9 +268,9 @@ module PuppetX::Force10::Model::Interface::Base
     curr_untagged_vlan, curr_tagged_vlans = show_interface_vlans(transport, interface_type, interface_id)
     if tagged
       current_vlans = curr_tagged_vlans
-      opposite_vlans_to_remove = new_vlans & [curr_untagged_vlan]
+      opposite_vlans_to_remove = new_vlans & [curr_untagged_vlan].compact
     else
-      current_vlans = [curr_untagged_vlan]
+      current_vlans = [curr_untagged_vlan].compact
       opposite_vlans_to_remove = new_vlans & curr_tagged_vlans
     end
     transport.command("config")
