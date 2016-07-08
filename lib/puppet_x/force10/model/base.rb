@@ -62,7 +62,7 @@ class PuppetX::Force10::Model::Base
   # params_to_update is mostly only used if we extend the before_update method and need to know what params to update
   # this in case other config needs to happen based on those params changing, such as for interface and portmode
   def before_update(params_to_update=[])
-    transport.command('enable')
+    transport.command("enable")
     transport.command("conf", :prompt => /\(conf\)#\s?\z/n)
   end
 

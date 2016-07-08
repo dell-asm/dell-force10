@@ -25,8 +25,16 @@ class PuppetX::Force10::Model::Portchannel < PuppetX::Force10::Model::Base
       @params[property].value = :absent if should[property] == :absent || should[property].nil?
       @params[property].value = should[property] unless should[property] == :absent || should[property].nil?
     end
-    before_update
-    perform_update(is, should)
+    params_to_update = []
+    PuppetX::Force10::Sorter.new(@params).tsort.each do |param|
+      # We dont want to change undefined values
+      next if should[param.name] == :undef || should[param.name].nil?
+      params_to_update << param unless is[param.name] == should[param.name]
+    end
+    before_update(params_to_update)
+    params_to_update.each do |param|
+      param.update(@transport, is[param.name])
+    end
     after_update
   end
 
@@ -48,16 +56,33 @@ class PuppetX::Force10::Model::Portchannel < PuppetX::Force10::Model::Base
     end
   end
 
+  def before_update(params_to_update=[])
+    super
+    #
+    #Dell(conf)#interface port-channel 1
+    #Error: Command allowed only for uplink Lag.
+    full_name = "po %s" % name
+    # Need to remove portchannel from all vlans if we want to change the portmode
+    if params_to_update.collect{|param| param.name}.include?(:portmode)
+      Puppet.info("Removing all vlans for %s so portmode can be set." % full_name)
+      transport.command("interface range vlan 1-4094")
+      transport.command("no tagged %s" % full_name)
+      transport.command("no untagged %s" % full_name)
+      transport.command("exit")
+    end
+    transport.command("interface %s" % full_name, :prompt => /\(conf-if-\S+\)#\z/n)
+  end
+
   def mod_path_base
-    return 'puppet_x/force10/model/portchannel'
+    'puppet_x/force10/model/portchannel'
   end
 
   def mod_const_base
-    return PuppetX::Force10::Model::Portchannel
+    PuppetX::Force10::Model::Portchannel
   end
 
   def param_class
-    return PuppetX::Force10::Model::ScopedValue
+    PuppetX::Force10::Model::ScopedValue
   end
 
   def register_modules

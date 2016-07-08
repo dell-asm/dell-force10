@@ -109,6 +109,7 @@ class PuppetX::Force10::Model::ScopedValue < PuppetX::Force10::Model::GenericVal
   # @return [Array<String>] returns list of interfaces
   def parse_interface_value(interfacevalue)
     curr_stack = 0
+    return [interfacevalue.to_s] if interfacevalue.is_a?(Fixnum)
     interfacevalue.split(",").map do |stack_and_port|
       pieces = stack_and_port.split("/").map(&:strip)
       case pieces.size

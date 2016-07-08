@@ -171,13 +171,30 @@ module PuppetX::Force10::PossibleFacts::Hardware::M_series
 
     #Display information on configured Port Channel groups in JSON Format
     base.register_param 'port_channel_members' do
-      port_channels = {}
       match do |txt|
-        interfaces = (txt.scan(/(!\s+interface\s+\w+\s+\d+\/\d+.*?shutdown\s+)/m) || [] ).flatten
+        port_channels = {}
+        interfaces = (txt.scan(/(!\s+interface\s+.*?shutdown\s+)/m) || [] ).flatten
         interfaces.each do |interface_detail|
           if interface_detail.match(/^interface\s+(\w+\s+\d+\/\d+).*port-channel\s+(\d+)/m)
             port_channels[$2.strip] ||= []
             port_channels[$2.strip].push($1.strip)
+          end
+          if interface_detail.match(/channel-member\s+(.*)/m)
+            type, port_strings = $1.split
+            prefix = ""
+            ports = []
+            port_strings.split(",").each do |port_string|
+              port_id = port_string
+              if port_string.include?("/")
+                prefix = "%s" % port_string.split("/").first
+              else
+                port_id = "%s/%s" % [prefix, port_string]
+              end
+              ports << "%s %s" % [type, port_id]
+            end
+            port_channel = interface_detail.scan(/port-channel\s+(\d+)/im).flatten.first
+            port_channels[port_channel] ||= []
+            port_channels[port_channel].concat(ports)
           end
         end
         port_channels.to_json
