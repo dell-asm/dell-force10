@@ -47,10 +47,6 @@ class PuppetX::Force10::Model::ScopedValue < PuppetX::Force10::Model::GenericVal
   end
 
   def parse(txt)
-    if !txt.nil?
-      raise(ArgumentError, "Invalid Command:\t #{cmd} while evaluating scope from facts") if txt =~ /\sError: ((Invalid input)|(Incomplete command))\s/
-    end
-
     result = extract_scope(txt)
     if result.nil? || result.empty?
       Puppet.debug("Scope #{scope} not found for Param #{name}")
