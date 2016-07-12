@@ -12,7 +12,7 @@ module PuppetX::Force10::PossibleFacts::Hardware::M_series
   CMD_SHOW_PORT_CHANNELS  ="show interfaces port-channel brief" unless const_defined?(:CMD_SHOW_PORT_CHANNELS)
   CMD_SHOW_QUAD_MODE_INTERFACES  ="show running-config | grep \"portmode quad\"" unless const_defined?(:CMD_SHOW_QUAD_MODE_INTERFACES)
   CMD_SHOW_RUNNING_INTERFACE ="show running-config interface" unless const_defined?(:CMD_SHOW_RUNNING_INTERFACE)
-  CMD_SHOW_SYSTEM_STACK_UNIT_IOM = 'show system stack-unit 0 iom-mode' unless const_defined?(:CMD_SHOW_SYSTEM_STACK_UNIT_IOM)
+  CMD_SHOW_SYSTEM_STACK_UNIT_IOM = 'show system stack-unit 0 | grep stack-unit' unless const_defined?(:CMD_SHOW_SYSTEM_STACK_UNIT_IOM)
   CMD_RUNNING_CONFIG = 'show running-config' unless const_defined?(:CMD_RUNNING_CONFIG)
   CMD_STACK_PORT_TOPOLOGY = 'show system stack-port topology' unless const_defined?(:CMD_STACK_PORT_TOPOLOGY)
   CMD_SHOW_LLDP_NEIGHBORS  ="show lldp neighbors" unless const_defined?(:CMD_SHOW_LLDP_NEIGHBORS)
@@ -247,7 +247,10 @@ module PuppetX::Force10::PossibleFacts::Hardware::M_series
     base.register_param 'iom_mode' do
       retval = []
       match do |txt|
-        item = (txt.scan(/^\d+\s+(\S+)/) || []).flatten.first
+        txt.split("\n").each do |line|
+          match_data = line.match(/stack-unit 0 provision (.*)/)
+          item = match_data[1] unless match_data.nil?
+        end
       end
       cmd CMD_SHOW_SYSTEM_STACK_UNIT_IOM
     end
