@@ -14,10 +14,6 @@ class PuppetX::Force10::Fact
   define_value_method [:cmd, :match, :add, :remove, :before, :after, :match_param, :required]
 
   def parse(txt)
-    if !txt.nil?
-      raise(ArgumentError, "Invalid Command:\t #{cmd} while loading facts") if txt =~ /\sError: ((Invalid input)|(Incomplete command))\s/
-    end
-
     if self.match.is_a?(Proc)
       self.value = self.match.call(txt)
     else

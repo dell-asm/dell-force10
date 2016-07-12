@@ -8,11 +8,11 @@ module PuppetX::Force10::Model::Interface::Base
       cmd 'sh run'
       match /^\s*#{base_command}\s+(.*?)\s*$/
       add do |transport, value|
-        Puppet.debug(" command #{base_command} value  #{value}")
+        Puppet.debug(" command #{base_command} value  #{value}" )
         transport.command("#{base_command} #{value}")
       end
       remove do |transport, old_value|
-        Puppet.debug(" No  command #{base_command} value  #{value}")
+        Puppet.debug(" No  command #{base_command} value  #{value}" )
         transport.command("no #{base_command} #{old_value}")
       end
       evaluate(&block) if block
@@ -31,8 +31,8 @@ module PuppetX::Force10::Model::Interface::Base
         end
       end
       default :absent
-      add { |*_|}
-      remove { |*_|}
+      add { |*_| }
+      remove { |*_| }
     end
 
     ifprop(base, :portchannel) do
@@ -79,7 +79,7 @@ module PuppetX::Force10::Model::Interface::Base
           transport.command("no shutdown")
         end
       end
-      remove { |*_|}
+      remove { |*_| }
     end
 
     ifprop(base, :mtu) do
@@ -87,7 +87,7 @@ module PuppetX::Force10::Model::Interface::Base
       add do |transport, value|
         transport.command("mtu #{value}")
       end
-      remove { |*_|}
+      remove { |*_| }
     end
 
     ifprop(base, :switchport) do
@@ -103,7 +103,7 @@ module PuppetX::Force10::Model::Interface::Base
       end
       add do |transport, value|
         if value == :true
-          transport.command("switchport") do |out|
+          transport.command("switchport")do |out|
             if out =~/Error:\s*(.*)/
               Puppet.debug "#{$1}"
             end
@@ -118,7 +118,7 @@ module PuppetX::Force10::Model::Interface::Base
         end
 
       end
-      remove { |*_|}
+      remove { |*_| }
     end
 
     ifprop(base, :dcb_map) do
@@ -135,7 +135,7 @@ module PuppetX::Force10::Model::Interface::Base
         # Command to associate DCB map with the interface
         transport.command("dcb-map #{value}")
       end
-      remove { |*_|}
+      remove { |*_| }
     end
 
     ifprop(base, :fcoe_map) do
@@ -143,7 +143,7 @@ module PuppetX::Force10::Model::Interface::Base
       add do |transport, value|
         transport.command("fcoe-map #{value}")
       end
-      remove { |*_|}
+      remove { |*_| }
     end
 
     ifprop(base, :fabric) do
@@ -151,7 +151,7 @@ module PuppetX::Force10::Model::Interface::Base
       add do |transport, value|
         transport.command("fabric #{value}")
       end
-      remove { |*_|}
+      remove { |*_| }
     end
 
     ifprop(base, :portmode) do
@@ -169,7 +169,7 @@ module PuppetX::Force10::Model::Interface::Base
           transport.command("#{remove_command}")
         end
       end
-      remove { |*_|}
+      remove { |*_| }
     end
 
     ifprop(base, :portfast) do
@@ -177,7 +177,7 @@ module PuppetX::Force10::Model::Interface::Base
       add do |transport, value|
         transport.command("spanning-tree 0 #{value}")
       end
-      remove { |*_|}
+      remove { |*_| }
     end
 
     ifprop(base, :edge_port) do
@@ -187,7 +187,7 @@ module PuppetX::Force10::Model::Interface::Base
         stp_val = PuppetX::Force10::Model::Interface::Base.show_stp_val(transport, scope_name)
         PuppetX::Force10::Model::Interface::Base.update_stp(transport, scope_name, stp_val, value)
       end
-      remove { |*_|}
+      remove { |*_| }
     end
 
     ifprop(base, :protocol) do
@@ -206,14 +206,17 @@ module PuppetX::Force10::Model::Interface::Base
       empty_match=''
       match do |empty_match|
         unless empty_match.nil?
-          :false #This is so we always go through the "add" swimlane
+          :false  #This is so we always go through the "add" swimlane
         end
       end
       add do |transport, value|
-        untagged, tagged = PuppetX::Force10::Model::Interface::Base.show_interface_vlans(transport, scope_name)
-        PuppetX::Force10::Model::Interface::Base.update_untagged_vlans(transport, value, untagged, scope_name)
+        existing_config = transport.command('show config') || ''
+        iface = existing_config.match(/\s*interface\s+(.*?)\s*$/)[1]
+        type, interface_id = PuppetX::Force10::Model::Interface::Base.parse_interface(iface)
+        vlans = PuppetX::Force10::Model::Interface::Base.vlans_from_list(value)
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, vlans, false, [type, interface_id])
       end
-      remove { |*_|}
+      remove { |*_| }
     end
 
     ifprop(base, :tagged_vlan) do
@@ -224,100 +227,112 @@ module PuppetX::Force10::Model::Interface::Base
         end
       end
       add do |transport, value|
-        untagged, tagged = PuppetX::Force10::Model::Interface::Base.show_interface_vlans(transport, scope_name)
-        PuppetX::Force10::Model::Interface::Base.update_tagged_vlans(transport, value, tagged, scope_name)
+        existing_config = transport.command('show config') || ''
+        iface = existing_config.match(/\s*interface\s+(.*?)\s*$/)[1]
+        type, interface_id = PuppetX::Force10::Model::Interface::Base.parse_interface(iface)
+        vlans = PuppetX::Force10::Model::Interface::Base.vlans_from_list(value)
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, vlans, true, [type, interface_id])
       end
-      remove { |*_|}
+      remove { |*_| }
     end
   end
 
   # Return the untagged and tagged vlans associated with the switch port as a tuple
   #
   # @param transport [PuppetX::Force10::Transport::Ssh] the switch ssh transport
-  # @param interface_info [String] the interface id e.g. Tengigabitethernet 0/14
+  # @param interface_type [String] the interface type e.g. Tengigabitethernet
+  # @param interface_id [String] the interface port, e.g. 0/4
   # @return [Array] tuple of untagged vlan and list of tagged vlans
-  def self.show_interface_vlans(transport, interface_info)
+  def self.show_interface_vlans(transport, interface_type, interface_id)
     untagged_vlan = nil
     tagged_vlans = []
-    transport.command("exit") # Bring us back to config state
-    transport.command("exit") # Bring us back to main
-
-    current_vlan_info = transport.command("show interfaces switchport #{interface_info}")
-    current_vlan_info.match /^U\s+([\d]+)$/
-    if $1.nil? || $1.empty?
-      untagged_vlan = []
-    else
-      untagged_vlan = [$1.to_i]
-    end
-    vlan_info = current_vlan_info.match /^T\s+([\d\-,]+)$/
-    str = vlan_info.nil? ? "" : vlan_info[1]
-    str_arr = str.split(",")
-    str_arr.each do |num_str|
-      num = num_str.to_i
-      if num_str == num.to_s
-        tagged_vlans << num
-      else
-        nums = num_str.split("-").map(&:to_i)
-        nums[0].upto(nums[1]).each do |range_num|
-          tagged_vlans << range_num
-        end
+    current_vlan_info = transport.command("show interfaces switchport #{interface_type} #{interface_id}")
+    current_vlan_info.each_line do |line|
+      if line =~ /^U\s+(\d+)$/
+        untagged_vlan = $1
+      elsif line =~ /^T\s+([0-9,-]+)$/
+        tagged_vlans = vlans_from_list($1)
       end
     end
-    return [untagged_vlan, tagged_vlans]
+    [untagged_vlan, tagged_vlans]
   end
 
-  def self.update_untagged_vlans(transport, value, existing_vlan, interface_id)
-    raise(ArgumentError, "Too many untagged vlans on port %s: %s" %[interface_id, existing_vlan.join(",")]) if existing_vlan.size > 1
+  def self.update_vlans(transport, new_vlans, tagged, interface_info)
+    vlan_type = tagged ? "tagged" : "untagged"
+    opposite_vlan_type = tagged ? "untagged" : "tagged"
+    interface_type, interface_id = interface_info
 
-    value = value.split(",").map(&:to_i)
-    raise(ArgumentError, "Too many untagged vlans requested %s" %value) if existing_vlan.size > 1
+    transport.command("exit") # bring us back to config
+    transport.command("exit") # bring us back to main
 
+    curr_untagged_vlan, curr_tagged_vlans = show_interface_vlans(transport, interface_type, interface_id)
+    if tagged
+      current_vlans = curr_tagged_vlans
+      opposite_vlans_to_remove = new_vlans & [curr_untagged_vlan].compact
+    else
+      current_vlans = [curr_untagged_vlan].compact
+      opposite_vlans_to_remove = new_vlans & curr_tagged_vlans
+    end
     transport.command("config")
 
-    vlans_to_remove = existing_vlan - value
-    vlans_to_remove.each do |vlan|
-      next if vlan == 1
-      Puppet.debug("removing vlan #{vlan} from interface : #{interface_id}")
+    # Remove VLANs from the opposing VLAN type
+    opposite_vlans_to_remove.each do |vlan|
+      Puppet.debug("Removing opposing vlan #{vlan} from interface #{interface_id}")
       transport.command("interface vlan #{vlan}")
-      transport.command("no untagged #{interface_id}")
+      transport.command("no #{opposite_vlan_type} #{interface_type} #{interface_id}")
       transport.command("exit")
     end
 
-    vlans_to_add = value - existing_vlan
-    vlans_to_add.each do |vlan|
-      next if vlan == 1
-      Puppet.debug("Adding vlan #{vlan} to interface: #{interface_id}")
+    # Remove all the unused vlans
+    vlans_to_remove = current_vlans - new_vlans
+    vlans_to_remove.each do |vlan|
+      Puppet.debug("Removing vlan #{vlan} from interface #{interface_id}")
       transport.command("interface vlan #{vlan}")
-      transport.command("untagged #{interface_id}")
+      transport.command("no #{vlan_type} #{interface_type} #{interface_id}")
       transport.command("exit")
     end
-    transport.command("interface #{interface_id}") # Return transport back to configured interface state
+    # Add the new vlans
+    vlans_to_add = new_vlans - current_vlans
+    vlans_to_add.each do |vlan|
+      Puppet.debug("Adding vlan #{vlan} to interface #{interface_id}")
+      transport.command("interface vlan #{vlan}")
+      transport.command("#{vlan_type} #{interface_type} #{interface_id}")
+    end
+    # Return transport back to beginning location
+    transport.command("interface #{interface_type} #{interface_id}")
   end
 
-  def self.update_tagged_vlans(transport, value, existing_vlans, interface_id)
-    value = value.split(",").map(&:to_i)
-
-    transport.command("config")
-
-    vlans_to_remove = existing_vlans - value
-    vlans_to_remove.each do |vlan|
-      Puppet.debug("Removing vlan #{vlan} tagged traffic from interface: #{interface_id}")
-      transport.command("interface vlan #{vlan}")
-      transport.command("no tagged #{interface_id}")
-      transport.command("exit")
+  def self.parse_interface(iface)
+    if iface.include? 'TenGigabitEthernet'
+      iface.slice! 'TenGigabitEthernet '
+      type = 'TenGigabitEthernet'
+    elsif iface.include? 'FortyGigE'
+      iface.slice! 'FortyGigE '
+      type = 'fortyGigE'
+    else
+      raise Puppet::Error, "Unknown interface type #{iface}"
     end
+    [type, iface]
+  end
 
-    vlans_to_add = value - existing_vlans
-    vlans_to_add.each do |vlan|
-      Puppet.debug("Adding vlan #{vlan} tagged traffic to interface: #{interface_id}")
-      transport.command("interface vlan #{vlan}")
-      transport.command("tagged #{interface_id}")
-      transport.command("exit")
+  def self.vlans_from_list(value)
+    vlans = []
+    value = value.to_s
+    values = []
+    value.split(",").each do |vlan_group|
+      values << vlan_group
     end
-    transport.command("exit") #Bring us back to main state
-    transport.command("show interfaces switchport #{interface_id}")
-    transport.command("config") #Return configuration back to original state
-    transport.command("interface #{interface_id}")
+    values.each do |vlan_group|
+      if vlan_group.include? "-"
+        first = vlan_group.split("-")[0]
+        last = vlan_group.split("-")[1]
+        vlans.concat((Integer(first)..Integer(last)).to_a.map(&:to_s))
+      else
+        vlans << vlan_group
+      end
+    end
+    vlans.uniq!
+    vlans
   end
 
   def self.show_stp_val(transport, interface_id)
@@ -335,20 +350,18 @@ module PuppetX::Force10::Model::Interface::Base
 
   def self.update_stp(transport, interface_id, existing_stp_val, value)
     remove_stp = existing_stp_val - value
-    transport.command("exit") # Bring back to configure state
-
     remove_stp.each do |type|
+      transport.command("config")
       transport.command("interface #{interface_id}")
       transport.command("no spanning-tree #{type} edge-port")
-      transport.command("exit")
     end
 
     adding_stp = value - existing_stp_val
     adding_stp.each do |type|
+      transport.command("config")
       transport.command("interface #{interface_id}")
       transport.command("spanning-tree #{type} edge-port")
-      transport.command("exit")
     end
-    transport.command("interface #{interface_id}") # Return transport back to configured interface state
   end
 end
+

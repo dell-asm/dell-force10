@@ -101,7 +101,7 @@ describe PuppetX::Force10::Model::Interface do
       interface.update(old_params, new_params)
     end
 
-    it 'should setup spanning-tree edge-port' do
+    it 'should setup spanning-tree portfast' do
       name = 'TenGigabitEthernet 0/7'
       interface = PuppetX::Force10::Model::Interface.new(@transport, @config, {:name=>name})
       interface.retrieve
@@ -109,10 +109,9 @@ describe PuppetX::Force10::Model::Interface do
       new_params = old_params.dup
       new_params[:edge_port] = 'pvst'
       @transport.should_receive(:command).with("show config")
-      @transport.should_receive(:command).with("exit")
+      @transport.should_receive(:command).with("config")
       @transport.should_receive(:command).with("interface TenGigabitEthernet 0/7")
       @transport.should_receive(:command).with("spanning-tree pvst edge-port")
-      @transport.should_receive(:command).with("exit")
       interface.update(old_params, new_params)
     end
   end
