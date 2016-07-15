@@ -39,6 +39,9 @@ module PuppetX::Force10::Model::Interface::Base
       match /^  port-channel (\d+)\s+.*$/
       add do |transport, value|
         Puppet.debug("Need to remove existing configuration")
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], true, base.name.split)
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], false, base.name.split)
+
         existing_config=(transport.command("show config") || "").split("\n").reverse
         updated_config = existing_config.find_all do |x|
           x.match(/dcb|switchport|spanning|vlan|portmode/)

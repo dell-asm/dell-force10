@@ -257,12 +257,15 @@ module PuppetX::Force10::Model::Vlan::Base
       cmd 'sh run'
       add do |transport, value|
         if value != 'absent'
-          nountagintffromoothervlans("Port-channel",value,base.name)
-          transport.command("no tagged Port-channel #{value}")
-          transport.command("untagged Port-channel #{value}") do |out|
-            txt<< out
+          nountagintffromoothervlans("Port-channel",Integer(value),base.name)
+          # Skip for native vlan, since that will cause issues.
+          unless base.name == "1"
+            transport.command("no tagged Port-channel #{value}")
+            transport.command("untagged Port-channel #{value}") do |out|
+              txt<< out
+            end
+            parseforerror(txt,"add the property value for the parameter 'untagged Port-channel'")
           end
-          parseforerror(txt,"add the property value for the parameter 'untagged Port-channel'")
         end
       end
       remove do |transport, old_value|
