@@ -48,10 +48,6 @@ class PuppetX::Force10::Model::Interface < PuppetX::Force10::Model::Base
     end
 
     transport.command("interface #{@name}", :prompt => /\(conf-if-\S+\)#\z/n)
-
-    unless params_to_update.find{|param| param.name == :portchannel}
-      transport.command("no port-channel-protocol lacp")
-    end
   end
 
 end
