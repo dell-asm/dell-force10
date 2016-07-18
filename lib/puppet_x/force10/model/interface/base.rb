@@ -39,6 +39,9 @@ module PuppetX::Force10::Model::Interface::Base
       match /^  port-channel (\d+)\s+.*$/
       add do |transport, value|
         Puppet.debug("Need to remove existing configuration")
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], true, base.name.split)
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], false, base.name.split)
+
         existing_config=(transport.command("show config") || "").split("\n").reverse
         updated_config = existing_config.find_all do |x|
           x.match(/dcb|switchport|spanning|vlan|portmode/)
@@ -160,12 +163,15 @@ module PuppetX::Force10::Model::Interface::Base
         #transport.command("fabric #{value}")
         Puppet.debug('Need to remove existing configuration')
         existing_config=(transport.command('show config') || '').split("\n").reverse
-        updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning|vlan|portmode/)}
+        updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning|vlan|portmode|port-channel/)}
         updated_config.each do |remove_command|
           transport.command("no #{remove_command}")
         end
         transport.command('portmode hybrid')
         updated_config.reverse.each do |remove_command|
+          # Can't enable port-channel mode if in portmode hybrid, so skip
+          next if remove_command =~ /port-channel/
+
           transport.command("#{remove_command}")
         end
       end

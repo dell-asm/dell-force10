@@ -74,6 +74,8 @@ describe PuppetX::Force10::Model::Interface do
       old_params = interface.params_to_hash
       new_params = old_params.dup
       new_params[:portchannel] = 20
+      PuppetX::Force10::Model::Interface::Base.should_receive(:update_vlans).with(@transport, [], true, name.split)
+      PuppetX::Force10::Model::Interface::Base.should_receive(:update_vlans).with(@transport, [], false, name.split)
       @transport.should_receive(:command).with("port-channel 20 mode active")
       @transport.should_receive(:command).with("port-channel-protocol lacp")
       interface.update(old_params, new_params)
