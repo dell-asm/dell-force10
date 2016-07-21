@@ -1,5 +1,6 @@
 require 'puppet_x/force10/model'
 require 'puppet_x/force10/model/portchannel'
+require 'puppet_x/force10/model/interface/base'
 
 module PuppetX::Force10::Model::Portchannel::Base
   def self.register(base)
@@ -261,7 +262,6 @@ module PuppetX::Force10::Model::Portchannel::Base
       end
     end
 
-
     base.register_scoped(:ungroup, /port-channel (\d)+$/) do
       match /^lacp ungroup member-independent port-channel #{portchannelval}$/
       cmd "show running-config | grep member-independent"
@@ -276,6 +276,26 @@ module PuppetX::Force10::Model::Portchannel::Base
         transport.command("no lacp ungroup member-independent port-channel %s" % portchannelval)
         transport.command("interface port-channel %s" % portchannelval)
       end
+    end
+
+    base.register_scoped(:portfast, portchannel_scope) do
+      cmd "show interface port-channel #{portchannelval}"
+      match /^\s*spanning-tree 0 (.*?)\s*$/
+      add do |transport, value|
+        transport.command("spanning-tree 0 #{value}")
+      end
+      remove { |*_| }
+    end
+
+    base.register_scoped(:edge_port, portchannel_scope) do
+      cmd "show interface port-channel #{portchannelval}"
+      match /^\s*spanning-tree pvst\s+(.*?)\s*$/
+      add do |transport, value|
+        value = value.split(",")
+        stp_val = PuppetX::Force10::Model::Interface::Base.show_stp_val(transport, scope_name)
+        PuppetX::Force10::Model::Interface::Base.update_stp(transport, scope_name, stp_val, value)
+      end
+      remove { |*_| }
     end
 
   end
