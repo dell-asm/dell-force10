@@ -55,6 +55,11 @@ module PuppetX::Force10::Model::Interface::Base
         if existing_config.find {|line| line =~ /port-channel/}
           transport.command("no port-channel-protocol lacp")
         end
+
+        # ASM-7311 even if the port doesn't say it's in switchport mode,the
+        # 'no switchport' command is still necessary at times, otherwise the lacp
+        # commands will fail. Shouldn't hurt to just run the command everytime
+        transport.command("no switchport")
         transport.command("port-channel-protocol lacp")
         transport.command("port-channel #{value} mode active")
         transport.command("exit")
