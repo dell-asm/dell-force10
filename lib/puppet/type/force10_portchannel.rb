@@ -93,6 +93,18 @@ Puppet::Type.newtype(:force10_portchannel) do
     end
   end
 
+  newproperty(:portfast) do
+    desc "property to set the spanning tree portfast setting"
+    newvalues("portfast")
+  end
+
+  newproperty(:edge_port) do
+    desc "property to set the spanning-tree edge-port setting"
+    validate do |value|
+      return if value.empty?
+    end
+  end
+
   def self.validate_vlan(vlan)
     all_valid_characters = vlan =~ /^[0-9]+$/
     unless all_valid_characters && vlan.to_i >= 1 && vlan.to_i <= 4094
