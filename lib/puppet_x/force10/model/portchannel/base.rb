@@ -161,13 +161,7 @@ module PuppetX::Force10::Model::Portchannel::Base
 
     base.register_scoped :vltpeer, portchannel_scope do
       match do |txt|
-        paramsarray=txt.match(/^\d+\s+(\w2)\s+\w+/)
-        if paramsarray.nil?
-          param1 = true
-        else
-          param1 = false
-        end
-        param1
+        txt.match(/^\d+\s+(\w2)\s+\w+/).nil?
       end
 
       cmd "show interface port-channel #{portchannelval}"
