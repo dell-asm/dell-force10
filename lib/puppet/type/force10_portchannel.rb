@@ -105,6 +105,11 @@ Puppet::Type.newtype(:force10_portchannel) do
     end
   end
 
+  newproperty(:vltpeer) do
+    desc "property to set vlt-peer-lag property to this portchannel's value"
+    newvalues(:true, :false)
+  end
+
   def self.validate_vlan(vlan)
     all_valid_characters = vlan =~ /^[0-9]+$/
     unless all_valid_characters && vlan.to_i >= 1 && vlan.to_i <= 4094
