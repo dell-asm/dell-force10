@@ -93,37 +93,6 @@ module PuppetX::Force10::Model::Interface::Base
       remove { |*_| }
     end
 
-    ifprop(base, :switchport) do
-      switchporttxt=''
-      match do |switchporttxt|
-        unless switchporttxt.nil?
-          if switchporttxt.include? "switchport"
-            :true
-          else
-            :false
-          end
-        end
-      end
-      add do |transport, value|
-        if value == :true
-          transport.command("switchport")do |out|
-            if out =~/Error:\s*(.*)/
-              Puppet.debug "#{$1}"
-            end
-          end
-        end
-        if value == :false
-          transport.command("no switchport") do |out|
-            if out =~/Error:\s*(.*)/
-              Puppet.debug "#{$1}"
-            end
-          end
-        end
-
-      end
-      remove { |*_| }
-    end
-
     ifprop(base, :dcb_map) do
       match /^\s*dcb-map\s+(.*?)\s*$/
       add do |transport, value|
@@ -174,6 +143,38 @@ module PuppetX::Force10::Model::Interface::Base
 
           transport.command("#{remove_command}")
         end
+      end
+      remove { |*_| }
+    end
+
+    ifprop(base, :switchport) do
+      after :portmode
+      switchporttxt=''
+      match do |switchporttxt|
+        unless switchporttxt.nil?
+          if switchporttxt.include? "switchport"
+            :true
+          else
+            :false
+          end
+        end
+      end
+      add do |transport, value|
+        if value == :true
+          transport.command("switchport")do |out|
+            if out =~/Error:\s*(.*)/
+              Puppet.debug "#{$1}"
+            end
+          end
+        end
+        if value == :false
+          transport.command("no switchport") do |out|
+            if out =~/Error:\s*(.*)/
+              Puppet.debug "#{$1}"
+            end
+          end
+        end
+
       end
       remove { |*_| }
     end
