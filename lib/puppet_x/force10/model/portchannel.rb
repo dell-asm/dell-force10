@@ -58,10 +58,8 @@ class PuppetX::Force10::Model::Portchannel < PuppetX::Force10::Model::Base
 
   def before_update(params_to_update=[])
     super
-    #
-    #Dell(conf)#interface port-channel 1
-    #Error: Command allowed only for uplink Lag.
     full_name = "po %s" % name
+
     # Need to remove portchannel from all vlans if we want to change the portmode
     if params_to_update.collect{|param| param.name}.include?(:portmode)
       Puppet.info("Removing all vlans for %s so portmode can be set." % full_name)

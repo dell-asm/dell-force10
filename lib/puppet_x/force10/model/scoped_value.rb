@@ -1,4 +1,14 @@
 #The class has the methods for parsing and keeping parameters of resource type(Like vlan, portchannel etc) values
+
+# Scope should be some form of regex that will capture both the main
+# config of the scope we're looking for, and the name of the scope.
+# Example: We want to find the config of vlan 25. We run 'show running-config' as
+# the command to find the scope's (vlan 25's) configuration. Our scope should be
+# one that gives us back match data that has both the config for vlan 25, and 25
+# (the name of the scope). So, we might have a scope like /^(interface Vlan\s+(\S+).*?)^!/m
+# Using txt.scan with that scope will return back something like [[<config text>, "25"]],
+# which the code will then parse out to match the individual parameter that is
+# trying to be matched/configured.
 require 'puppet_x/force10/model'
 require 'puppet_x/force10/model/generic_value'
 require 'puppet/util/monkey_patches_ftos'

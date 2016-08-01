@@ -6,11 +6,12 @@
 # non-generic ones in the specific models.
 module PuppetX::Force10::Model::Portchannel::Generic
   def register_main_params(base)
-    portchannel_scope = /^(L*\s*(\d+)\s+(.*))/
-    general_scope = /(^Port-channel (\d+).*)\s+/m
+    portchannel_brief_scope = /^(L*\s*(\d+)\s+(.*))/
+    general_scope = /^(interface\s+Port-channel\s+(\d+).*?shutdown)/m
+    general_cmd = "show running-config interface po %s" % base.name
     portchannelval = base.name
 
-    base.register_scoped :ensure, portchannel_scope do
+    base.register_scoped :ensure, portchannel_brief_scope do
       match do |txt|
         unless txt.nil?
           txt.match(/\S+/) ? :present : :absent
@@ -25,18 +26,8 @@ module PuppetX::Force10::Model::Portchannel::Generic
     end
 
     base.register_scoped :mtu, general_scope do
-
-      match do |txt|
-        paramsarray=txt.match(/^MTU (\d+)/)
-        if paramsarray.nil?
-          param1 = :absent
-        else
-          param1 = paramsarray[1]
-        end
-        param1
-      end
-
-      cmd "show interface port-channel #{portchannelval}"
+      match /mtu (\d+)/
+      cmd general_cmd
       default :absent
       add do |transport, value|
         transport.command("mtu #{value}")
@@ -45,19 +36,10 @@ module PuppetX::Force10::Model::Portchannel::Generic
     end
 
     base.register_scoped :shutdown, general_scope do
-
+      cmd general_cmd
       match do |txt|
-        paramsarray=txt.match(/^Port-channel (\d+) is up/)
-        if paramsarray.nil?
-          param1 = :true
-        else
-          param1 = :false
-        end
-        param1
+        txt.scan(/^Port-channel (\d+) is up/).flatten.first || :absent
       end
-
-
-      cmd "show interface port-channel #{portchannelval}"
       default :absent
       add do |transport, value|
         if value == :false
@@ -69,8 +51,8 @@ module PuppetX::Force10::Model::Portchannel::Generic
       remove { |*_| }
     end
 
-    base.register_scoped :portmode, portchannel_scope do
-      cmd "show interface port-channel #{portchannelval}"
+    base.register_scoped :portmode, general_scope do
+      cmd general_cmd
       match /^\s*portmode\s+(.*?)\s*$/
       add do |transport, value|
         #transport.command("fabric #{value}")
@@ -87,11 +69,11 @@ module PuppetX::Force10::Model::Portchannel::Generic
       end
     end
 
-    base.register_scoped :switchport, portchannel_scope do
+    base.register_scoped :switchport, general_scope do
       after :portmode
-      cmd "show interfaces port-channel brief"
+      cmd general_cmd
       match do |txt|
-        txt =~ /L2/ ? :true : :false
+        txt =~ /switchport/ ? :true : :false
       end
       add do |transport, value|
         if value == :false
@@ -108,8 +90,7 @@ module PuppetX::Force10::Model::Portchannel::Generic
       match do |txt|
         txt =~ /fip-snooping port-mode fcf/ ? :true : :false
       end
-
-      cmd "show interface port-channel #{portchannelval}"
+      cmd general_cmd
       default :absent
       add do |transport, value|
         if value == :true
@@ -133,7 +114,7 @@ module PuppetX::Force10::Model::Portchannel::Generic
         param1
       end
 
-      cmd "show interface port-channel #{portchannelval}"
+      cmd general_cmd
       add do |transport, value|
         transport.command("desc #{value}")
       end
@@ -151,19 +132,19 @@ module PuppetX::Force10::Model::Portchannel::Generic
         param1
       end
 
-      cmd "show running-config interface port-channel #{portchannelval}"
+      cmd general_cmd
       add do |transport, value|
         transport.command("fcoe-map #{value}")
       end
       remove { |*_| }
     end
 
-    base.register_scoped :vltpeer, portchannel_scope do
+    base.register_scoped :vltpeer, general_scope do
       match do |txt|
-        txt.match(/^\d+\s+(\w2)\s+\w+/).nil?
+        txt =~ /vlt-peer-lag port-channel (#{portchannelval})/ ? :true : :false
       end
 
-      cmd "show interface port-channel #{portchannelval}"
+      cmd general_cmd
       add do |transport, value|
         if value == :true
           transport.command("vlt-peer-lag po#{portchannelval}")
@@ -172,8 +153,10 @@ module PuppetX::Force10::Model::Portchannel::Generic
       remove { |*_| }
     end
 
-    base.register_scoped(:ungroup, /port-channel (\d)+$/) do
-      match /^lacp ungroup member-independent port-channel #{portchannelval}$/
+    base.register_scoped(:ungroup, /(^lacp ungroup member-independent port-channel (\d)+)$/) do
+      match do |txt|
+        txt =~ /port-channel (#{portchannelval}$)/ ? :true : :false
+      end
       cmd "show running-config | grep member-independent"
       add do |transport, _|
         # Needs to be configured at top level configuration mode
@@ -188,8 +171,8 @@ module PuppetX::Force10::Model::Portchannel::Generic
       end
     end
 
-    base.register_scoped(:portfast, portchannel_scope) do
-      cmd "show interface port-channel #{portchannelval}"
+    base.register_scoped(:portfast, general_scope) do
+      cmd general_cmd
       match /^\s*spanning-tree 0 (.*?)\s*$/
       add do |transport, value|
         transport.command("spanning-tree 0 #{value}")
@@ -197,8 +180,8 @@ module PuppetX::Force10::Model::Portchannel::Generic
       remove { |*_| }
     end
 
-    base.register_scoped(:edge_port, portchannel_scope) do
-      cmd "show interface port-channel #{portchannelval}"
+    base.register_scoped(:edge_port, general_scope) do
+      cmd general_cmd
       match /^\s*spanning-tree pvst\s+(.*?)\s*$/
       add do |transport, value|
         value = value.split(",")
