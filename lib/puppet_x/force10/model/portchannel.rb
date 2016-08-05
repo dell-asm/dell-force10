@@ -32,16 +32,14 @@ class PuppetX::Force10::Model::Portchannel < PuppetX::Force10::Model::Base
       params_to_update << param unless is[param.name] == should[param.name]
     end
     before_update(params_to_update)
-    params_to_update.each do |param|
-      param.update(@transport, is[param.name])
-    end
+    perform_update(is, should)
     after_update
   end
 
   def perform_update(is, should)
     case @params[:ensure].value
     when :present
-      transport.command("interface port-channel #{name}", :prompt => /\(conf-if-po-#{name}\)#\s?\z/n)
+      transport.command("interface port-channel %s" % name, :prompt => /\(conf-if-po-#{name}\)#\s?\z/n)
       PuppetX::Force10::Sorter.new(@params).tsort.each do |param|
         # We dont want to change undefined values
         next if should[param.name] == :undef || should[param.name].nil?
@@ -50,7 +48,8 @@ class PuppetX::Force10::Model::Portchannel < PuppetX::Force10::Model::Base
         param.update(@transport, is[param.name]) unless is[param.name] == should[param.name]
       end
     when :absent
-      transport.command("no interface port-channel #{name}")
+      transport.command("no interface port-channel %s" % name)
+      transport.command("no lacp ungroup member-independent port-channel %s" % name)
 	else
 	  Puppet.debug("No value given for ensure")
     end
@@ -68,7 +67,6 @@ class PuppetX::Force10::Model::Portchannel < PuppetX::Force10::Model::Base
       transport.command("no untagged %s" % full_name)
       transport.command("exit")
     end
-    transport.command("interface %s" % full_name, :prompt => /\(conf-if-\S+\)#\z/n)
   end
 
   def mod_path_base
