@@ -6,20 +6,15 @@
 # non-generic ones in the specific models.
 module PuppetX::Force10::Model::Portchannel::Generic
   def register_main_params(base)
-    portchannel_brief_scope = /^(L*\s*(\d+)\s+(.*))/
     general_scope = /^(interface\s+Port-channel\s+(\d+).*?shutdown)/m
     general_cmd = "show running-config interface po %s" % base.name
     portchannelval = base.name
 
-    base.register_scoped :ensure, portchannel_brief_scope do
+    base.register_scoped :ensure, general_scope do
       match do |txt|
-        unless txt.nil?
-          txt.match(/\S+/) ? :present : :absent
-        else
-          :absent
-        end
+        txt.nil? ? :absent : :present
       end
-      cmd 'show interface port-channel brief'
+      cmd general_cmd
       default :absent
       add { |*_| }
       remove { |*_| }
