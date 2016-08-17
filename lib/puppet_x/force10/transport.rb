@@ -35,7 +35,7 @@ module PuppetX
           end
         end
 
-        @session.default_prompt = /[#>]\s?\z/n
+        @session.default_prompt = /^\S+[#>]\s?\z/n
         connect_session
         init_facts
         init_switch
