@@ -137,7 +137,7 @@ module PuppetX::Force10::Model::Interface::Base
         #transport.command("fabric #{value}")
         Puppet.debug('Need to remove existing configuration')
         existing_config=(transport.command('show config') || '').split("\n").reverse
-        updated_config = existing_config.find_all {|x| x.match(/dcb|spanning|vlan|portmode|port-channel/)}
+        updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning|vlan|portmode|port-channel/)}
         updated_config.each do |remove_command|
           transport.command("no #{remove_command}")
         end
@@ -145,7 +145,7 @@ module PuppetX::Force10::Model::Interface::Base
         # Switch some times behaves in switchport mode even though "switchport" configuration was not exist on interface
         # which will raise Error on configuring portmode for instance :  Error : Te 0/9 is in Layer 2 LAG
         # By running no switchport before setting portmode will resolve the Error on configuring portmode
-        transport.command('no switchport')
+        transport.command('no switchport') unless updated_config.include?("switchport")
         transport.command('portmode hybrid')
         updated_config.reverse.each do |remove_command|
           # Can't enable port-channel mode if in portmode hybrid, so skip
