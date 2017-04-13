@@ -80,6 +80,20 @@ describe PuppetX::Force10::Model::Interface::Base do
       base.update_vlans(transport, ["20", "28"], true, interface_info)
     end
 
+    it "should add tagged vlans and do not unset extra tagged when inclusive_vlans is true" do
+      expect(base).to receive(:show_interface_vlans)
+                          .with(transport, interface_type, interface_id)
+                          .and_return(["1", ["18"]])
+      expect(transport).to receive(:command).twice.with("exit").ordered
+      expect(transport).to receive(:command).with("config").ordered
+      expect(transport).to receive(:command).with("interface vlan 20").ordered
+      expect(transport).to receive(:command).with("tagged Tengigabit 0/4").ordered
+      expect(transport).to receive(:command).with("interface vlan 28").ordered
+      expect(transport).to receive(:command).with("tagged Tengigabit 0/4").ordered
+      expect(transport).to receive(:command).with("interface Tengigabit 0/4").ordered
+      base.update_vlans(transport, ["20", "28"], true, interface_info, :true)
+    end
+
     it "should add tagged vlans and unset any that are untagged" do
       expect(base).to receive(:show_interface_vlans)
                           .with(transport, interface_type, interface_id)
@@ -97,6 +111,16 @@ describe PuppetX::Force10::Model::Interface::Base do
       base.update_vlans(transport, ["20", "28"], true, interface_info)
     end
 
+    it "should add tagged vlans and unset any that are untagged when inclusive_vlans is true" do
+      expect(base).to receive(:show_interface_vlans)
+                          .with(transport, interface_type, interface_id)
+                          .and_return(["20", []])
+      expect(transport).to receive(:command).twice.with("exit").ordered
+      expect(transport).to receive(:command).with("config").ordered
+      msg = "Untagged VLAN configuration cannot be updated when inclusive vlan flag is true"
+      expect {base.update_vlans(transport, ["20", "28"], true, interface_info, :true)}.to raise_error(msg)
+    end
+
     it "should set untagged vlan" do
       expect(base).to receive(:show_interface_vlans)
                           .with(transport, interface_type, interface_id)
@@ -110,6 +134,15 @@ describe PuppetX::Force10::Model::Interface::Base do
       expect(transport).to receive(:command).with("untagged Tengigabit 0/4").ordered
       expect(transport).to receive(:command).with("interface Tengigabit 0/4").ordered
       base.update_vlans(transport, ["18"], false, interface_info)
+    end
+
+    it "should not set untagged vlan when inclusive vlans flag is true" do
+      expect(base).to receive(:show_interface_vlans)
+                          .with(transport, interface_type, interface_id)
+                          .and_return(["1", []])
+      expect(transport).to receive(:command).twice.with("exit").ordered
+      expect(transport).to receive(:command).with("config").ordered
+      expect {base.update_vlans(transport, ["18"], false, interface_info, :true)}.to raise_error
     end
 
     it "should set untagged vlan and remove from tagged if needed" do
@@ -128,6 +161,47 @@ describe PuppetX::Force10::Model::Interface::Base do
       expect(transport).to receive(:command).with("untagged Tengigabit 0/4").ordered
       expect(transport).to receive(:command).with("interface Tengigabit 0/4").ordered
       base.update_vlans(transport, ["18"], false, interface_info)
+    end
+
+    it "should not remove existing tagged vlan when inclusive flag is true" do
+      expect(base).to receive(:show_interface_vlans)
+                          .with(transport, interface_type, interface_id)
+                          .and_return(["20", ["29"]])
+      expect(transport).to receive(:command).twice.with("exit").ordered
+      expect(transport).to receive(:command).with("config").ordered
+      expect(transport).to receive(:command).with("interface vlan 28").ordered
+      expect(transport).to receive(:command).with("tagged Tengigabit 0/4").ordered
+      expect(transport).to receive(:command).with("interface Tengigabit 0/4").ordered
+      base.update_vlans(transport, ["28"], true, interface_info, :true)
+    end
+
+    it "should not remove existing untagged when inclusive flag is true" do
+      expect(base).to receive(:show_interface_vlans)
+                          .with(transport, interface_type, interface_id)
+                          .and_return(["20", ["29"]])
+      expect(transport).to receive(:command).twice.with("exit").ordered
+      expect(transport).to receive(:command).with("config").ordered
+      expect{ base.update_vlans(transport, ["21"], false, interface_info, :true)}.to raise_error
+    end
+
+    it "should remove extra vlan when inclusive vlan flag is false" do
+      expect(base).to receive(:show_interface_vlans)
+                          .with(transport, interface_type, interface_id)
+                          .and_return(["20", ["29"]])
+      expect(transport).to receive(:command).twice.with("exit").ordered
+      expect(transport).to receive(:command).with("config").ordered
+      expect(transport).to receive(:command).with("interface vlan 20").ordered
+      expect(transport).to receive(:command).with("no untagged Tengigabit 0/4").ordered
+      expect(transport).to receive(:command).with("exit").ordered
+      expect(transport).to receive(:command).with("interface vlan 29").ordered
+      expect(transport).to receive(:command).with("no tagged Tengigabit 0/4").ordered
+      expect(transport).to receive(:command).with("exit").ordered
+      expect(transport).to receive(:command).with("interface vlan 20").ordered
+      expect(transport).to receive(:command).with("tagged Tengigabit 0/4").ordered
+      expect(transport).to receive(:command).with("interface vlan 28").ordered
+      expect(transport).to receive(:command).with("tagged Tengigabit 0/4").ordered
+      expect(transport).to receive(:command).with("interface Tengigabit 0/4").ordered
+      base.update_vlans(transport, ["20", "28"], true, interface_info)
     end
   end
 

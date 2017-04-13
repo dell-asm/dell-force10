@@ -86,5 +86,9 @@ Puppet::Type.newtype(:force10_interface) do
     desc "untagged vlan"
   end
 
+  newproperty(:inclusive_vlans) do
+    desc "Flag to indicate if existing vlans needs to be included"
+    newvalues(:true, :false)
+  end
 end
 
