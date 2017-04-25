@@ -34,7 +34,8 @@ module PuppetX::Force10::Model::Portchannel::Base
       end
       add do |transport, value|
         vlans = PuppetX::Force10::Model::Interface::Base.vlans_from_list(value)
-        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, vlans, true, ["po", base.name])
+        inclusive_vlans = base.params[:inclusive_vlans].value
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, vlans, true, ["po", base.name], inclusive_vlans)
       end
       remove { |*_| }
     end

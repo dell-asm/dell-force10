@@ -231,7 +231,8 @@ module PuppetX::Force10::Model::Interface::Base
         iface = existing_config.match(/\s*interface\s+(.*?)\s*$/)[1]
         type, interface_id = PuppetX::Force10::Model::Interface::Base.parse_interface(iface)
         vlans = PuppetX::Force10::Model::Interface::Base.vlans_from_list(value)
-        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, vlans, false, [type, interface_id])
+        inclusive_vlans = base.params[:inclusive_vlans].value
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, vlans, false, [type, interface_id], inclusive_vlans)
       end
       remove { |*_| }
     end
@@ -248,10 +249,22 @@ module PuppetX::Force10::Model::Interface::Base
         iface = existing_config.match(/\s*interface\s+(.*?)\s*$/)[1]
         type, interface_id = PuppetX::Force10::Model::Interface::Base.parse_interface(iface)
         vlans = PuppetX::Force10::Model::Interface::Base.vlans_from_list(value)
-        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, vlans, true, [type, interface_id])
+        inclusive_vlans = base.params[:inclusive_vlans].value
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, vlans, true, [type, interface_id], inclusive_vlans)
       end
       remove { |*_| }
     end
+
+    ifprop(base, :inclusive_vlans) do
+      match do |txt|
+        paramsarray = txt.match(/^T\s+(\S+)/)
+        paramsarray.nil? ? :absent : paramsarray[1]
+      end
+
+      add {|*_|}
+      remove { |*_| }
+    end
+
   end
 
   # Return the untagged and tagged vlans associated with the switch port as a tuple
@@ -274,7 +287,7 @@ module PuppetX::Force10::Model::Interface::Base
     [untagged_vlan, tagged_vlans]
   end
 
-  def self.update_vlans(transport, new_vlans, tagged, interface_info)
+  def self.update_vlans(transport, new_vlans, tagged, interface_info, inclusive_vlans=false)
     vlan_type = tagged ? "tagged" : "untagged"
     opposite_vlan_type = tagged ? "untagged" : "tagged"
     interface_type, interface_id = interface_info
@@ -292,6 +305,13 @@ module PuppetX::Force10::Model::Interface::Base
     end
     transport.command("config")
 
+    # Remove all the unused vlans
+    vlans_to_remove = current_vlans - new_vlans
+
+    if inclusive_vlans == :true && !opposite_vlans_to_remove.empty?
+      raise("Untagged VLAN configuration cannot be updated when inclusive vlan flag is true")
+    end
+
     # Remove VLANs from the opposing VLAN type
     opposite_vlans_to_remove.each do |vlan|
       Puppet.debug("Removing opposing vlan #{vlan} from interface #{interface_id}")
@@ -300,20 +320,27 @@ module PuppetX::Force10::Model::Interface::Base
       transport.command("exit")
     end
 
-    # Remove all the unused vlans
-    vlans_to_remove = current_vlans - new_vlans
-    vlans_to_remove.each do |vlan|
-      Puppet.debug("Removing vlan #{vlan} from interface #{interface_id}")
-      transport.command("interface vlan #{vlan}")
-      transport.command("no #{vlan_type} #{interface_type} #{interface_id}")
-      transport.command("exit")
+    unless inclusive_vlans == :true
+      vlans_to_remove.each do |vlan|
+        Puppet.debug("Removing vlan #{vlan} from interface #{interface_id}")
+        transport.command("interface vlan #{vlan}")
+        transport.command("no #{vlan_type} #{interface_type} #{interface_id}")
+        transport.command("exit")
+      end
     end
+
     # Add the new vlans
-    vlans_to_add = new_vlans - current_vlans
-    vlans_to_add.each do |vlan|
-      Puppet.debug("Adding vlan #{vlan} to interface #{interface_id}")
-      transport.command("interface vlan #{vlan}")
-      transport.command("#{vlan_type} #{interface_type} #{interface_id}")
+    if inclusive_vlans == :true && vlan_type == "untagged" &&  current_vlans != new_vlans
+      Puppet.debug("Skipping untag vlan configuration as there is an existing untag vlan")
+      raise("Interface %s is already configured with untag vlan %s " % [interface_id, current_vlans])
+    else
+      vlans_to_add = new_vlans - current_vlans
+      vlans_to_add.each do |vlan|
+        Puppet.debug("Adding vlan #{vlan} to interface #{interface_id}")
+        transport.command("interface vlan #{vlan}")
+
+        transport.command("#{vlan_type} #{interface_type} #{interface_id}")
+      end
     end
     # Return transport back to beginning location
     transport.command("interface #{interface_type} #{interface_id}")

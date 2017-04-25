@@ -93,6 +93,11 @@ Puppet::Type.newtype(:force10_portchannel) do
     end
   end
 
+  newproperty(:inclusive_vlans) do
+    desc "Flag to indicate if existing vlans needs to be included"
+    newvalues(:true, :false)
+  end
+
   newproperty(:portfast) do
     desc "property to set the spanning tree portfast setting"
     newvalues("portfast")
