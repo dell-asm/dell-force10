@@ -39,5 +39,16 @@ module PuppetX::Force10::Model::Portchannel::Base
       end
       remove { |*_| }
     end
+
+    base.register_scoped(:inclusive_vlans, portchannel_scope) do
+      cmd "show interface port-channel %s" % base.name
+      match do |txt|
+        paramsarray = txt.match(/^T\s+(\S+)/)
+        paramsarray.nil? ? :absent : paramsarray[1]
+      end
+
+      add {|*_|}
+      remove { |*_| }
+    end
   end
 end
