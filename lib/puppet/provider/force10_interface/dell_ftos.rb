@@ -7,8 +7,9 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
   def self.get_current(name)
     if !name.nil?
       name=name.gsub(/te |tengigabitethernet /i, "TenGigabitEthernet ")
-
+      name=name.gsub(/tf |twentyfivegige /i, "twentyFiveGigE ")
       name=name.gsub(/fo |fortygige /i, "fortyGigE ")
+      name=name.gsub(/hu |hundredgige /i, "hundredGigE ")
     end
     transport.switch.interface(name).params_to_hash
   end
@@ -22,14 +23,22 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
     vlan_info = get_vlan_info
     iface = get_iface
     iface = iface.gsub(/te |tengigabitethernet /i, "Tengigabitethernet ")
+    iface = iface.gsub(/tf |twentyfivegige /i, "twentyFiveGigE ")
     iface = iface.gsub(/fo |fortygige /i, "Fortygige ")
+    iface = iface.gsub(/hu |hundredgige /i, "hundredGigE ")
     # Name translation to map puppet resource name to fact key
     if iface.include? 'Tengigabitethernet'
       iface.slice! 'Tengigabitethernet '
       type = 'tengigabit'
+    elsif iface.include? 'twentyFiveGigE'
+      iface.slice! 'twentyFiveGigE '
+      type = 'twentyfivegigabit'
     elsif iface.include? 'Fortygige'
       iface.slice! 'Fortygige '
       type = 'fortygigabit'
+    elsif iface.include? 'hundredGigE'
+      iface.slice! 'hundredGigE '
+      type = 'hundredgigabit'
     else
       raise Puppet::Error, "Unknown interface type #{iface}"
     end
@@ -46,7 +55,9 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
       # translate fact key to switch command
       iface_map = {
           'tengigabit' => 'tengigabitethernet',
+          'twentyfivegigabit' => 'twentyFiveGigE',
           'fortygigabit' => 'fortyGigE',
+          'hundredgigabit' => 'hundredGigE',
           'gigabit' => 'gigabitethernet'
       }
       transport.session.command('configure', :prompt => /\(conf\)#\s?\z/n)

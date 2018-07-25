@@ -6,7 +6,7 @@ Puppet::Type.newtype(:force10_interface) do
   newparam(:name) do
     desc "Interface name, represents an interface"
     isrequired
-    newvalues(/^\Atengigabitethernet\s*\S+/i, /te\s*\S+$/i,/^fortygige\s*\S+$/i,/^fo\s*\S+$/i)
+    newvalues(/^\Atengigabitethernet\s*\S+/i, /te\s*\S+$/i, /^fortygige\s*\S+$/i, /^fo\s*\S+$/i, /^twentyfivegige\s*\S+$/i, /tf\s*\S+$/i, /^hundredgige\s*\S+$/i, /hu\s*\S+$/i)
     isnamevar
   end
 

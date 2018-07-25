@@ -109,43 +109,29 @@ module PuppetX::Force10::Model::Vlan::Base
       end
     end
 
-    base.register_scoped :tagged_tengigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do
-      match /^\s*tagged TenGigabitEthernet\s+(.*?)\s*$/
-      cmd 'sh run'
-      add do |transport, value|
-        if value != 'absent'
-          transport.command("no untagged TenGigabitEthernet #{value}")
-          transport.command("tagged TenGigabitEthernet #{value}") do |out|
-            txt<< out
+    [[:tagged_gigabitethernet, "GigabitEthernet"],
+     [:tagged_tengigabitethernet, "TenGigabitEthernet"],
+     [:tagged_twentyfivegigabitethernet, "twentyFiveGigE"],
+     [:tagged_fortygigabitethernet, "fortyGigE"],
+     [:tagged_hundredgigabitethernet, "hundredGigE"]].each do |tagged_param, port_speed|
+      base.register_scoped tagged_param, /^(interface Vlan\s+(\S+).*?)^!/m do
+        match /^\s*tagged #{port_speed}\s+(.*?)\s*$/
+        cmd 'sh run'
+        add do |transport, value|
+          if value != 'absent'
+            transport.command("no untagged #{port_speed} #{value}")
+            transport.command("tagged #{port_speed} #{value}") do |out|
+              txt << out
+            end
+            parseforerror(txt, "add the property value for the parameter 'tagged #{port_speed}'")
           end
-          parseforerror(txt,"add the property value for the parameter 'tagged TenGigabitEthernet'")
         end
-      end
-      remove do |transport, old_value|
-        #transport.command("no tagged TenGigabitEthernet #{old_value}") do |out|
-        #  txt<< out
-        #end
-        parseforerror(txt,"remove the old property value of the parameter 'tagged TenGigabitEthernet'")
-      end
-    end
-
-    base.register_scoped :tagged_fortygigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do
-      match /^\s*tagged fortyGigE\s+(.*?)\s*$/
-      cmd 'sh run'
-      add do |transport, value|
-        if value != 'absent'
-          transport.command("no untagged fortyGigE #{value}")
-          transport.command("tagged fortyGigE #{value}") do |out|
-            txt<< out
-          end
-          parseforerror(txt,"add the property value for the parameter 'tagged fortyGigE'")
+        remove do |transport, old_value|
+          #transport.command("no tagged TenGigabitEthernet #{old_value}") do |out|
+          #  txt<< out
+          #end
+          parseforerror(txt, "remove the old property value of the parameter 'tagged #{port_speed}'")
         end
-      end
-      remove do |transport, old_value|
-        #transport.command("no tagged fortyGigE #{old_value}") do |out|
-        #  txt<< out
-        #end
-        parseforerror(txt,"remove the old property value of the parameter 'tagged fortyGigE'")
       end
     end
 
@@ -169,26 +155,6 @@ module PuppetX::Force10::Model::Vlan::Base
       end
     end
 
-    base.register_scoped :tagged_gigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do
-      match /^\s*tagged GigabitEthernet\s+(.*?)\s*$/
-      cmd 'sh run'
-      add do |transport, value|
-        if value != 'absent'
-          transport.command("no untagged GigabitEthernet #{value}")
-          transport.command("tagged GigabitEthernet #{value}") do |out|
-            txt<< out
-          end
-          parseforerror(txt,"add the property value for the parameter 'tagged GigabitEthernet'")
-        end
-      end
-      remove do |transport, old_value|
-        #transport.command("no tagged GigabitEthernet #{old_value}") do |out|
-        #  txt<< out
-        #end
-        parseforerror(txt,"remove the property value of the parameter 'tagged GigabitEthernet'")
-      end
-    end
-
     base.register_scoped :tagged_sonet, /^(interface Vlan\s+(\S+).*?)^!/m do
       match /^\s*tagged Sonet\s+(.*?)\s*$/
       cmd 'sh run'
@@ -209,46 +175,31 @@ module PuppetX::Force10::Model::Vlan::Base
       end
     end
 
-    base.register_scoped :untagged_tengigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do
-      match /^\s*untagged TenGigabitEthernet\s+(.*?)\s*$/
-      cmd 'sh run'
-      add do |transport, value|
-        if value != 'absent'
-          #untagged interfaces can only belong to one VLAN at a time - and so checking for mappings and so doing no untag
-          nountagintffromoothervlans("TenGigabitEthernet",value,base.name)
-          transport.command("no tagged TenGigabitEthernet #{value}")
-          transport.command("untagged TenGigabitEthernet #{value}") do |out|
-            txt<< out
+    [[:untagged_gigabitethernet, "GigabitEthernet"],
+     [:untagged_tengigabitethernet, "TenGigabitEthernet"],
+     [:untagged_twentyfivegigabitethernet, "twentyFiveGigE"],
+     [:untagged_fortygigabitethernet, "fortyGigE"],
+     [:untagged_hundredgigabitethernet, "hundredGigE"]].each do |tagged_param, port_speed|
+      base.register_scoped tagged_param, /^(interface Vlan\s+(\S+).*?)^!/m do
+        match /^\s*tagged #{port_speed}\s+(.*?)\s*$/
+        cmd 'sh run'
+        add do |transport, value|
+          if value != 'absent'
+            #untagged interfaces can only belong to one VLAN at a time - and so checking for mappings and so doing no untag
+            nountagintffromoothervlans(port_speed,value,base.name)
+            transport.command("no tagged #{port_speed} #{value}")
+            transport.command("untagged #{port_speed} #{value}") do |out|
+              txt << out
+            end
+            parseforerror(txt, "add the property value for the parameter 'untagged #{port_speed}'")
           end
-          parseforerror(txt,"add the property value for the parameter 'untagged TenGigabitEthernet'")
         end
-      end
-      remove do |transport, old_value|
-        #transport.command("no untagged TenGigabitEthernet #{old_value}") do |out|
-        #  txt<< out
-        #end
-        parseforerror(txt,"remove the old property value of the parameter 'untagged TenGigabitEthernet'")
-      end
-    end
-
-    base.register_scoped :untagged_fortygigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do
-      match /^\s*untagged fortyGigE\s+(.*?)\s*$/
-      cmd 'sh run'
-      add do |transport, value|
-        if value != 'absent'
-          nountagintffromoothervlans("fortyGigE",value,base.name)
-          transport.command("no tagged fortyGigE #{value}")
-          transport.command("untagged fortyGigE #{value}") do |out|
-            txt<< out
-          end
-          parseforerror(txt,"add the property value for the parameter 'untagged fortyGigE'")
+        remove do |transport, old_value|
+          #transport.command("no untagged TenGigabitEthernet #{old_value}") do |out|
+          #  txt<< out
+          #end
+          parseforerror(txt, "remove the old property value of the parameter 'untagged #{port_speed}'")
         end
-      end
-      remove do |transport, old_value|
-        #transport.command("no untagged fortyGigE #{old_value}") do |out|
-        #  txt<< out
-        #end
-        parseforerror(txt,"remove the old property value of the parameter 'untagged fortyGigE'")
       end
     end
 
@@ -273,27 +224,6 @@ module PuppetX::Force10::Model::Vlan::Base
         # txt<< out
         #end
         parseforerror(txt,"to remove the old property value of the parameter 'untagged Port-channel'")
-      end
-    end
-
-    base.register_scoped :untagged_gigabitethernet, /^(interface Vlan\s+(\S+).*?)^!/m do
-      match /^\s*untagged GigabitEthernet\s+(.*?)\s*$/
-      cmd 'sh run'
-      add do |transport, value|
-        if value != 'absent'
-          nountagintffromoothervlans("GigabitEthernet",value,base.name)
-          transport.command("no tagged GigabitEthernet #{value}")
-          transport.command("untagged GigabitEthernet #{value}") do |out|
-            txt<< out
-          end
-          parseforerror(txt,"add the property value for the parameter 'untagged GigabitEthernet'")
-        end
-      end
-      remove do |transport, old_value|
-        #transport.command("no untagged GigabitEthernet #{old_value}") do |out|
-        #  txt<< out
-        #end
-        parseforerror(txt,"remove the property value of the parameter 'untagged GigabitEthernet'")
       end
     end
 

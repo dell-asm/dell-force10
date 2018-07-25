@@ -350,9 +350,15 @@ module PuppetX::Force10::Model::Interface::Base
     if iface.include? 'TenGigabitEthernet'
       iface.slice! 'TenGigabitEthernet '
       type = 'TenGigabitEthernet'
+    elsif iface.include? 'twentyFiveGigE'
+      iface.slice! 'twentyFiveGigE '
+      type = 'twentyFiveGigE'
     elsif iface.include? 'FortyGigE'
       iface.slice! 'FortyGigE '
       type = 'fortyGigE'
+    elsif iface.include? 'hundredGigE'
+      iface.slice! 'hundredGigE '
+      type = 'hundredGigE'
     else
       raise Puppet::Error, "Unknown interface type #{iface}"
     end

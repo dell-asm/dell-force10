@@ -151,14 +151,14 @@ module PuppetX::Force10::PossibleFacts::Base
 
     base.register_param 'dell_force10_operating_system_version' do
       match do |txt|
-        version = txt.scan(/^Dell\s+Force10\s+Operating\s+System\s+Version:\s+(\S+)$|Dell Operating System Version:\s+(.*?)$/m).flatten.compact.first
+        version = txt.scan(/^Dell\s+Force10\s+Operating\s+System\s+Version:\s+(\S+)$|Dell Operating System Version:\s+(.*?)$|Dell EMC Operating System Version:\s+(.*?)$/m).flatten.compact.first
       end
       cmd CMD_SHOW_VERSION
     end
 
     base.register_param 'dell_force10_application_software_version' do
       match do |txt|
-        version = txt.scan(/^Dell\s+Force10\s+Application\s+Software\s+Version:\s+(\S+)$|Dell Application Software Version:\s+(.*?)$/m).flatten.compact.first
+        version = txt.scan(/^Dell\s+Force10\s+Application\s+Software\s+Version:\s+(\S+)$|Dell Application Software Version:\s+(.*?)$|Dell EMC Application Software Version:\s+(.*?)$/m).flatten.compact.first
       end
       cmd CMD_SHOW_VERSION
     end
@@ -221,13 +221,33 @@ module PuppetX::Force10::PossibleFacts::Base
           vlan_information[interface_location] ||= {}
           vlan_information[interface_location]['tagged_tengigabit'] ||= ""
           vlan_information[interface_location]['untagged_tengigabit'] ||= ""
+          vlan_information[interface_location]['tagged_twentyfivegigabit'] ||= ""
+          vlan_information[interface_location]['untagged_twentyfivegigabit'] ||= ""
           vlan_information[interface_location]['tagged_fortygigabit'] ||= ""
           vlan_information[interface_location]['untagged_fortygigabit'] ||= ""
+          vlan_information[interface_location]['tagged_hundredgigabit'] ||= ""
+          vlan_information[interface_location]['untagged_hundredgigabit'] ||= ""
           vlan_information[interface_location]['tagged_portchannel'] ||= ""
           vlan_information[interface_location]['untagged_portchannel'] ||= ""
 
           if interface_detail.match(/^\stagged\s+TenGigabitEthernet\s+(.*?)$/mi)
             vlan_information[interface_location]['tagged_tengigabit'] = $1
+          end
+
+          if interface_detail.match(/^\stagged\s+twentyFiveGigE\s+(.*?)$/mi)
+            vlan_information[interface_location]['tagged_twentyfivegigabit'] = $1
+          end
+
+          if interface_detail.match(/^\suntagged\s+twentyFiveGigE\s+(.*?)$/mi)
+            vlan_information[interface_location]['untagged_twentyfivegigabit'] = $1
+          end
+
+          if interface_detail.match(/^\stagged\s+hundredGigE\s+(.*?)$/mi)
+            vlan_information[interface_location]['tagged_hundredgigabit'] = $1
+          end
+
+          if interface_detail.match(/^\suntagged\s+hundredGigE\s+(.*?)$/mi)
+            vlan_information[interface_location]['untagged_hundredgigabit'] = $1
           end
 
           if interface_detail.match(/^\stagged\s+Port-channel\s+(.*?)$/mi)
@@ -258,7 +278,7 @@ module PuppetX::Force10::PossibleFacts::Base
     
 
     base.register_module_after 'system_type', 's_series', 'hardware' do
-      base.facts['system_type'].value =~ /S48*/i ||  base.facts['system_type'].value =~ /S5000/i ||  base.facts['system_type'].value =~ /S6000/i
+      base.facts['system_type'].value =~ /S48*/i ||  base.facts['system_type'].value =~ /S50*/i ||  base.facts['system_type'].value =~ /S6000/i
     end
 
     base.register_module_after 'system_type', 'm_series', 'hardware' do
