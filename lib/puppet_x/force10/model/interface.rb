@@ -28,12 +28,16 @@ class PuppetX::Force10::Model::Interface < PuppetX::Force10::Model::Base
   end
 
   def before_update(params_to_update=[])
-    transport.command("show interfaces #{@name}")do |out|
+    new_name = @name.gsub(/te |tengigabitethernet /i, "Tengigabitethernet ")
+    new_name = new_name.gsub(/tf |twentyfivegige /i, "twentyFiveGigE ")
+    new_name = new_name.gsub(/fo |fortygige /i, "Fortygige ")
+    new_name = new_name.gsub(/hu |hundredgige /i, "hundredGigE ")
+    transport.command("show interfaces #{new_name}")do |out|
       if out =~/Error:\s*(.*)/
         Puppet.debug "errror msg ::::#{$1}"
         Puppet.debug("Wait for 1 minute before re-validating")
         sleep(60)
-        new_out = transport.command("show interfaces #{@name}")
+        new_out = transport.command("show interfaces #{new_name}")
         raise "The entered interface does not exist. Enter the correct interface." if new_out =~/Error:\s*(.*)/
       end
     end
@@ -47,7 +51,7 @@ class PuppetX::Force10::Model::Interface < PuppetX::Force10::Model::Base
       transport.command("exit")
     end
 
-    transport.command("interface #{@name}", :prompt => /\(conf-if-\S+\)#\z/n)
+    transport.command("interface #{new_name}", :prompt => /\(conf-if-\S+\)#\z/n)
   end
 
 end
