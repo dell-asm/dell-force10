@@ -2,6 +2,7 @@
 #Registers all the properties as parameters and so apply required changes
 
 require 'puppet_x/force10/model'
+require 'puppet_x/force10/model/base'
 require 'puppet_x/force10/model/vlan'
 
 module PuppetX::Force10::Model::Vlan::Base
@@ -181,6 +182,7 @@ module PuppetX::Force10::Model::Vlan::Base
      [:untagged_fortygigabitethernet, "fortyGigE"],
      [:untagged_hundredgigabitethernet, "hundredGigE"]].each do |tagged_param, port_speed|
       base.register_scoped tagged_param, /^(interface Vlan\s+(\S+).*?)^!/m do
+        port_speed = PuppetX::Force10::Model::Base.convert_to_full_name(port_speed)
         match /^\s*tagged #{port_speed}\s+(.*?)\s*$/
         cmd 'sh run'
         add do |transport, value|
@@ -261,5 +263,4 @@ module PuppetX::Force10::Model::Vlan::Base
       remove { |*_| }
     end
   end
-
 end

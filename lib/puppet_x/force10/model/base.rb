@@ -14,6 +14,13 @@ class PuppetX::Force10::Model::Base
     @facts = facts
   end
 
+  def self.convert_to_full_name(convert_interface)
+    convert_interface.gsub(/te |tengigabitethernet /i, "TenGigabitEthernet ")
+        .gsub(/tf|twentyfivegige/i, "twentyFiveGigE")
+        .gsub(/fo |fortygige /i, "fortyGigE ")
+        .gsub(/hu |hundredgige /i, "hundredGigE ")
+  end
+
   def update(is = {}, should = {})
     return unless configuration_changed?(is, should)
     missing_commands = [is.keys, should.keys].flatten.uniq.sort - @params.keys.flatten.uniq.sort
