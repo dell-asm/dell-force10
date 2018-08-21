@@ -1,4 +1,5 @@
 require 'puppet_x/force10/model'
+require 'puppet_x/force10/model/base'
 require 'puppet_x/force10/model/interface'
 
 module PuppetX::Force10::Model::Interface::Base
@@ -276,6 +277,7 @@ module PuppetX::Force10::Model::Interface::Base
   def self.show_interface_vlans(transport, interface_type, interface_id)
     untagged_vlan = nil
     tagged_vlans = []
+    interface_type = PuppetX::Force10::Model::Base.convert_to_full_name(interface_type)
     current_vlan_info = transport.command("show interfaces switchport #{interface_type} #{interface_id}")
     current_vlan_info.each_line do |line|
       if line =~ /^U\s+(\d+)$/
@@ -291,7 +293,7 @@ module PuppetX::Force10::Model::Interface::Base
     vlan_type = tagged ? "tagged" : "untagged"
     opposite_vlan_type = tagged ? "untagged" : "tagged"
     interface_type, interface_id = interface_info
-
+    interface_type = PuppetX::Force10::Model::Base.convert_to_full_name(interface_type)
     transport.command("exit") # bring us back to config
     transport.command("exit") # bring us back to main
 

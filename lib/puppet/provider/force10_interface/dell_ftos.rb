@@ -1,4 +1,5 @@
 require 'puppet/provider/dell_ftos'
+require 'puppet_x/force10/model/base'
 
 Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Provider::Dell_ftos do
   desc "Dell Force10 switch provider for interface configuration."
@@ -6,10 +7,7 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
 
   def self.get_current(name)
     if !name.nil?
-      name=name.gsub(/te |tengigabitethernet /i, "TenGigabitEthernet ")
-      name=name.gsub(/tf |twentyfivegige /i, "twentyFiveGigE ")
-      name=name.gsub(/fo |fortygige /i, "fortyGigE ")
-      name=name.gsub(/hu |hundredgige /i, "hundredGigE ")
+      name = PuppetX::Force10::Model::Base.convert_to_full_name(name)
     end
     transport.switch.interface(name).params_to_hash
   end
@@ -22,19 +20,16 @@ Puppet::Type.type(:force10_interface).provide :dell_ftos, :parent => Puppet::Pro
   def get_interfaces_to_destroy
     vlan_info = get_vlan_info
     iface = get_iface
-    iface = iface.gsub(/te |tengigabitethernet /i, "Tengigabitethernet ")
-    iface = iface.gsub(/tf |twentyfivegige /i, "twentyFiveGigE ")
-    iface = iface.gsub(/fo |fortygige /i, "Fortygige ")
-    iface = iface.gsub(/hu |hundredgige /i, "hundredGigE ")
+    iface = PuppetX::Force10::Model::Base.convert_to_full_name(iface)
     # Name translation to map puppet resource name to fact key
-    if iface.include? 'Tengigabitethernet'
-      iface.slice! 'Tengigabitethernet '
+    if iface.include? 'TenGigabitEthernet'
+      iface.slice! 'TenGigabitEthernet '
       type = 'tengigabit'
     elsif iface.include? 'twentyFiveGigE'
       iface.slice! 'twentyFiveGigE '
       type = 'twentyfivegigabit'
-    elsif iface.include? 'Fortygige'
-      iface.slice! 'Fortygige '
+    elsif iface.include? 'fortyGigE'
+      iface.slice! 'fortyGigE '
       type = 'fortygigabit'
     elsif iface.include? 'hundredGigE'
       iface.slice! 'hundredGigE '

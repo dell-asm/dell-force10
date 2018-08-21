@@ -28,10 +28,7 @@ class PuppetX::Force10::Model::Interface < PuppetX::Force10::Model::Base
   end
 
   def before_update(params_to_update=[])
-    new_name = @name.gsub(/te |tengigabitethernet /i, "Tengigabitethernet ")
-    new_name = new_name.gsub(/tf |twentyfivegige /i, "twentyFiveGigE ")
-    new_name = new_name.gsub(/fo |fortygige /i, "Fortygige ")
-    new_name = new_name.gsub(/hu |hundredgige /i, "hundredGigE ")
+    new_name = PuppetX::Force10::Model::Base.convert_to_full_name(@name)
     transport.command("show interfaces #{new_name}")do |out|
       if out =~/Error:\s*(.*)/
         Puppet.debug "errror msg ::::#{$1}"
