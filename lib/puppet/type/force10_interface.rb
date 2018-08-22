@@ -28,6 +28,12 @@ Puppet::Type.newtype(:force10_interface) do
     end
   end
 
+  newproperty(:is_lacp) do
+    desc "The shutdown flag of the interface, true means Shutdown else no shutdown"
+    defaultto(:false)
+    newvalues(:false, :true)
+  end
+
   newproperty(:shutdown) do
     desc "The shutdown flag of the interface, true means Shutdown else no shutdown"
     defaultto(:false)
