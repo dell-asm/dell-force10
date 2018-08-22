@@ -36,6 +36,16 @@ module PuppetX::Force10::Model::Interface::Base
       remove { |*_| }
     end
 
+    ifprop(base, :is_lacp) do
+      match do |protocol_txt|
+        if protocol_txt =~ /port-channel-protocol LACP$/
+          :true
+        else
+          :false
+        end
+      end
+    end
+
     ifprop(base, :portchannel) do
       match /^  port-channel (\d+)\s+.*$/
       add do |transport, value|
@@ -51,9 +61,12 @@ module PuppetX::Force10::Model::Interface::Base
           transport.command("no #{remove_command}")
         end
 
-        existing_config=(transport.command("show config") || "").split("\n")
+        existing_config = (transport.command("show config") || "").split("\n")
         # Remove existing port channel if one exists
-        if existing_config.find {|line| line =~ /port-channel/}
+        port_channel = PuppetX::Force10::Model::Interface::Base.get_existing_port_channel(transport, base.name)
+        if port_channel
+          PuppetX::Force10::Model::Interface::Base.update_port_channel(transport, port_channel, base.name.split, true)
+        elsif existing_config.find{|line| line =~ /port-channel-protocol LACP$/}
           transport.command("no port-channel-protocol lacp")
         end
 
@@ -61,12 +74,22 @@ module PuppetX::Force10::Model::Interface::Base
         # 'no switchport' command is still necessary at times, otherwise the lacp
         # commands will fail. Shouldn't hurt to just run the command everytime
         transport.command("no switchport")
-        transport.command("port-channel-protocol lacp")
-        transport.command("port-channel #{value} mode active")
-        transport.command("exit")
+        if base.params[:is_lacp].value == :false
+          PuppetX::Force10::Model::Interface::Base.update_port_channel(transport, value, base.name.split, false)
+        else
+          transport.command("port-channel-protocol lacp")
+          transport.command("port-channel #{value} mode active")
+          transport.command("exit")
+        end
       end
       remove do |transport, value|
-        transport.command("no port-channel-protocol lacp")
+        existing_config = (transport.command("show config") || "").split("\n")
+        port_channel = PuppetX::Force10::Model::Interface::Base.get_existing_port_channel(transport, base.name)
+        if port_channel
+          PuppetX::Force10::Model::Interface::Base.update_port_channel(transport, port_channel, base.name.split, true)
+        elsif existing_config.find{|line| line =~ /port-channel-protocol LACP$/}
+          transport.command("no port-channel-protocol lacp")
+        end
       end
     end
 
@@ -289,6 +312,26 @@ module PuppetX::Force10::Model::Interface::Base
     [untagged_vlan, tagged_vlans]
   end
 
+  def self.get_existing_port_channel(transport, interface_info)
+    transport.command("exit")
+    transport.command("exit")
+    interface_type, interface_id = interface_info.split
+    interface_type = PuppetX::Force10::Model::Base.convert_to_full_name(interface_type)
+    port_channel_config = (transport.command("show interface port-channel br") || "").split("\n")
+    transport.command("conf") # Navigating back to interface context
+    transport.command("interface #{interface_type} #{interface_id}")
+
+    # Only checks if interface is assigned to a static port-channel
+    port_channel_config.each do |line|
+      if line.include?(interface_info)
+       return line.match(/^\s+(\d+).*/)[1]
+      end
+    end
+
+    nil
+  end
+
+
   def self.update_vlans(transport, new_vlans, tagged, interface_info, inclusive_vlans=false)
     vlan_type = tagged ? "tagged" : "untagged"
     opposite_vlan_type = tagged ? "untagged" : "tagged"
@@ -344,6 +387,23 @@ module PuppetX::Force10::Model::Interface::Base
         transport.command("#{vlan_type} #{interface_type} #{interface_id}")
       end
     end
+    # Return transport back to beginning location
+    transport.command("interface #{interface_type} #{interface_id}")
+  end
+
+  def self.update_port_channel(transport, port_channel, interface_info, should_remove, inclusive_vlans=false)
+    interface_type, interface_id = interface_info
+    interface_type = PuppetX::Force10::Model::Base.convert_to_full_name(interface_type)
+    transport.command("exit") # bring us back to config when call from interface context
+    transport.command("interface port-channel #{port_channel}")
+
+    if should_remove
+      transport.command("no channel-member #{interface_type} #{interface_id}")
+    else
+      transport.command("channel-member #{interface_type} #{interface_id}")
+    end
+    transport.command("exit")
+
     # Return transport back to beginning location
     transport.command("interface #{interface_type} #{interface_id}")
   end

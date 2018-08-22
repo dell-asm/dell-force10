@@ -44,6 +44,32 @@ describe PuppetX::Force10::Model::Interface::Base do
     end
   end
 
+  describe "#update_port_channel" do
+    let(:interface_type) { "Tengigabit" }
+    let(:interface_id) { "0/4" }
+    let(:interface_info) { [interface_type, interface_id] }
+
+    it "should remove interface from port-channel" do
+      expect(transport).to receive(:command).with("exit").ordered
+      expect(transport).to receive(:command).with("interface port-channel 3").ordered
+      expect(transport).to receive(:command).with("no channel-member Tengigabit 0/4").ordered
+      expect(transport).to receive(:command).with("exit").ordered
+      expect(transport).to receive(:command).with("interface Tengigabit 0/4").ordered
+
+      base.update_port_channel(transport, 3, interface_info, true)
+    end
+
+    it "should add interface to a port-channel" do
+      expect(transport).to receive(:command).with("exit").ordered
+      expect(transport).to receive(:command).with("interface port-channel 3").ordered
+      expect(transport).to receive(:command).with("channel-member Tengigabit 0/4").ordered
+      expect(transport).to receive(:command).with("exit").ordered
+      expect(transport).to receive(:command).with("interface Tengigabit 0/4").ordered
+
+      base.update_port_channel(transport, 3, interface_info, false)
+    end
+  end
+
   describe "#update_vlans" do
     let(:interface_type) { "Tengigabit" }
     let(:interface_id) { "0/4" }
@@ -219,6 +245,20 @@ describe PuppetX::Force10::Model::Interface::Base do
     end
   end
 
+  describe"get_existing_port_channel" do
+    let(:interface_type) { "Tengigabit" }
+    let(:interface_id) { "0/14" }
+    it "should return a port channel that is configured with current interface" do
+      expect(base).to receive(:name).and_return("Te 0/14")
+      expect(transport).to receive(:command).twice.with("exit")
+      transport.stub(:command).with("show interface port-channel br").and_return("  3  L3  up  00:00:00:00 tf 1/41 (down)")
+      expect(transport).to receive(:command).with("conf")
+      expect(transport).to receive(:command).with("interface Te 0/14")
+
+      base.get_existing_port_channel(transport, base.name)
+    end
+  end
+
   describe "#update_stp"do
     it "should add valid spanning-tree protocol type"do
      expect(transport).to receive(:command).with("config").ordered
@@ -249,7 +289,7 @@ describe PuppetX::Force10::Model::Interface::Base do
        expect(transport).to receive(:command).with("spanning-tree pvst edge-port").ordered
        base.update_stp(transport,"Te 0/14", [],["pvst"])
      end
- end
+  end
 end
 
 
