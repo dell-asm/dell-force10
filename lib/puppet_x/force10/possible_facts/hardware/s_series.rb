@@ -272,6 +272,17 @@ module PuppetX::Force10::PossibleFacts::Hardware::S_series
       cmd CMD_SHOW_LLDP_NEIGHBORS
     end
 
+    base.register_param 'protocol_lldp_enabled' do
+      match do |txt|
+        if txt =~ /LLDP not active./
+          false
+        else
+          true
+        end
+      end
+      cmd CMD_SHOW_LLDP_NEIGHBORS
+    end
+
     base.register_param 'startup_config_version' do
       match /^.*Version\s(.*$)/
       cmd CMD_SHOW_STARTUP_CONFIG_VERSION
