@@ -323,8 +323,8 @@ module PuppetX::Force10::Model::Interface::Base
 
     # Only checks if interface is assigned to a static port-channel
     port_channel_config.each do |line|
-      if line.include?(interface_info)
-       return line.match(/^\s+(\d+).*/)[1]
+      if line.include?(interface_info) && line =~ /^\s+(\d+).*/
+        return $1
       end
     end
 
