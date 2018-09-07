@@ -66,10 +66,12 @@ module PuppetX::Force10::Model::Interface::Base
         port_channel = PuppetX::Force10::Model::Interface::Base.get_existing_port_channel(transport, base.name)
         if port_channel
           PuppetX::Force10::Model::Interface::Base.update_port_channel(transport, port_channel, base.name.split, true)
+          PuppetX::Force10::Model::Interface::Base.remove_port_channel(transport, port_channel, base.name.split)
         elsif existing_config.find{|line| line =~ /port-channel-protocol LACP$/}
           transport.command("no port-channel-protocol lacp")
         end
 
+        next if value == :absent
         # ASM-7311 even if the port doesn't say it's in switchport mode,the
         # 'no switchport' command is still necessary at times, otherwise the lacp
         # commands will fail. Shouldn't hurt to just run the command everytime
@@ -87,9 +89,16 @@ module PuppetX::Force10::Model::Interface::Base
         port_channel = PuppetX::Force10::Model::Interface::Base.get_existing_port_channel(transport, base.name)
         if port_channel
           PuppetX::Force10::Model::Interface::Base.update_port_channel(transport, port_channel, base.name.split, true)
-        elsif existing_config.find{|line| line =~ /port-channel-protocol LACP$/}
-          transport.command("no port-channel-protocol lacp")
+        else
+          existing_config.each do |line|
+            if line =~ / port-channel\s+(\d+)\s+mode\s+active/
+              transport.command("no port-channel-protocol lacp")
+            end
+          end
         end
+
+        # Delete port-channel from switch during remove
+        PuppetX::Force10::Model::Interface::Base.remove_port_channel(transport, port_channel, base.name.split)
       end
     end
 
@@ -323,8 +332,8 @@ module PuppetX::Force10::Model::Interface::Base
 
     # Only checks if interface is assigned to a static port-channel
     port_channel_config.each do |line|
-      if line.include?(interface_info) && line =~ /^\s+(\d+).*/
-        return $1
+      if line =~ /^L*(\s+\S+){4}\s+(\w+\s+\S+).*\)$/ && interface_info == $2
+        return $1 if line =~ /^\s+(\d+).*/
       end
     end
 
@@ -398,11 +407,22 @@ module PuppetX::Force10::Model::Interface::Base
     transport.command("interface port-channel #{port_channel}")
 
     if should_remove
+      Puppet.debug("removing interface #{interface_type} #{interface_id} from #{port_channel}")
       transport.command("no channel-member #{interface_type} #{interface_id}")
     else
       transport.command("channel-member #{interface_type} #{interface_id}")
     end
     transport.command("exit")
+
+    # Return transport back to beginning location
+    transport.command("interface #{interface_type} #{interface_id}")
+  end
+
+  def self.remove_port_channel(transport, port_channel, interface_info)
+    interface_type, interface_id = interface_info
+    interface_type = PuppetX::Force10::Model::Base.convert_to_full_name(interface_type)
+    transport.command("exit") # bring us back to config when call from interface context
+    transport.command("no interface port-channel #{port_channel}")
 
     # Return transport back to beginning location
     transport.command("interface #{interface_type} #{interface_id}")
