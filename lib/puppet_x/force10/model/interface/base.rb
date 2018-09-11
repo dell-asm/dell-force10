@@ -66,7 +66,7 @@ module PuppetX::Force10::Model::Interface::Base
         port_channel = PuppetX::Force10::Model::Interface::Base.get_existing_port_channel(transport, base.name)
         if port_channel
           PuppetX::Force10::Model::Interface::Base.update_port_channel(transport, port_channel, base.name.split, true)
-          PuppetX::Force10::Model::Interface::Base.remove_port_channel(transport, port_channel, base.name.split)
+          PuppetX::Force10::Model::Interface::Base.remove_port_channel(transport, port_channel, base.name.split) unless port_channel == value
         elsif existing_config.find{|line| line =~ /port-channel-protocol LACP$/}
           transport.command("no port-channel-protocol lacp")
         end
