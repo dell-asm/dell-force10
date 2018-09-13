@@ -12,11 +12,12 @@ Puppet::Type.newtype(:force10_interface) do
 
   newproperty(:portchannel) do
     desc "Port-channel Name, which needs to be associated with this interface"
-    defaultto(:absent)
-    newvalues(:absent, /^\d+$/)
+    defaultto("")
+    newvalues("", /^\d+$/)
     validate do |value|
-      next if value == :absent
-      raise ArgumentError, "An invalid 'portchannel' value is entered. The 'portchannel' value must be between 1 and 128." unless value.to_i >= 1 && value.to_i <= 128
+      if value =! "" && (value.to_i <=1 || value.to_i >= 128)
+      raise ArgumentError, "An invalid 'portchannel' value is entered. The 'portchannel' value must be between 1 and 128."
+      end
     end
   end
 

@@ -47,7 +47,12 @@ module PuppetX::Force10::Model::Interface::Base
     end
 
     ifprop(base, :portchannel) do
-      match /^  port-channel (\d+)\s+.*$/
+      match do |txt|
+        unless txt.nil?
+          :false #This is so we always go through the "add" swimlane
+        end
+      end
+
       add do |transport, value|
         Puppet.debug("Need to remove existing configuration")
         PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], true, base.name.split)
@@ -66,12 +71,20 @@ module PuppetX::Force10::Model::Interface::Base
         port_channel = PuppetX::Force10::Model::Interface::Base.get_existing_port_channel(transport, base.name)
         if port_channel
           PuppetX::Force10::Model::Interface::Base.update_port_channel(transport, port_channel, base.name.split, true)
-          PuppetX::Force10::Model::Interface::Base.remove_port_channel(transport, port_channel, base.name.split) unless port_channel == value
-        elsif existing_config.find{|line| line =~ /port-channel-protocol LACP$/}
-          transport.command("no port-channel-protocol lacp")
+        else
+          existing_config.each do |line|
+            if line =~ / port-channel\s+(\d+)\s+mode\s+active/
+              port_channel = $1
+              transport.command("no port-channel-protocol lacp")
+            end
+          end
         end
 
-        next if value == :absent
+        if port_channel && port_channel != value
+          PuppetX::Force10::Model::Interface::Base.remove_port_channel(transport, port_channel, base.name.split)
+        end
+
+        next if value.to_s.empty?
         # ASM-7311 even if the port doesn't say it's in switchport mode,the
         # 'no switchport' command is still necessary at times, otherwise the lacp
         # commands will fail. Shouldn't hurt to just run the command everytime
@@ -84,22 +97,7 @@ module PuppetX::Force10::Model::Interface::Base
           transport.command("exit")
         end
       end
-      remove do |transport, value|
-        existing_config = (transport.command("show config") || "").split("\n")
-        port_channel = PuppetX::Force10::Model::Interface::Base.get_existing_port_channel(transport, base.name)
-        if port_channel
-          PuppetX::Force10::Model::Interface::Base.update_port_channel(transport, port_channel, base.name.split, true)
-        else
-          existing_config.each do |line|
-            if line =~ / port-channel\s+(\d+)\s+mode\s+active/
-              transport.command("no port-channel-protocol lacp")
-            end
-          end
-        end
-
-        # Delete port-channel from switch during remove
-        PuppetX::Force10::Model::Interface::Base.remove_port_channel(transport, port_channel, base.name.split)
-      end
+      default " "
     end
 
     ifprop(base, :shutdown) do
