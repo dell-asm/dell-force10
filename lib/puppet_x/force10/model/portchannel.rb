@@ -38,7 +38,7 @@ class PuppetX::Force10::Model::Portchannel < PuppetX::Force10::Model::Base
 
   def perform_update(is, should)
     case @params[:ensure].value
-    when :present
+      when :present
       transport.command("interface port-channel %s" % name, :prompt => /\(conf-if-po-#{name}\)#\s?\z/n)
       PuppetX::Force10::Sorter.new(@params).tsort.each do |param|
         # We dont want to change undefined values

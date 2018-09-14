@@ -159,6 +159,8 @@ module PuppetX::Force10::Model::Portchannel::Generic
         transport.command("lacp ungroup member-independent port-channel %s" % portchannelval)
         transport.command("interface port-channel %s" % portchannelval)
       end
+      default :false
+
       remove do |transport, _|
         transport.command("exit")
         transport.command("no lacp ungroup member-independent port-channel %s" % portchannelval)
