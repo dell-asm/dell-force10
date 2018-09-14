@@ -38,6 +38,7 @@ class PuppetX::Force10::Model::Base
       next if should[param.name] == :undef || should[param.name].nil?
       params_to_update << param unless is[param.name] == should[param.name]
     end
+
     before_update(params_to_update)
     params_to_update.each do |param|
       param.update(@transport, is[param.name])
