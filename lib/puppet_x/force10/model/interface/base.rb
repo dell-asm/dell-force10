@@ -56,7 +56,7 @@ module PuppetX::Force10::Model::Interface::Base
       add do |transport, value|
         Puppet.debug("Need to remove existing configuration")
         PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], true, base.name.split)
-        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], false, base.name.split)
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], false, base.name.split) unless base.params[:inclusive_vlans].value == :true
 
         existing_config=(transport.command("show config") || "").split("\n").reverse
         updated_config = existing_config.find_all do |x|
