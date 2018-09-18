@@ -54,6 +54,19 @@ module PuppetX::Force10::Model::Interface::Base
       end
 
       add do |transport, value|
+        existing_config = (transport.command("show config") || "").split("\n")
+        port_channel = PuppetX::Force10::Model::Interface::Base.get_existing_port_channel(transport, base.name)
+        existing_lacp = false
+        existing_config.each do |line|
+          if line =~ / port-channel\s+(\d+)\s+mode\s+active/
+            port_channel = $1
+            existing_lacp = true
+          end
+        end
+
+        #skip of there is no existing port-channel and expected value is empty
+        next if port_channel.nil? && value.empty?
+
         Puppet.debug("Need to remove existing configuration")
         PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], true, base.name.split)
         PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], false, base.name.split) unless base.params[:inclusive_vlans].value == :true
@@ -66,15 +79,12 @@ module PuppetX::Force10::Model::Interface::Base
           transport.command("no #{remove_command}")
         end
 
-        existing_config = (transport.command("show config") || "").split("\n")
         # Remove existing port channel if one exists
-        port_channel = PuppetX::Force10::Model::Interface::Base.get_existing_port_channel(transport, base.name)
-        if port_channel
+        if port_channel && !existing_lacp
           PuppetX::Force10::Model::Interface::Base.update_port_channel(transport, port_channel, base.name.split, true)
-        else
+        elsif existing_lacp && port_channel
           existing_config.each do |line|
             if line =~ / port-channel\s+(\d+)\s+mode\s+active/
-              port_channel = $1
               transport.command("no port-channel-protocol lacp")
             end
           end
@@ -258,6 +268,7 @@ module PuppetX::Force10::Model::Interface::Base
         end
       end
       add do |transport, value|
+        next if value.empty? && base.params[:inclusive_vlans].value == :true
         existing_config = transport.command('show config') || ''
         iface = existing_config.match(/\s*interface\s+(.*?)\s*$/)[1]
         type, interface_id = PuppetX::Force10::Model::Interface::Base.parse_interface(iface)
@@ -276,6 +287,7 @@ module PuppetX::Force10::Model::Interface::Base
         end
       end
       add do |transport, value|
+        next if value.empty? && base.params[:inclusive_vlans].value == :true
         existing_config = transport.command('show config') || ''
         iface = existing_config.match(/\s*interface\s+(.*?)\s*$/)[1]
         type, interface_id = PuppetX::Force10::Model::Interface::Base.parse_interface(iface)
@@ -384,7 +396,7 @@ module PuppetX::Force10::Model::Interface::Base
     # Add the new vlans
     if inclusive_vlans == :true && vlan_type == "untagged" &&  current_vlans != new_vlans
       Puppet.debug("Skipping untag vlan configuration as there is an existing untag vlan")
-      raise("Interface %s is already configured with untag vlan %s " % [interface_id, current_vlans])
+      raise("Interface %s is already configured with untag vlan %s " % [interface_id, current_vlans]) unless current_vlans.empty?
     else
       vlans_to_add = new_vlans - current_vlans
       vlans_to_add.each do |vlan|
