@@ -136,7 +136,10 @@ module PuppetX::Force10::Model::Interface::Base
       add do |transport, value|
         transport.command("mtu #{value}")
       end
-      remove { |*_| }
+      default :absent
+      remove do |transport, value|
+        transport.command("no mtu")
+      end
     end
 
     ifprop(base, :dcb_map) do
@@ -175,14 +178,22 @@ module PuppetX::Force10::Model::Interface::Base
     ifprop(base, :portmode) do
       match /^\s*portmode\s+(.*?)\s*$/
       add do |transport, value|
+        if value == :none
+          # Need to remove vlans first else will raise "Port is part of a non-default VLAN"
+          inclusive_vlans = base.params[:inclusive_vlans].value
+          PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], true, base.name.split, inclusive_vlans)
+          PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], false, base.name.split, inclusive_vlans)
+        end
+
         #transport.command("fabric #{value}")
         Puppet.debug('Need to remove existing configuration')
-        existing_config=(transport.command('show config') || '').split("\n").reverse
+        existing_config = (transport.command('show config') || '').split("\n").reverse
         updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning|vlan|portmode|port-channel/)}
         updated_config.each do |remove_command|
           transport.command("no #{remove_command}")
         end
 
+        next if value == :none
         # Switch some times behaves in switchport mode even though "switchport" configuration was not exist on interface
         # which will raise Error on configuring portmode for instance :  Error : Te 0/9 is in Layer 2 LAG
         # By running no switchport before setting portmode will resolve the Error on configuring portmode
@@ -225,15 +236,27 @@ module PuppetX::Force10::Model::Interface::Base
             end
           end
         end
-
       end
-      remove { |*_| }
+
+      remove do |transport, value|
+        transport.command("no switchport") do |out|
+          if out =~ /Error:\s*(.*)/
+            Puppet.debug "#{$1}"
+          end
+        end
+      end
     end
 
     ifprop(base, :portfast) do
       match /^\s*spanning-tree 0 (.*?)\s*$/
       add do |transport, value|
-        transport.command("spanning-tree 0 #{value}")
+
+        if value == :none
+          transport.command("no spanning-tree 0 portfast")
+        else
+          transport.command("spanning-tree 0 #{value}")
+        end
+
       end
       remove { |*_| }
     end
@@ -241,20 +264,36 @@ module PuppetX::Force10::Model::Interface::Base
     ifprop(base, :edge_port) do
       match /^\s*spanning-tree pvst\s+(.*?)\s*$/
       add do |transport, value|
-        value = value.split(",")
-        stp_val = PuppetX::Force10::Model::Interface::Base.show_stp_val(transport, scope_name)
-        PuppetX::Force10::Model::Interface::Base.update_stp(transport, scope_name, stp_val, value)
+        if value == :none
+          existing_config = (transport.command("show config") || "").split("\n").reverse
+          updated_config = existing_config.find_all do |x|
+            x.match(/edge-port/)
+          end
+          updated_config.each do |remove_command|
+            transport.command("no #{remove_command}")
+          end
+        else
+          value = value.split(",")
+          stp_val = PuppetX::Force10::Model::Interface::Base.show_stp_val(transport, scope_name)
+          PuppetX::Force10::Model::Interface::Base.update_stp(transport, scope_name, stp_val, value)
+        end
       end
-      remove { |*_| }
+      remove {|*_|}
     end
 
     ifprop(base, :protocol) do
       match /^\s*protocol\s+(.*?)\s*$/
       add do |transport, value|
-        transport.command('protocol lldp')
-        # Need to come out of the lldp context
-        transport.command('exit')
+        if value == :none
+          transport.command('no protocol lldp')
+        else
+          transport.command('protocol lldp')
+          # Need to come out of the lldp contextis
+          transport.command('exit')
+        end
       end
+      default :none
+
       remove do |transport, value|
         transport.command("no protocol lldp")
       end
