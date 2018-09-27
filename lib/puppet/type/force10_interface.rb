@@ -67,12 +67,12 @@ Puppet::Type.newtype(:force10_interface) do
 
   newproperty(:portmode) do
     desc "property to set the portmode hybrid setting on the port"
-    newvalues('hybrid')
+    newvalues('hybrid', 'none')
   end
 
   newproperty(:portfast) do
     desc "property to set the spanning tree portfast setting"
-    newvalues('portfast')
+    newvalues('portfast', 'none')
   end
 
   newproperty(:edge_port) do
@@ -84,7 +84,7 @@ Puppet::Type.newtype(:force10_interface) do
 
   newproperty(:protocol) do
     desc "property to set protcol lldp"
-    newvalues('lldp')
+    newvalues('lldp', 'none')
   end
 
   newproperty(:tagged_vlan) do
