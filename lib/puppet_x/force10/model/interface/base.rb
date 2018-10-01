@@ -56,7 +56,6 @@ module PuppetX::Force10::Model::Interface::Base
       add do |transport, value|
         existing_config = (transport.command("show config") || "").split("\n")
         port_channel = PuppetX::Force10::Model::Interface::Base.get_existing_port_channel(transport, base.name)
-        inclusive_vlan = base.params[:inclusive_vlans].value
         existing_lacp = false
         existing_config.each do |line|
           if line =~ / port-channel\s+(\d+)\s+mode\s+active/
@@ -65,15 +64,12 @@ module PuppetX::Force10::Model::Interface::Base
           end
         end
 
-        # Further config should be skipped as vlans are managed by port-channel resource
-        next if inclusive_vlan == :true
-
-        #Skip of there is no existing port-channel and expected value is empty
+        #skip of there is no existing port-channel and expected value is empty
         next if port_channel.nil? && value.empty?
 
         Puppet.debug("Need to remove existing configuration")
         PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], true, base.name.split)
-        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], false, base.name.split) unless inclusive_vlan == :true
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], false, base.name.split) unless base.params[:inclusive_vlans].value == :true
 
         existing_config=(transport.command("show config") || "").split("\n").reverse
         updated_config = existing_config.find_all do |x|
@@ -288,7 +284,6 @@ module PuppetX::Force10::Model::Interface::Base
     ifprop(base, :protocol) do
       match /^\s*protocol\s+(.*?)\s*$/
       add do |transport, value|
-        next if base.params[:inclusive_vlans].value == :true
         if value == :none
           transport.command('no protocol lldp')
         else
@@ -300,7 +295,7 @@ module PuppetX::Force10::Model::Interface::Base
       default :none
 
       remove do |transport, value|
-        transport.command("no protocol lldp") unless base.params[:inclusive_vlans].value == :true
+        transport.command("no protocol lldp")
       end
     end
 

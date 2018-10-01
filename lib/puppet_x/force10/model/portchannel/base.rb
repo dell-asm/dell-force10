@@ -15,20 +15,14 @@ module PuppetX::Force10::Model::Portchannel::Base
       cmd "show interface port-channel %s" % base.name
       match do |empty_match|
         unless empty_match.nil?
-          :false #This is so we always go through the "add" swimlane
+          :false  #This is so we always go through the "add" swimlane
         end
       end
       add do |transport, value|
         vlans = PuppetX::Force10::Model::Interface::Base.vlans_from_list(value)
-
-        if value != vlans.first && base.params[:inclusive_vlans].value == :true
-          Puppet.warn("skipping Untagged Vlan config, it cannot be changed when server is deployed and inclusive vlan is true")
-          next
-        end
-
         PuppetX::Force10::Model::Interface::Base.update_vlans(transport, vlans, false, ["po", base.name])
       end
-      remove {|*_|}
+      remove { |*_| }
     end
 
     base.register_scoped(:tagged_vlan, portchannel_scope) do
