@@ -439,8 +439,8 @@ module PuppetX::Force10::Model::Interface::Base
 
     # Add the new vlans
     if inclusive_vlans == :true && vlan_type == "untagged" &&  current_vlans != new_vlans
-      Puppet.debug("Skipping untag vlan configuration as there is an existing untag vlan")
-      raise("Interface %s is already configured with untag vlan %s " % [interface_id, current_vlans]) unless current_vlans.empty?
+      Puppet.warning("Skipping untag vlan configuration as there is an existing untag vlan")
+      Puppet.debug("Interface %s is already configured with untag vlan %s " % [interface_id, current_vlans]) unless current_vlans.empty?
     else
       vlans_to_add = new_vlans - current_vlans
       vlans_to_add.each do |vlan|
