@@ -15,6 +15,7 @@ class PuppetX::Force10::Model::Portchannel < PuppetX::Force10::Model::Base
   end
 
   def update(is = {}, should = {})
+    return if !PuppetX::Force10::Model::Portchannel.port_channel_exists?(transport, name) && should[:inclusive_vlans] == :true
     return unless configuration_changed?(is, should, :keep_ensure => true)
     missing_commands = [is.keys, should.keys].flatten.uniq.sort - @params.keys.flatten.uniq.sort
     missing_commands.delete(:ensure)
@@ -67,6 +68,16 @@ class PuppetX::Force10::Model::Portchannel < PuppetX::Force10::Model::Base
       transport.command("no untagged %s" % full_name)
       transport.command("exit")
     end
+  end
+
+  def self.port_channel_exists?(transport, port_channel)
+    port_channel_config = (transport.command("show interface port-channel br") || "").split("\n")
+    port_channel_config.each do |line|
+      if line =~ /^L*\s+(\d+).*/ && $1 == port_channel
+        return true
+      end
+    end
+    false
   end
 
   def mod_path_base

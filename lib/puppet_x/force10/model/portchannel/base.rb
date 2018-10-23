@@ -25,8 +25,8 @@ module PuppetX::Force10::Model::Portchannel::Base
           Puppet.warning("skipping Untagged Vlan config, it cannot be changed when server is deployed and inclusive vlan is true")
           next
         end
-
-        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, vlans, false, ["po", base.name])
+        inclusive_vlans = base.params[:inclusive_vlans].value
+        PuppetX::Force10::Model::Interface::Base.update_vlans(transport, vlans, false, ["po", base.name], inclusive_vlans)
       end
       remove {|*_|}
     end
@@ -57,4 +57,5 @@ module PuppetX::Force10::Model::Portchannel::Base
       remove { |*_| }
     end
   end
+
 end
