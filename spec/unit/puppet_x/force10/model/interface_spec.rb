@@ -122,5 +122,16 @@ describe PuppetX::Force10::Model::Interface do
       @transport.should_receive(:command).with("spanning-tree pvst edge-port")
       interface.update(old_params, new_params)
     end
+
+    it 'should set interface-port description' do
+      name = 'TenGigabitEthernet 0/7'
+      interface = PuppetX::Force10::Model::Interface.new(@transport, @config, {:name=>name})
+      interface.retrieve
+      old_params = interface.params_to_hash
+      new_params = old_params.dup
+      new_params[:port_desc] = 'rspec_port_description'
+      @transport.should_receive(:command).with("description rspec_port_description")
+      interface.update(old_params, new_params)
+    end
   end
 end

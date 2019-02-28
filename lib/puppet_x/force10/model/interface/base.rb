@@ -114,6 +114,22 @@ module PuppetX::Force10::Model::Interface::Base
       default " "
     end
 
+    ifprop(base, :port_desc) do
+      match do |description_txt|
+        if description_txt.split("\n").any? {|line| line.match(/description\s+(.*)/)}
+          $1
+        end
+      end
+      add do |transport, value|
+        next if value == "none"
+        inclusive_vlan = base.params[:inclusive_vlans].value
+        transport.command("description %s" %[value]) unless inclusive_vlan == :true
+      end
+      remove do |transport, value|
+        transport.command("no description")
+      end
+    end
+
     ifprop(base, :shutdown) do
       shutdowntxt=''
       match do |shutdowntxt|

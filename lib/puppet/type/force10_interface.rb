@@ -37,6 +37,14 @@ Puppet::Type.newtype(:force10_interface) do
     newvalues(:false, :true)
   end
 
+  newproperty(:port_desc) do
+    desc "port description"
+    defaultto(:none)
+    munge do |value|
+      value.to_s
+    end
+  end
+
   newproperty(:shutdown) do
     desc "The shutdown flag of the interface, true means Shutdown else no shutdown"
     defaultto(:false)
