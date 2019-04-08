@@ -460,6 +460,7 @@ module PuppetX::Force10::Model::Interface::Base
     else
       vlans_to_add = new_vlans - current_vlans
       vlans_to_add.each do |vlan|
+        next if vlan == "NONE"
         Puppet.debug("Adding vlan #{vlan} to interface #{interface_id}")
         transport.command("interface vlan #{vlan}")
 
