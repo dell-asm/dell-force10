@@ -123,11 +123,12 @@ module PuppetX::Force10::Model::Interface::Base
       add do |transport, value|
         next if value == "none"
         inclusive_vlan = base.params[:inclusive_vlans].value
-        transport.command("description %s" %[value]) unless inclusive_vlan == :true
+        transport.command("description %s" %[value]) if inclusive_vlan != :true && value != "none"
       end
       remove do |transport, value|
-        transport.command("no description")
+        transport.command("no description") unless base.params[:inclusive_vlans].value == :true
       end
+      default "none"
     end
 
     ifprop(base, :shutdown) do
