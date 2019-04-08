@@ -116,8 +116,8 @@ Puppet::Type.newtype(:force10_portchannel) do
   end
 
   def self.validate_vlan(vlan)
-    all_valid_characters = vlan =~ /^[0-9]+$/
-    unless all_valid_characters && vlan.to_i >= 1 && vlan.to_i <= 4094
+    all_valid_characters = vlan =~ /^[0-9]+$/ || vlan == "NONE"
+    unless (all_valid_characters && vlan.to_i >= 1 && vlan.to_i <= 4094) || vlan == "NONE"
       raise ArgumentError, "An invalid VLAN ID #{vlan} is entered. The VLAN ID must be between 1 and 4094."
     end
   end
