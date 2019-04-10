@@ -74,7 +74,7 @@ module PuppetX::Force10::Model::Portchannel::Generic
         if value == :false
           transport.command("no switchport")
         else
-          transport.command("portmode hybrid")
+          transport.command("portmode hybrid") unless base.params[:untagged_vlan].value == "none"
           transport.command("switchport")
         end
       end
