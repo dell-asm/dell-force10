@@ -21,6 +21,8 @@ module PuppetX::Force10::PossibleFacts::Base
   CMD_SHOW_RUNNING_INTERFACE ="show running-config interface" unless const_defined?(:CMD_SHOW_RUNNING_INTERFACE)
 
   CMD_SNMP_COMMUNITY ="show snmp community" unless const_defined?(:CMD_SNMP_COMMUNITY )
+
+  CMD_VLT_CONFIG_STATUS = "show vlt brief"
       
   def self.register(base)
 
@@ -65,6 +67,20 @@ module PuppetX::Force10::PossibleFacts::Base
     base.transport.host
       end
       cmd CMD_SHOW_IP_INTERFACE_BRIEF
+    end
+
+    base.register_param 'vlt_feature' do
+      match do |txt|
+        status = "disabled"
+        txt.split("\n").each do |line|
+          if line =~ /Domain ID:\s+(\d+)/
+            status = "enabled"
+          end
+        end
+
+        status
+      end
+      cmd CMD_VLT_CONFIG_STATUS
     end
 
     base.register_param '34_port_interfaces' do
