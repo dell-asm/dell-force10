@@ -263,9 +263,11 @@ describe PuppetX::Force10::Model::Interface::Base do
     it "should add valid spanning-tree protocol type"do
      expect(transport).to receive(:command).with("config").ordered
      expect(transport).to receive(:command).with("interface Te 0/14").ordered
+     expect(transport).to receive(:command).with("spanning-tree").ordered
      expect(transport).to receive(:command).with("spanning-tree mvst edge-port").ordered
      expect(transport).to receive(:command).with("config").ordered
      expect(transport).to receive(:command).with("interface Te 0/14").ordered
+     expect(transport).to receive(:command).with("spanning-tree").ordered
      expect(transport).to receive(:command).with("spanning-tree rstp edge-port").ordered
      base.update_stp(transport,"Te 0/14",["pvst"],["mvst","rstp","pvst"])
     end
@@ -279,6 +281,7 @@ describe PuppetX::Force10::Model::Interface::Base do
       expect(transport).to receive(:command).with("no spanning-tree rstp edge-port").ordered
       expect(transport).to receive(:command).with("config").ordered
       expect(transport).to receive(:command).with("interface Te 0/14").ordered
+      expect(transport).to receive(:command).with("spanning-tree").ordered
       expect(transport).to receive(:command).with("spanning-tree pvst edge-port").ordered
       base.update_stp(transport,"Te 0/14", ["mvst","rstp"],["pvst"])
     end
@@ -286,6 +289,7 @@ describe PuppetX::Force10::Model::Interface::Base do
      it "should add parsed spanning-tree protocol type"do
        expect(transport).to receive(:command).with("config").ordered
        expect(transport).to receive(:command).with("interface Te 0/14").ordered
+       expect(transport).to receive(:command).with("spanning-tree").ordered
        expect(transport).to receive(:command).with("spanning-tree pvst edge-port").ordered
        base.update_stp(transport,"Te 0/14", [],["pvst"])
      end
