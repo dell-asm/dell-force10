@@ -53,7 +53,7 @@ module PuppetX::Force10::Model::Portchannel::Generic
         #transport.command("fabric #{value}")
         #Remove existing config to allow to set portmode
         existing_config=(transport.command('show config') || '').split("\n").reverse
-        updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning|vlan|portmode/)}
+        updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning|vlan|portmode|vlt-peer-lag/)}
         updated_config.each do |remove_command|
           transport.command("no #{remove_command}")
         end
