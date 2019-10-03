@@ -564,6 +564,7 @@ module PuppetX::Force10::Model::Interface::Base
     adding_stp.each do |type|
       transport.command("config")
       transport.command("interface #{interface_id}")
+      transport.command("spanning-tree")
       transport.command("spanning-tree #{type} edge-port")
     end
   end
