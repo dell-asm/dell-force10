@@ -42,9 +42,9 @@ class PuppetX::Force10::Model::Interface < PuppetX::Force10::Model::Base
     # Need to remove port from all vlans if we want to change the portmode
     if params_to_update.collect{|param| param.name}.include?(:portmode)
       Puppet.info("Removing all vlans for #{name} so portmode can be set.")
-      transport.command("interface range vlan 1-4094")
-      transport.command("no tagged #{name}")
-      transport.command("no untagged #{name}")
+      transport.command("interface #{name}")
+      PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], true, name.split, params[:inclusive_vlans].value)
+      PuppetX::Force10::Model::Interface::Base.update_vlans(transport, [], false, name.split, params[:inclusive_vlans].value)
       transport.command("exit")
     end
 

@@ -80,6 +80,7 @@ module PuppetX::Force10::Model::Interface::Base
           x.match(/dcb|switchport|spanning|vlan|portmode/)
         end
         updated_config.each do |remove_command|
+          remove_command.gsub!(" no ", " ")
           transport.command("no #{remove_command}")
         end
 
@@ -211,6 +212,7 @@ module PuppetX::Force10::Model::Interface::Base
         existing_config = (transport.command('show config') || '').split("\n").reverse
         updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning|vlan|portmode|port-channel/)}
         updated_config.each do |remove_command|
+          remove_command.gsub!(" no ", " ")
           transport.command("no #{remove_command}")
         end
 
@@ -223,7 +225,7 @@ module PuppetX::Force10::Model::Interface::Base
         updated_config.reverse.each do |remove_command|
           # Can't enable port-channel mode if in portmode hybrid, so skip
           next if remove_command =~ /port-channel/
-
+          remove_command.gsub!(" no ", " ")
           transport.command("#{remove_command}")
         end
       end
@@ -291,6 +293,7 @@ module PuppetX::Force10::Model::Interface::Base
             x.match(/edge-port/)
           end
           updated_config.each do |remove_command|
+            remove_command.gsub!(" no ", " ")
             transport.command("no #{remove_command}")
           end
         else
