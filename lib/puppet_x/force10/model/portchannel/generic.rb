@@ -55,6 +55,7 @@ module PuppetX::Force10::Model::Portchannel::Generic
         existing_config=(transport.command('show config') || '').split("\n").reverse
         updated_config = existing_config.find_all {|x| x.match(/dcb|switchport|spanning|vlan|portmode|vlt-peer-lag/)}
         updated_config.each do |remove_command|
+          remove_command.gsub!(" no ", " ")
           transport.command("no #{remove_command}")
         end
         transport.command('portmode hybrid')
