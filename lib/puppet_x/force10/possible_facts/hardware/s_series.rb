@@ -1,3 +1,4 @@
+require 'asm/util'
 require 'puppet_x/force10/possible_facts'
 require 'puppet_x/force10/possible_facts/hardware'
 
@@ -252,21 +253,19 @@ module PuppetX::Force10::PossibleFacts::Hardware::S_series
 
     #Display LLDP neighbor information for all interfaces in JSON Format
     base.register_param 'remote_device_info' do
-      remote_device_info = []
-      remote_device = nil
       match do |txt|
-        txt.each_line do |line|
-          case line
-          when /^\s+(\S+\s+\d+\/\d+)\s+([^\.{3}\s]+)\s*\.{0,3}(.*)\s+(([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2})).*$/
-            #Puppet.debug("remote device info: #{line}")
-            #remote_device = { :local_interface => $1.strip, :local_port_id => "", :remote_port_id => $3.strip,:remote_mac_address => $4.strip,:remote_system_name => $2.strip}
-            #remote_device_info[remote_device[:local_interface]] = remote_device
-            remote_device = { :interface => $1.strip, :location => $3.strip,:remote_mac => $4.strip,:remote_system_name => $2.strip}
-            remote_device_info << remote_device
-          else
-            next
-          end
+        # strip first line which contains "show lldp neighbors"
+        pos = txt.index("\n")
+        txt = txt[pos + 1, txt.length] if pos
+
+        remote_device_info = ASM::Util.parse_table(txt).map do |neighbor|
+          headers = neighbor.keys
+          { :interface => neighbor[headers[0]],
+            :location => neighbor[headers[2]],
+            :remote_mac => neighbor[headers[3]],
+            :remote_system_name => neighbor[headers[1]]}
         end
+
         remote_device_info.uniq.to_json
       end
       cmd CMD_SHOW_LLDP_NEIGHBORS
